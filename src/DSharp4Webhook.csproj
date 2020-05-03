@@ -1,21 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<AssemblyName>DSharp4Webhook</AssemblyName>
-		<RootNamespace>DSharp4Webhook</RootNamespace>
-		<Description>Webhook client for interacting with Discord Webhook</Description>
-		<TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
-	</PropertyGroup>
+  <Import Project="../DSharp4Webhook.targets" />
 
-	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>CS1573;CS1591</NoWarn>
-		<WarningsAsErrors>true</WarningsAsErrors>
-	</PropertyGroup>
-	
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-	  <PackageReference Include="System.Net.Requests" Version="4.3.0" />
 	</ItemGroup>
 
 </Project>

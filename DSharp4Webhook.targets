@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>DSharp4Webhook</AssemblyName>
+    <RootNamespace>DSharp4Webhook</RootNamespace>
+    <Description>Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support</Description>
+    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+	<PropertyGroup>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <FileVersion>$(Version).0</FileVersion>
+    <LangVersion>7.3</LangVersion>
+    <Optimize>True</Optimize>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DebugType>Portable</DebugType>
+    <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
+    <WarningsAsErrors>true</WarningsAsErrors>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Authors>iRebbok</Authors>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>git://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/iRebbok/DSharp4Webhook</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright 2020</Copyright>
+    <PackageTags>discord;discordapp</PackageTags>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+</Project>
