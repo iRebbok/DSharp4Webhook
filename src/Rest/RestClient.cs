@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest
@@ -17,35 +18,21 @@ namespace DSharp4Webhook.Rest
     /// </summary>
     public class RestClient : IDisposable
     {
-        private readonly IWebhook _webhook;
+        public IWebhook Parent { get; }
 
         // Tracks dispose.
-        private bool _isntDisposed = true;
-
-        /// <summary>
-        ///     Determines whether the client is in the RateLimit.
-        /// </summary>
-        public bool IsRatelimited => MustWait != 0;
-
-        public uint MustWait
-        {
-            get
-            {
-                long unixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                if (ratelimitReset < unixSeconds)
-                    return 0;
-                int value = (int)(ratelimitReset - unixSeconds);
-                return value > 0 ? (uint)value : 0;
-            }
-        }
-
-        // It stores the time in unix format seconds when the reset occurs
-        private long ratelimitReset;
+        private bool _isntDisposed;
+        private RateLimitInfo? _rateLimitInfo;
+        internal readonly SemaphoreSlim _locker;
         private Task _worker;
 
         public RestClient(IWebhook webhook)
         {
-            _webhook = webhook;
+            Parent = webhook;
+            _isntDisposed = true;
+            _rateLimitInfo = null;
+            _locker = new SemaphoreSlim(1, 1);
+
             Start();
         }
 
@@ -54,9 +41,9 @@ namespace DSharp4Webhook.Rest
         /// </summary>
         public bool Start()
         {
-            if (_worker == null || _worker.IsCompleted || _worker.IsFaulted)
+            if (_isntDisposed && (_worker == null || _worker.IsCompleted || _worker.IsFaulted))
             {
-                LogProvider.Log(_webhook, new LogContext(LogSensitivity.VERBOSE, $"Initialize worker", true));
+                LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, "Initialize worker", Parent));
                 _worker = Task.Run(Do);
                 return true;
             }
@@ -67,105 +54,86 @@ namespace DSharp4Webhook.Rest
         {
             while (_isntDisposed)
             {
-                if (_webhook.MessageQueue.TryDequeue(out IWebhookMessage message))
+                if (Parent.MessageQueue.TryDequeue(out IWebhookMessage message))
                 {
+                    LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"[D {message.DeliveryId}] Processing message with content: {(message.Content.Length < 60 ? message.Content : string.Concat(message.Content.Substring(0, 30), "..."))}", Parent));
                     Exception ex;
-                    if ((ex = await ProcessMessage(message.DeliveryId, message, true)) != null)
+                    if ((ex = await ProcessMessage(message, true)) != null)
                     {
-                        // If you are'nt able to filter
+                        // If we are'nt able to filter
                         throw ex;
                     }
+                    LogProvider.Log(new LogContext(LogSensitivity.INFO, $"[D {message.DeliveryId}] The message is sent", Parent));
                 }
                 else
                 {
                     // Passing the execution context to another
                     await Task.Yield();
                     // If there are still no messages, we're waiting
-                    if (_webhook.MessageQueue.Count == 0)
+                    if (Parent.MessageQueue.Count == 0)
                         await Task.Delay(150);
                 }
             }
         }
 
-        public async Task SendMessage(ulong dId, IWebhookMessage message, bool waitForRatelimit = true)
+        public async Task SendMessage(IWebhookMessage message, bool waitForRatelimit = true, uint maxAttempts = 1)
         {
-            uint mustWait;
-            if (waitForRatelimit && (mustWait = MustWait) != 0)
+            RateLimitInfo? ratelimit = GetRateLimit();
+            if (waitForRatelimit && ratelimit.HasValue)
             {
-                // Expect more because the server may send that we are in ratelimit and we still have requests
-                int waitFor = (int)mustWait * 1000 + 2400;
-                LogProvider.Log(_webhook, new LogContext(LogSensitivity.VERBOSE, $"Waiting for {waitFor}ms"));
-                await Task.Delay(waitFor);
+                TimeSpan mustWait = ratelimit.Value.MustWait;
+                if (mustWait != TimeSpan.Zero)
+                {
+                    LogProvider.Log(new LogContext(LogSensitivity.INFO, $"[D {message.DeliveryId}] Saving for {mustWait.TotalMilliseconds}ms", Parent));
+                    await Task.Delay(ratelimit.Value.MustWait).ConfigureAwait(false);
+                }
             }
 
-            // Combining constant data
-            message = (IWebhookMessage)Merger.Merge(_webhook.WebhookData, message);
-            HttpWebRequest request = WebRequest.CreateHttp(_webhook.GetWebhookUrl());
-            // Need 'multipart/form-data' to send files
-            request.ContentType = "application/json";
-            // Uses it for accurate measurement
-            request.Headers.Set("X-RateLimit-Precision", "millisecond");
-            // Identify themselves
-            request.UserAgent = "DSharp4Webhook";
-            // Disabling keep-alive, this is a one-time connection
-            request.KeepAlive = false;
-            request.Method = "POST";
-            byte[] buffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
-            request.GetRequestStream().Write(buffer, 0, buffer.Length);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            ProcessResponce(dId, response);
-            response.Close();
-            response.Dispose();
+            RestResponse[] responses = await RestProvider.POST(Parent.GetWebhookUrl(), JsonConvert.SerializeObject(message), waitForRatelimit, maxAttempts, message.DeliveryId, this);
+            RestResponse lastResponse = responses[responses.Length - 1];
+            SetRateLimit(lastResponse.RateLimit);
+            LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [D {message.DeliveryId}] [A {lastResponse.Attempts}] Successful POST request", Parent));
         }
 
-        // todo: completely rewrite the rate limit provider
-        private void ProcessResponce(ulong dId, HttpWebResponse response)
-        {
-            // First of all we process the RateLimit
-            if (byte.TryParse(response.Headers.Get("x-ratelimit-remaining"), NumberStyles.Any, CultureInfo.InvariantCulture, out byte requestsCanBeMade) && requestsCanBeMade < 2 &&
-                // I don't know why, but it simply didn't parse without additional delimiting arguments
-                decimal.TryParse(response.Headers.Get("x-ratelimit-reset"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal reset))
-            {
-                // Decimal due to using milliseconds instead of seconds
-                ratelimitReset = Convert.ToInt64(Math.Ceiling(reset));
-                LogProvider.Log(_webhook, new LogContext(LogSensitivity.VERBOSE, $"We're retelimited: {ratelimitReset}", true));
-            }
-
-            // Basically a 200 code trigger
-            if (response.StatusCode != HttpStatusCode.NoContent)
-            {
-                LogProvider.Log(_webhook, new LogContext(LogSensitivity.WARN, $"[D {dId}] The status return code is'nt 204: {response.StatusCode}", true));
-                string content;
-                using (Stream responseStream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(responseStream))
-                    content = reader.ReadToEnd();
-                LogProvider.Log(_webhook, new LogContext(LogSensitivity.DEBUG, $"[D {dId}] The returned content:\n{content}"));
-            }
-        }
-
-        public async Task<Exception> ProcessMessage(ulong dId, IWebhookMessage message, bool waitForRatelimit = true)
+        public async Task<Exception> ProcessMessage(IWebhookMessage message, bool waitForRatelimit = true, uint maxAttempts = 1)
         {
             try
             {
-                await SendMessage(dId, message, true);
+                await SendMessage(message, waitForRatelimit, maxAttempts);
             }
             catch (Exception ex)
             {
                 switch (ex)
                 {
                     case WebException webException:
-                        LogProvider.Log(_webhook, new LogContext(LogSensitivity.WARN, $"[D {message.DeliveryId}] WebException {webException.Status}: {webException.Message}", true));
-                        LogProvider.Log(_webhook, new LogContext(LogSensitivity.DEBUG, $"[D {message.DeliveryId}] StackTrace:\n{webException.StackTrace}"));
+                        LogProvider.Log(new LogContext(LogSensitivity.WARN, $"[D {message.DeliveryId}] WebException {(int)webException.Status}-{((int?)(webException.Response as HttpWebResponse)?.StatusCode) ?? -1}: {webException.Message}", Parent));
+                        LogProvider.Log(new LogContext(LogSensitivity.DEBUG, $"[D {message.DeliveryId}] StackTrace:\n{webException.StackTrace}", Parent));
                         return null;
                     default:
-                        LogProvider.Log(_webhook, new LogContext(LogSensitivity.ERROR, $"[D {message.DeliveryId}] Unhandled exception: {ex.Source} {ex.Message}"));
-                        LogProvider.Log(_webhook, new LogContext(LogSensitivity.DEBUG, $"[D {message.DeliveryId}] StackTrace:\n{ex.StackTrace}"));
+                        LogProvider.Log(new LogContext(LogSensitivity.ERROR, $"[D {message.DeliveryId}] Unhandled exception: {ex.Source} {ex.Message}", Parent));
+                        LogProvider.Log(new LogContext(LogSensitivity.DEBUG, $"[D {message.DeliveryId}] StackTrace:\n{ex.StackTrace}", Parent));
                         break;
                 }
 
                 return ex;
             }
             return null;
+        }
+
+        public void SetRateLimit(RateLimitInfo rateLimit)
+        {
+            _locker.Wait();
+            _rateLimitInfo = rateLimit;
+            _locker.Release();
+        }
+
+        public RateLimitInfo? GetRateLimit()
+        {
+            RateLimitInfo? result;
+            _locker.Wait();
+            result = _rateLimitInfo;
+            _locker.Release();
+            return result;
         }
 
         public void Dispose()

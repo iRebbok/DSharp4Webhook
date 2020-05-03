@@ -72,19 +72,19 @@ namespace DSharp4Webhook.Internal
 
         public async Task SendMessage(IWebhookMessage message, bool waitForRatelimit = false)
         {
-            await RestClient.SendMessage(message.DeliveryId, message, waitForRatelimit);
+            await RestClient.SendMessage(message, waitForRatelimit);
         }
 
         public async Task SendMessage(string message, bool isTTS = false, bool waitForRatelimit = false)
         {
             WebhookMessageImpl messageImpl = new WebhookMessageImpl(message, isTTS);
             messageImpl.DeliveryId = NextDeliveryId();
-            await RestClient.SendMessage(messageImpl.DeliveryId, messageImpl, waitForRatelimit);
+            await RestClient.SendMessage(messageImpl, waitForRatelimit);
         }
 
         public async Task<Exception> SendMessageSafely(IWebhookMessage message, bool waitForRatelimit = false)
         {
-            return await RestClient.ProcessMessage(message.DeliveryId, message, waitForRatelimit);
+            return await RestClient.ProcessMessage(message, waitForRatelimit);
         }
     }
 }
