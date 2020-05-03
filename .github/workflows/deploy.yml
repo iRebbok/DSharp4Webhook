@@ -1,0 +1,19 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      '*'
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Pack
+      run: dotnet pack -c Release
+
+    - name: Deploy
+      run: dotnet nuget push src/bin/Release/*.nupkg -s nuget.org -k ${{secrets.NUGET_API_KEY}}
