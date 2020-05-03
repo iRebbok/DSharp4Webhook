@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using System.Net.Cache;
+using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest
 {
@@ -32,7 +32,15 @@ namespace DSharp4Webhook.Rest
             do
             {
                 if (waitRatelimit && responses.Count != 0)
-                    await Task.Delay(responses.Last().RateLimit.MustWait);
+                {
+                    RestResponse response = responses.Last();
+                    TimeSpan mustWait = response.RateLimit.MustWait;
+                    if (mustWait != TimeSpan.Zero)
+                    {
+                        LogProvider.Log(new LogContext(LogSensitivity.INFO, $"[D {dId}] [A {currentAttimpts}] Saving for {mustWait.TotalMilliseconds}ms", client?.Parent));
+                        await Task.Delay(mustWait).ConfigureAwait(false);
+                    }
+                }
 
 
                 HttpWebRequest request = WebRequest.CreateHttp(url);

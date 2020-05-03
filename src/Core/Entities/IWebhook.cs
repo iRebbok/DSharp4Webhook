@@ -1,5 +1,4 @@
-﻿using DSharp4Webhook.Entities;
-using DSharp4Webhook.Logging;
+﻿using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest;
 using System;
 using System.Collections.Concurrent;
@@ -11,7 +10,7 @@ namespace DSharp4Webhook.Core
     ///     Basic webhook.
     /// </summary>
     /// <remarks>
-    ///     The implementation is located in <see cref="WebhookImpl"/>.
+    ///     The implementation is located in <see cref="Webhook"/>.
     /// </remarks>
     public interface IWebhook : IDisposable, ILogable
     {
@@ -30,7 +29,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Constant data that is used when sending a message.
         /// </summary>
-        IBaseWebhookData WebhookData { get; }
+        IWebhookInfo WebhookInfo { get; }
 
         /// <summary>
         ///     Webhook id.
@@ -97,7 +96,7 @@ namespace DSharp4Webhook.Core
         ///     if true, it waits until the rate limit ends, 
         ///     delaying the main thread all the time.
         /// </param>
-        Task SendMessage(IWebhookMessage message, bool waitForRatelimit = false);
+        Task SendMessage(IWebhookMessage message, bool waitForRatelimit = true);
 
         /// <summary>
         ///     Sends a message synchronously blocking the main thread.
@@ -113,7 +112,7 @@ namespace DSharp4Webhook.Core
         ///     if true, it waits until the rate limit ends, 
         ///     delaying the main thread all the time.
         /// </param>
-        Task SendMessage(string message, bool isTTS = false, bool waitForRatelimit = false);
+        Task SendMessage(string message, bool isTTS = false, bool waitForRatelimit = true);
 
         /// <summary>
         ///     Sends a message synchronously blocking the main thread.
@@ -128,7 +127,7 @@ namespace DSharp4Webhook.Core
         ///     if true, it waits until the rate limit ends, 
         ///     delaying the main thread all the time. 
         /// </param>
-        Task<Exception> SendMessageSafely(IWebhookMessage message, bool waitForRatelimit = false);
+        Task<Exception> SendMessageSafely(IWebhookMessage message, bool waitForRatelimit = true);
 
         #endregion
     }

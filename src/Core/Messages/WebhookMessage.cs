@@ -1,19 +1,18 @@
-﻿using DSharp4Webhook.Entities;
-using System;
+﻿using System;
 
-namespace DSharp4Webhook.Internal
+namespace DSharp4Webhook.Core
 {
-    internal class WebhookMessageImpl : WebhookDataImpl, IWebhookMessage
+    public class WebhookMessage : WebhookInfo, IWebhookMessage
     {
         private string content;
         public string Content
         {
-            get => content?.Length <= 2000 && content?.Length > 0 ? content : null;
+            get => content?.Length <= WebhookProvider.MAX_CONTENT_LENGTH && content?.Length > 0 ? content : null;
             set
             {
                 if (value != null)
                 {
-                    if ((value = value.Trim()).Length <= 2000)
+                    if ((value = value.Trim()).Length <= WebhookProvider.MAX_CONTENT_LENGTH)
                         content = value;
                     else
                         throw new ArgumentOutOfRangeException(nameof(Content), "It must not be more than 2000 in length.");
@@ -28,13 +27,15 @@ namespace DSharp4Webhook.Internal
 
         public bool IsTTS { get; set; } = false;
 
-        public WebhookMessageImpl(string message, bool isTTS = false)
+        public WebhookMessage() { }
+
+        public WebhookMessage(string message, bool isTTS = false)
         {
             Content = message;
             IsTTS = isTTS;
         }
 
-        public WebhookMessageImpl(IWebhookMessage source)
+        public WebhookMessage(IWebhookMessage source)
         {
             Username = source.Username;
             AvatarUrl = source.AvatarUrl;

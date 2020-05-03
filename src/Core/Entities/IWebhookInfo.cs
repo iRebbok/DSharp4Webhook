@@ -1,18 +1,17 @@
-﻿using DSharp4Webhook.Internal;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
-namespace DSharp4Webhook.Entities
+namespace DSharp4Webhook.Core
 {
     /// <summary>
     ///     Basic webhook information.
     /// </summary>
     /// <remarks>
     ///     Used as constant information for webhook integration.
-    ///     The implementation is located in <see cref="WebhookDataImpl"/>.
+    ///     The implementation is located in <see cref="WebhookInfo"/>.
     /// </remarks>
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    public interface IBaseWebhookData
+    public interface IWebhookInfo
     {
         /// <summary>
         ///     The nickname of the webhook that will be displayed in the message.

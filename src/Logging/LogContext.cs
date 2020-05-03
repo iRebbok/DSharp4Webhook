@@ -28,7 +28,7 @@ namespace DSharp4Webhook.Logging
         public bool FromWebhook { get => Webhook != null ? true : _fromWebhook != null ? (bool)_fromWebhook : false; }
         private bool? _fromWebhook;
 
-        public LogContext(LogSensitivity sensitivity, string message, IWebhook webhook, bool? fromWebhook = null)
+        public LogContext(LogSensitivity sensitivity, string message, IWebhook webhook = null, bool? fromWebhook = null)
         {
             Sensitivity = sensitivity;
             Message = message;

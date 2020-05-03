@@ -1,13 +1,9 @@
 ﻿using DSharp4Webhook.Core;
-using DSharp4Webhook.Entities;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Util;
 using Newtonsoft.Json;
 using System;
-using System.Globalization;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -89,6 +85,7 @@ namespace DSharp4Webhook.Rest
                 }
             }
 
+            message = (IWebhookMessage)Merger.Merge(Parent.WebhookInfo, message);
             RestResponse[] responses = await RestProvider.POST(Parent.GetWebhookUrl(), JsonConvert.SerializeObject(message), waitForRatelimit, maxAttempts, message.DeliveryId, this);
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse.RateLimit);

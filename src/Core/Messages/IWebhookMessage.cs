@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace DSharp4Webhook.Entities
+namespace DSharp4Webhook.Core
 {
     /// <summary>
     ///     The webhook message.
     /// </summary>
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    public interface IWebhookMessage : IBaseWebhookData
+    public interface IWebhookMessage : IWebhookInfo
     {
         /// <summary>
         ///     The content of the message.

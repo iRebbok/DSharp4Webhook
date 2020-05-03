@@ -1,14 +1,12 @@
-﻿using DSharp4Webhook.Core;
-using DSharp4Webhook.Entities;
-using DSharp4Webhook.Logging;
+﻿using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace DSharp4Webhook.Internal
+namespace DSharp4Webhook.Core
 {
-    internal class WebhookImpl : IWebhook
+    public class Webhook : IWebhook
     {
         public ConcurrentQueue<IWebhookMessage> MessageQueue { get; } = new ConcurrentQueue<IWebhookMessage>();
 
@@ -16,13 +14,13 @@ namespace DSharp4Webhook.Internal
 
         private string _url;
 
-        public IBaseWebhookData WebhookData { get; } = new WebhookDataImpl();
+        public IWebhookInfo WebhookInfo { get; }
 
-        public ulong Id { get; private set; } = 0;
+        public ulong Id { get; private set; }
 
-        public string Token { get; private set; } = null;
+        public string Token { get; private set; }
 
-        public ulong DeliveryId { get; private set; } = 0;
+        public ulong DeliveryId { get; private set; }
 
         public event Action<LogContext> OnLog;
 
@@ -30,12 +28,14 @@ namespace DSharp4Webhook.Internal
 
         public void ResetDeileryId() => DeliveryId = 0;
 
-        public WebhookImpl(ulong id, string token, string url)
+        public Webhook(ulong id, string token, string url)
         {
             Id = id;
             Token = token;
             _url = url;
 
+            DeliveryId = 0L;
+            WebhookInfo = new WebhookInfo();
             RestClient = new RestClient(this);
         }
 
@@ -56,7 +56,7 @@ namespace DSharp4Webhook.Internal
 
         public ulong QueueMessage(IWebhookMessage message)
         {
-            WebhookMessageImpl messageImpl = new WebhookMessageImpl(message);
+            WebhookMessage messageImpl = new WebhookMessage(message);
             messageImpl.DeliveryId = NextDeliveryId();
             MessageQueue.Enqueue(messageImpl);
             return messageImpl.DeliveryId;
@@ -64,25 +64,25 @@ namespace DSharp4Webhook.Internal
 
         public ulong QueueMessage(string message, bool isTTS = false)
         {
-            WebhookMessageImpl messageImpl = new WebhookMessageImpl(message, isTTS);
+            WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
             messageImpl.DeliveryId = NextDeliveryId();
             MessageQueue.Enqueue(messageImpl);
             return messageImpl.DeliveryId;
         }
 
-        public async Task SendMessage(IWebhookMessage message, bool waitForRatelimit = false)
+        public async Task SendMessage(IWebhookMessage message, bool waitForRatelimit = true)
         {
             await RestClient.SendMessage(message, waitForRatelimit);
         }
 
-        public async Task SendMessage(string message, bool isTTS = false, bool waitForRatelimit = false)
+        public async Task SendMessage(string message, bool isTTS = false, bool waitForRatelimit = true)
         {
-            WebhookMessageImpl messageImpl = new WebhookMessageImpl(message, isTTS);
+            WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
             messageImpl.DeliveryId = NextDeliveryId();
             await RestClient.SendMessage(messageImpl, waitForRatelimit);
         }
 
-        public async Task<Exception> SendMessageSafely(IWebhookMessage message, bool waitForRatelimit = false)
+        public async Task<Exception> SendMessageSafely(IWebhookMessage message, bool waitForRatelimit = true)
         {
             return await RestClient.ProcessMessage(message, waitForRatelimit);
         }

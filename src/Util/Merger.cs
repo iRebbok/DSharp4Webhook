@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Entities;
+﻿using DSharp4Webhook.Core;
 
 namespace DSharp4Webhook.Util
 {
@@ -7,7 +7,7 @@ namespace DSharp4Webhook.Util
         /// <summary>
         ///     Combines data about their absence.
         /// </summary>
-        public static IBaseWebhookData Merge(IBaseWebhookData from, IBaseWebhookData to)
+        public static IWebhookInfo Merge(IWebhookInfo from, IWebhookInfo to)
         {
             if (string.IsNullOrEmpty(to.Username) && !string.IsNullOrEmpty(from.Username))
                 to.Username = from.Username;

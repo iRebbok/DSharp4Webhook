@@ -1,5 +1,4 @@
-﻿using DSharp4Webhook.Internal;
-using DSharp4Webhook.Logging;
+﻿using DSharp4Webhook.Logging;
 using System;
 using System.Text.RegularExpressions;
 
@@ -20,15 +19,20 @@ namespace DSharp4Webhook.Core
 
         public static Regex WebhookUrlRegex { get; } = new Regex(@"^.*discordapp\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        public static readonly int MAX_CONTENT_LENGTH = 2000;
+
+        public static readonly int MIX_NICKNAME_LENGHT = 1;
+        public static readonly int MAX_NICKNAME_LENGTH = 80;
+
         public IWebhook CreateWebhook(string url)
         {
             Match match = WebhookUrlRegex.Match(url);
-            return new WebhookImpl(ulong.Parse(match.Groups[1].Value), match.Groups[2].Value, url);
+            return new Webhook(ulong.Parse(match.Groups[1].Value), match.Groups[2].Value, url);
         }
 
         public IWebhook CreateWebhook(ulong id, string token)
         {
-            return new WebhookImpl(id, token, $"https://discordapp.com/api/webhooks/{id}/{token}");
+            return new Webhook(id, token, $"https://discordapp.com/api/webhooks/{id}/{token}");
         }
 
         /// <summary>
