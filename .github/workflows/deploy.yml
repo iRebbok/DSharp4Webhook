@@ -16,5 +16,15 @@ jobs:
       run: dotnet pack -c Release
 
     # PowerShell time
-    - name: Deploy
+    - name: NuGet Deploy
       run: Get-ChildItem -Path "./src/bin/Release/" -Recurse | Where-Object Name -Match ".+\.nupkg" | % {dotnet nuget push $_.FullName -s nuget.org -k ${{secrets.NUGET_API_KEY}}}
+
+    - name: Pack to zip
+      run: Get-ChildItem -Path "src/bin/Release/" -Recurse -Directory | % {Compress-Archive -Path ($_.FullName + "\*") -DestinationPath ($_.FullName + ".zip") -Force}
+
+    - name: GitHub Deploy
+      uses: softprops/action-gh-release@v1
+      with:
+        files: src/bin/Release/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
