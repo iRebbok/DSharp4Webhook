@@ -5,7 +5,7 @@ using System.Globalization;
 namespace DSharp4Webhook.Rest
 {
     /// <remarks>
-    ///     Taken from 
+    ///     Taken from
     ///     https://github.com/discord-net/Discord.Net/blob/ed869bd78b8ae152805b449b759714839b429ce5/src/Discord.Net.Rest/Net/RateLimitInfo.cs
     ///     with some modifications.
     /// </remarks>
