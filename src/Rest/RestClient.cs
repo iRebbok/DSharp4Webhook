@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Core;
+using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Util;
 using Newtonsoft.Json;

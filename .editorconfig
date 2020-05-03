@@ -1,0 +1,29 @@
+# EditorConfig is awesome: https://EditorConfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_size = 4
+indent_style = space
+trim_trailing_whitespace = true
+
+[*.{csproj,json,md,nuspec,yml}]
+indent_size = 2
+indent_style = space
+
+[*.{sln,xml}]
+indent_style = tab
+
+[*.cs]
+dotnet_naming_symbols.without_interfaces_and_fields.applicable_kinds = class, struct, enum, property, method, event, namespace, delegate, type_parameter
+dotnet_naming_symbols.without_interfaces_and_fields.applicable_accessibilities = *
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_style.starts_with_i_pascal_case.required_prefix = I
+dotnet_naming_style.starts_with_i_pascal_case.capitalization = pascal_case
+
+dotnet_naming_style.starts_with_low_line_camel_case.required_prefix = _
+dotnet_naming_style.starts_with_low_line_camel_case.capitalization = camel_case
