@@ -12,8 +12,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    # Get environment variable
+    - name: Environment
+      id: env
+      run: echo ::set-output name=SOURCE_TAG::${env:GITHUB_REF#refs/tags/}
+
     - name: Pack
-      run: dotnet pack -c Release
+      run: dotnet pack -c Release /p:VersionPrefix=${tag} /p:BuildNumber=${env:build}
+      env:
+        tag: ${{steps.env.outputs.SOURCE_TAG}}
+        build: ${{github.run_number}}
 
     # PowerShell time
     - name: NuGet Deploy
@@ -27,4 +35,4 @@ jobs:
       with:
         files: src/bin/Release/*.zip
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
