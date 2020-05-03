@@ -6,7 +6,7 @@ on:
       '*'
 
 jobs:
-  build:
+  deploy:
     runs-on: self-hosted
 
     steps:
@@ -15,5 +15,6 @@ jobs:
     - name: Pack
       run: dotnet pack -c Release
 
+    # PowerShell time
     - name: Deploy
-      run: dotnet nuget push src/bin/Release/*.nupkg -s nuget.org -k ${{secrets.NUGET_API_KEY}}
+      run: Get-ChildItem -Path "./src/bin/Release/" -Recurse | Where-Object Name -Match ".+\.nupkg" | % {dotnet nuget push $_.FullName -s nuget.org -k ${{secrets.NUGET_API_KEY}}}
