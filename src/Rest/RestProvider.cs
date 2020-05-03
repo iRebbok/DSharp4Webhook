@@ -32,15 +32,7 @@ namespace DSharp4Webhook.Rest
             do
             {
                 if (waitRatelimit && responses.Count != 0)
-                {
-                    RestResponse response = responses.Last();
-                    TimeSpan mustWait = response.RateLimit.MustWait;
-                    if (mustWait != TimeSpan.Zero)
-                    {
-                        LogProvider.Log(new LogContext(LogSensitivity.INFO, $"[D {dId}] [A {currentAttimpts}] Saving for {mustWait.TotalMilliseconds}ms", client?.Parent));
-                        await Task.Delay(mustWait).ConfigureAwait(false);
-                    }
-                }
+                    await FollowRateLimit(responses.Last().RateLimit, dId, client);
 
 
                 HttpWebRequest request = WebRequest.CreateHttp(url);
@@ -84,6 +76,16 @@ namespace DSharp4Webhook.Rest
 
             client?._locker.Release();
             return responses.ToArray();
+        }
+
+        public static async Task FollowRateLimit(RateLimitInfo rateLimit, ulong dId = 0, RestClient client = null)
+        {
+            TimeSpan mustWait = rateLimit.MustWait;
+            if (mustWait != TimeSpan.Zero)
+            {
+                LogProvider.Log(new LogContext(LogSensitivity.INFO, $"[D {dId}] Saving for {mustWait.TotalMilliseconds}ms", client?.Parent));
+                await Task.Delay(mustWait).ConfigureAwait(false);
+            }
         }
     }
 }

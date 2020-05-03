@@ -76,14 +76,7 @@ namespace DSharp4Webhook.Rest
         {
             RateLimitInfo? ratelimit = GetRateLimit();
             if (waitForRatelimit && ratelimit.HasValue)
-            {
-                TimeSpan mustWait = ratelimit.Value.MustWait;
-                if (mustWait != TimeSpan.Zero)
-                {
-                    LogProvider.Log(new LogContext(LogSensitivity.INFO, $"[D {message.DeliveryId}] Saving for {mustWait.TotalMilliseconds}ms", Parent));
-                    await Task.Delay(ratelimit.Value.MustWait).ConfigureAwait(false);
-                }
-            }
+                await RestProvider.FollowRateLimit(ratelimit.Value, message.DeliveryId, this);
 
             message = (IWebhookMessage)Merger.Merge(Parent.WebhookInfo, message);
             RestResponse[] responses = await RestProvider.POST(Parent.GetWebhookUrl(), JsonConvert.SerializeObject(message), waitForRatelimit, maxAttempts, message.DeliveryId, this);
