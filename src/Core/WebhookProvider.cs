@@ -1,6 +1,7 @@
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Util;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -9,7 +10,7 @@ namespace DSharp4Webhook.Core
     /// <summary>
     ///     Manager of all created Webhooks.
     /// </summary>
-    public class WebhookProvider
+    public class WebhookProvider : IDisposable
     {
         #region Static Properties
 
@@ -305,6 +306,30 @@ namespace DSharp4Webhook.Core
         }
 
         /// <summary>
+        ///     Tries to remove a webhook from the collection.
+        /// </summary>
+        /// <param name="webhook">
+        ///     Webhook instance.
+        /// </param>
+        ///     true if the webhook was found in the collection and deleted,
+        ///     otherwise false.
+        public bool TryRemoveWebhook(IWebhook webhook)
+        {
+            return webhook != null && _webhooks.Remove(webhook.Id);
+        }
+
+        /// <summary>
+        ///     Returns all webhooks that are contained in the collection.
+        /// </summary>
+        /// <returns>
+        ///     Webhooks instances.
+        /// </returns>
+        public IWebhook[] GetWebhooks()
+        {
+            return _webhooks.Select(x => x.Value).ToArray();
+        }
+
+        /// <summary>
         ///     Sends logs to all subscribed channels.
         /// </summary>
         /// <remarks>
@@ -313,6 +338,14 @@ namespace DSharp4Webhook.Core
         internal void Log(LogContext context)
         {
             OnLog?.Invoke(context);
+        }
+
+        public void Dispose()
+        {
+            // Just take out each webhook and call Dispose from it
+            foreach (var webhook in _webhooks.Values)
+                webhook.Dispose();
+            _webhooks.Clear();
         }
 
         #endregion
