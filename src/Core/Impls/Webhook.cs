@@ -77,6 +77,9 @@ namespace DSharp4Webhook.Core
 
         public void Dispose()
         {
+            // just take out the values until they run out
+            while (_queue.TryDequeue(out _)) { }
+
             RestClient.Dispose();
         }
 
