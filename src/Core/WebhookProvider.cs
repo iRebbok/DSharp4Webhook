@@ -11,7 +11,7 @@ namespace DSharp4Webhook.Core
     /// </summary>
     public class WebhookProvider
     {
-        #region Properties
+        #region Static Properties
 
         /// <summary>
         ///     Regular expression for parsing the webhook Url.
@@ -35,6 +35,10 @@ namespace DSharp4Webhook.Core
         ///     Maximum limit on the number of characters in a nickname.
         /// </summary>
         public static int MAX_NICKNAME_LENGTH { get; } = 80;
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         ///     Unique identifier.
