@@ -1,4 +1,3 @@
-using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest;
 using System;
 using System.Collections.Concurrent;
@@ -8,29 +7,32 @@ namespace DSharp4Webhook.Core
 {
     public class Webhook : IWebhook
     {
-        public ConcurrentQueue<IWebhookMessage> MessageQueue { get; } = new ConcurrentQueue<IWebhookMessage>();
-
-        public RestClient RestClient { get; }
-
-        public IWebhookInfo WebhookInfo { get; }
-
+        public ConcurrentQueue<IWebhookMessage> MessageQueue { get => _queue; }
+        public RestClient RestClient { get => _restClient; }
+        public IWebhookInfo WebhookInfo { get => _webhookInfo; }
+        public WebhookProvider Provider { get => _provider; }
         public ulong Id { get => _id; }
         public string Token { get => _token; }
 
-        public event Action<LogContext> OnLog;
+        private readonly ConcurrentQueue<IWebhookMessage> _queue;
+        private readonly WebhookProvider _provider;
+        private readonly RestClient _restClient;
+        private readonly IWebhookInfo _webhookInfo;
 
-        private readonly string _url;
         private readonly ulong _id;
         private readonly string _token;
+        private readonly string _url;
 
-        public Webhook(ulong id, string token, string url)
+        public Webhook(WebhookProvider provider, ulong id, string token, string url)
         {
             _id = id;
             _token = token;
             _url = url;
 
-            WebhookInfo = new WebhookInfo();
-            RestClient = new RestClient(this);
+            _queue = new ConcurrentQueue<IWebhookMessage>();
+            _webhookInfo = new WebhookInfo();
+            _restClient = new RestClient(this);
+            _provider = provider;
         }
 
         public void Dispose()
@@ -41,11 +43,6 @@ namespace DSharp4Webhook.Core
         public string GetWebhookUrl()
         {
             return _url;
-        }
-
-        public void Log(LogContext context)
-        {
-            OnLog?.Invoke(context);
         }
 
         public void QueueMessage(IWebhookMessage message)

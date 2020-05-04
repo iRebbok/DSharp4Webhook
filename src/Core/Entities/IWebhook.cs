@@ -1,4 +1,3 @@
-using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest;
 using System;
 using System.Collections.Concurrent;
@@ -12,7 +11,7 @@ namespace DSharp4Webhook.Core
     /// <remarks>
     ///     The implementation is located in <see cref="Webhook"/>.
     /// </remarks>
-    public interface IWebhook : IDisposable, ILogable
+    public interface IWebhook : IDisposable
     {
         #region Properties
 
@@ -20,6 +19,12 @@ namespace DSharp4Webhook.Core
         ///     Message queue to send.
         /// </summary>
         ConcurrentQueue<IWebhookMessage> MessageQueue { get; }
+
+        /// <summary>
+        ///     Webhook provider.
+        ///     Is null for webhooks created without a provider.
+        /// </summary>
+        WebhookProvider Provider { get; }
 
         /// <summary>
         ///     Used by RestClient to send data.
