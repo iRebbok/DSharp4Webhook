@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Core;
+using System;
 
 namespace DSharp4Webhook.Logging
 {
@@ -18,22 +18,21 @@ namespace DSharp4Webhook.Logging
         public string Message { get; }
 
         /// <summary>
-        ///     Webhook that called this log.
+        ///     Id of the webhack that triggered this logging.
         /// </summary>
-        public IWebhook Webhook { get; }
+        public ulong WebhookId { get; }
 
         /// <summary>
-        ///     Determines whether the sender is a webhook.
+        ///     Exception that triggered this log.
         /// </summary>
-        public bool FromWebhook { get => Webhook != null ? true : _fromWebhook != null ? (bool)_fromWebhook : false; }
-        private bool? _fromWebhook;
+        public Exception Exception { get; }
 
-        public LogContext(LogSensitivity sensitivity, string message, IWebhook webhook = null, bool? fromWebhook = null)
+        public LogContext(LogSensitivity sensitivity, string message, ulong? webhookId = null, Exception exception = null)
         {
             Sensitivity = sensitivity;
             Message = message;
-            Webhook = webhook;
-            _fromWebhook = fromWebhook;
+            WebhookId = webhookId ?? 0;
+            Exception = exception;
         }
     }
 }

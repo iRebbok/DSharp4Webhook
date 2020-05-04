@@ -14,7 +14,7 @@ namespace DSharp4Webhook.Rest
     /// </summary>
     public class RestClient : IDisposable
     {
-        public IWebhook Source { get => _webhook; }
+        public IWebhook Webhook { get => _webhook; }
 
         // Tracks dispose.
         private bool _isntDisposed;
@@ -40,7 +40,7 @@ namespace DSharp4Webhook.Rest
         {
             if (_isntDisposed && (_worker == null || _worker.IsCompleted || _worker.IsFaulted))
             {
-                LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, "Initialize worker", _webhook));
+                _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, "Initialize worker", _webhook.Id));
                 _worker = Task.Run(Do);
                 return true;
             }
@@ -53,14 +53,15 @@ namespace DSharp4Webhook.Rest
             {
                 if (_webhook.MessageQueue.TryDequeue(out IWebhookMessage message))
                 {
-                    LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"Processing message with content: {(message.Content.Length < 60 ? message.Content : string.Concat(message.Content.Substring(0, 30), "..."))}", _webhook));
+                    _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"Processing message with content: {(message.Content.Length < 60 ? message.Content : string.Concat(message.Content.Substring(0, 30), "..."))}", _webhook.Id));
+
                     Exception ex;
                     if ((ex = await ProcessMessage(message)) != null)
                     {
                         // If we are'nt able to filter
                         throw ex;
                     }
-                    LogProvider.Log(new LogContext(LogSensitivity.INFO, $"The message is sent", _webhook));
+                    _webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, "The message is sent", _webhook.Id, ex));
                 }
                 else
                 {
@@ -83,7 +84,7 @@ namespace DSharp4Webhook.Rest
             RestResponse[] responses = await RestProvider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, this);
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse.RateLimit);
-            LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook));
+            _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook.Id));
         }
 
         public async Task<Exception> ProcessMessage(IWebhookMessage message, uint maxAttempts = 1)
@@ -97,12 +98,12 @@ namespace DSharp4Webhook.Rest
                 switch (ex)
                 {
                     case WebException webException:
-                        LogProvider.Log(new LogContext(LogSensitivity.WARN, $"WebException {(int)webException.Status}-{((int?)(webException.Response as HttpWebResponse)?.StatusCode) ?? -1}: {webException.Message}", _webhook));
-                        LogProvider.Log(new LogContext(LogSensitivity.DEBUG, $"StackTrace:\n{webException.StackTrace}", _webhook));
+                        _webhook.Provider?.Log(new LogContext(LogSensitivity.WARN, $"WebException {(int)webException.Status}-{((int?)(webException.Response as HttpWebResponse)?.StatusCode) ?? -1}: {webException.Message}", _webhook.Id, ex));
+                        _webhook.Provider?.Log(new LogContext(LogSensitivity.DEBUG, $"StackTrace:\n{webException.StackTrace}", _webhook.Id, ex));
                         return null;
                     default:
-                        LogProvider.Log(new LogContext(LogSensitivity.ERROR, $"Unhandled exception: {ex.Source} {ex.Message}", _webhook));
-                        LogProvider.Log(new LogContext(LogSensitivity.DEBUG, $"StackTrace:\n{ex.StackTrace}", _webhook));
+                        _webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, $"Unhandled exception: {ex.Source} {ex.Message}", _webhook.Id, ex));
+                        _webhook.Provider?.Log(new LogContext(LogSensitivity.DEBUG, $"StackTrace:\n{ex.StackTrace}", _webhook.Id, ex));
                         break;
                 }
 

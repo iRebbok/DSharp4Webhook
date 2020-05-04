@@ -78,7 +78,7 @@ namespace DSharp4Webhook.Rest
                     }
                 }
 
-                LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", client?.Source));
+                client?.Webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", client?.Webhook.Id));
 
             } while (responses.Last().StatusCode != HttpStatusCode.NoContent && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true));
 
@@ -91,7 +91,7 @@ namespace DSharp4Webhook.Rest
             TimeSpan mustWait = rateLimit.MustWait;
             if (mustWait != TimeSpan.Zero)
             {
-                LogProvider.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", client?.Source));
+                client?.Webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", client?.Webhook.Id));
                 await Task.Delay(mustWait).ConfigureAwait(false);
             }
         }
