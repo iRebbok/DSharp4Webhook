@@ -26,13 +26,13 @@ namespace DSharp4Webhook.Rest
         /// </param>
         public static async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1, RestClient client = null)
         {
-            return await Raw("POST", url, data, maxAttempts, client);
+            return await Raw("POST", url, maxAttempts, data, client);
         }
 
         /// <remarks>
         ///     Wrapper for all requests.
         /// </remarks>
-        private static async Task<RestResponse[]> Raw(string method, string url, string content = null, uint maxAttempts = 1, RestClient client = null)
+        private static async Task<RestResponse[]> Raw(string method, string url, uint maxAttempts = 1, string content = null, RestClient client = null)
         {
             client?._locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
