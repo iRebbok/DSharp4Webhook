@@ -26,6 +26,11 @@ namespace DSharp4Webhook.Rest
         /// </param>
         public static async Task<RestResponse[]> POST(string url, string data, bool waitRatelimit = true, uint maxAttempts = 1, RestClient client = null)
         {
+            return await Raw("POST", url, data, waitRatelimit, maxAttempts, client);
+        }
+
+        private static async Task<RestResponse[]> Raw(string method, string url, string content = null, bool waitRatelimit = true, uint maxAttempts = 1, RestClient client = null)
+        {
             client?._locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
             uint currentAttimpts = 0;
@@ -37,7 +42,7 @@ namespace DSharp4Webhook.Rest
 
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.CachePolicy = _cachePolicy;
-                request.Method = "POST";
+                request.Method = method;
                 // Identify themselves
                 request.UserAgent = "DSharp4Webhook";
                 // Need 'multipart/form-data' to send files
@@ -54,16 +59,16 @@ namespace DSharp4Webhook.Rest
                 RestResponse restResponse;
                 using (Stream requestStream = request.GetRequestStream())
                 {
-                    StreamUtil.Write(requestStream, data);
+                    StreamUtil.Write(requestStream, content);
 
                     using (HttpWebResponse response = request.GetResponseNoException())
                     {
-                        string content;
+                        string responseContent;
                         using (Stream responseStream = response.GetResponseStream())
-                            content = StreamUtil.Read(responseStream);
+                            responseContent = StreamUtil.Read(responseStream);
                         RateLimitInfo rateLimitInfo = new RateLimitInfo(response.Headers.GetAsDictionary());
                         HttpStatusCode statusCode = response.StatusCode;
-                        restResponse = new RestResponse(statusCode, rateLimitInfo, content, currentAttimpts);
+                        restResponse = new RestResponse(statusCode, rateLimitInfo, responseContent, currentAttimpts);
                         responses.Add(restResponse);
 
                         response.Close();
