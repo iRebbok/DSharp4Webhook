@@ -80,14 +80,14 @@ namespace DSharp4Webhook.Core
         public async Task SendMessageAsync(IWebhookMessage message)
         {
             Checks.CheckWebhookStatus(_status);
-            await RestClient.SendMessage(message);
+            await RestClient.ProcessMessage(message);
         }
 
         public async Task SendMessageAsync(string message, bool isTTS = false)
         {
             Checks.CheckWebhookStatus(_status);
             WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
-            await RestClient.SendMessage(messageImpl);
+            await RestClient.ProcessMessage(messageImpl);
         }
 
         public async Task<Exception> SendMessageAsyncSafely(IWebhookMessage message)

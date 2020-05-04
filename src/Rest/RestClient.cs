@@ -62,8 +62,9 @@ namespace DSharp4Webhook.Rest
                     Exception ex;
                     if ((ex = await ProcessMessage(message)) != null)
                     {
-                        // If we are'nt able to filter
-                        throw ex;
+
+                        if (!(ex is WebException))
+                            throw ex;
                     }
                     _webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, "The message is sent", _webhook.Id, ex));
                 }
@@ -102,6 +103,12 @@ namespace DSharp4Webhook.Rest
             _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook.Id));
         }
 
+        /// <summary>
+        ///     Processes the message properly.
+        /// </summary>
+        /// <returns>
+        ///     Exception if it was thrown.
+        /// </returns>
         public async Task<Exception> ProcessMessage(IWebhookMessage message, uint maxAttempts = 1)
         {
             try
@@ -115,7 +122,7 @@ namespace DSharp4Webhook.Rest
                     case WebException webException:
                         _webhook.Provider?.Log(new LogContext(LogSensitivity.WARN, $"WebException {(int)webException.Status}-{((int?)(webException.Response as HttpWebResponse)?.StatusCode) ?? -1}: {webException.Message}", _webhook.Id, ex));
                         _webhook.Provider?.Log(new LogContext(LogSensitivity.DEBUG, $"StackTrace:\n{webException.StackTrace}", _webhook.Id, ex));
-                        return null;
+                        return ex;
                     default:
                         _webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, $"Unhandled exception: {ex.Source} {ex.Message}", _webhook.Id, ex));
                         _webhook.Provider?.Log(new LogContext(LogSensitivity.DEBUG, $"StackTrace:\n{ex.StackTrace}", _webhook.Id, ex));
