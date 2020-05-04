@@ -57,46 +57,42 @@ namespace DSharp4Webhook.Core
         /// <param name="message">
         ///     A message that can be built via MessageBuilder.
         /// </param>
-        /// <returns>
-        ///     Delivery id of this message.
-        /// </returns>
         void QueueMessage(IWebhookMessage message);
 
         /// <summary>
         ///     Sends a message to the queue.
         /// </summary>
         /// <param name="message">
-        ///     Message as content.
+        ///     Message content.
         /// </param>
         /// <param name="isTTS">
-        ///     Whether the TTS determines this message or not.
+        ///     Manages the voice over of the message to all clients
+        ///     who are in the corresponding channel.
         /// </param>
-        /// <returns>
-        ///     Delivery id of this message.
-        /// </returns>
         void QueueMessage(string message, bool isTTS = false);
 
         /// <summary>
-        ///     Sends a message synchronously blocking the main thread.
+        ///     Sends a message asynchronously out of a queue.
         /// </summary>
         /// <param name="message">
-        ///     A message that can be built via MessageBuilder.
+        ///     A message that can be build via MessageBuilder.
         /// </param>
         Task SendMessageAsync(IWebhookMessage message);
 
         /// <summary>
-        ///     Sends a message synchronously blocking the main thread.
+        ///     Sends a message asynchronously out of a queue.
         /// </summary>
         /// <param name="message">
-        ///     Message as content.
+        ///     Message content.
         /// </param>
         /// <param name="isTTS">
-        ///     Whether the TTS determines this message or not.
+        ///     Manages the voice over of the message to all clients
+        ///     who are in the corresponding channel.
         /// </param>
         Task SendMessageAsync(string message, bool isTTS = false);
 
         /// <summary>
-        ///     Sends a message synchronously blocking the main thread.
+        ///     Sends a message asynchronously out of a queue,
         ///     The only difference is that it does not throw an exception if it occurs, 
         ///     but returns it as a variable.
         /// </summary>
@@ -104,6 +100,21 @@ namespace DSharp4Webhook.Core
         ///     A message that can be built via MessageBuilder.
         /// </param>
         Task<Exception> SendMessageAsyncSafely(IWebhookMessage message);
+
+        /// <summary>
+        ///     Sends a message asynchronously out of a queue,
+        ///     The only difference is that it does not throw an exception if it occurs, 
+        ///     but returns it as a variable.
+        /// </summary>
+        /// <param name="mesage">
+        ///     A message that can be build via MessageBuilder.
+        /// </param>
+        /// <param name="isTTS">
+        ///     Manages the voice over of the message to all clients
+        ///     who are in the corresponding channel.
+        /// </param>
+        /// <returns></returns>
+        Task<Exception> SendMessageAsyncSafely(string mesage, bool isTTS = false);
 
         #endregion
     }

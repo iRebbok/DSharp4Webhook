@@ -74,5 +74,11 @@ namespace DSharp4Webhook.Core
         {
             return await RestClient.ProcessMessage(message);
         }
+
+        public async Task<Exception> SendMessageAsyncSafely(string message, bool isTTS = false)
+        {
+            WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
+            return await RestClient.ProcessMessage(messageImpl);
+        }
     }
 }
