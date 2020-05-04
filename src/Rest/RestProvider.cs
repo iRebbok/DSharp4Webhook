@@ -29,6 +29,9 @@ namespace DSharp4Webhook.Rest
             return await Raw("POST", url, data, maxAttempts, client);
         }
 
+        /// <remarks>
+        ///     Wrapper for all requests.
+        /// </remarks>
         private static async Task<RestResponse[]> Raw(string method, string url, string content = null, uint maxAttempts = 1, RestClient client = null)
         {
             client?._locker.Wait();
