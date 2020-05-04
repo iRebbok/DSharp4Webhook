@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Logging;
+using DSharp4Webhook.Logging;
 using System;
 using System.Text.RegularExpressions;
 

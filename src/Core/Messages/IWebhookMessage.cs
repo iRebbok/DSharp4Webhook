@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 
 namespace DSharp4Webhook.Core
@@ -23,8 +23,5 @@ namespace DSharp4Webhook.Core
         /// </summary>
         [JsonProperty(PropertyName = "tts")]
         bool IsTTS { get; set; }
-
-        // It is'nt being sent
-        ulong DeliveryId { get; }
     }
 }

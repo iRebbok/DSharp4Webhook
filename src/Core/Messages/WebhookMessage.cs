@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharp4Webhook.Core
 {
@@ -22,8 +22,6 @@ namespace DSharp4Webhook.Core
                     content = value;
             }
         }
-
-        public ulong DeliveryId { get; internal set; } = 0L;
 
         public bool IsTTS { get; set; } = false;
 

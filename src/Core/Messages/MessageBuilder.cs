@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Util;
+using DSharp4Webhook.Util;
 using System;
 using System.Text;
 
@@ -9,8 +9,8 @@ namespace DSharp4Webhook.Core
     /// </summary>
     public class MessageBuilder : IDisposable
     {
-        private WebhookMessage _message;
-        private StringBuilder _builder;
+        private readonly WebhookMessage _message;
+        private readonly StringBuilder _builder;
 
         #region Properties
 
@@ -153,7 +153,6 @@ namespace DSharp4Webhook.Core
         public void Dispose()
         {
             _builder.Clear();
-            _message = null;
         }
     }
 }

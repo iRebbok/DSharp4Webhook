@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Logging;
+using DSharp4Webhook.Logging;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace DSharp4Webhook.Rest
         /// <param name="client">
         ///     Responsible solely for logging in the context of a single webhook.
         /// </param>
-        public static async Task<RestResponse[]> POST(string url, string data, bool waitRatelimit = true, uint maxAttempts = 1, ulong dId = 0, RestClient client = null)
+        public static async Task<RestResponse[]> POST(string url, string data, bool waitRatelimit = true, uint maxAttempts = 1, RestClient client = null)
         {
             client?._locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
@@ -32,7 +32,7 @@ namespace DSharp4Webhook.Rest
             do
             {
                 if (waitRatelimit && responses.Count != 0)
-                    await FollowRateLimit(responses.Last().RateLimit, dId, client);
+                    await FollowRateLimit(responses.Last().RateLimit, client);
 
 
                 HttpWebRequest request = WebRequest.CreateHttp(url);
@@ -70,7 +70,7 @@ namespace DSharp4Webhook.Rest
                     }
                 }
 
-                LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"[D {dId}] [A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", client?.Parent));
+                LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", client?.Source));
 
             } while (responses.Last().StatusCode != HttpStatusCode.NoContent && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true));
 
@@ -78,12 +78,12 @@ namespace DSharp4Webhook.Rest
             return responses.ToArray();
         }
 
-        public static async Task FollowRateLimit(RateLimitInfo rateLimit, ulong dId = 0, RestClient client = null)
+        public static async Task FollowRateLimit(RateLimitInfo rateLimit, RestClient client = null)
         {
             TimeSpan mustWait = rateLimit.MustWait;
             if (mustWait != TimeSpan.Zero)
             {
-                LogProvider.Log(new LogContext(LogSensitivity.INFO, $"[D {dId}] Saving for {mustWait.TotalMilliseconds}ms", client?.Parent));
+                LogProvider.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", client?.Source));
                 await Task.Delay(mustWait).ConfigureAwait(false);
             }
         }

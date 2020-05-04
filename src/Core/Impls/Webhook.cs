@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Logging;
+using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest;
 using System;
 using System.Collections.Concurrent;
@@ -12,29 +12,23 @@ namespace DSharp4Webhook.Core
 
         public RestClient RestClient { get; }
 
-        private string _url;
-
         public IWebhookInfo WebhookInfo { get; }
 
-        public ulong Id { get; private set; }
-
-        public string Token { get; private set; }
-
-        public ulong DeliveryId { get; private set; }
+        public ulong Id { get => _id; }
+        public string Token { get => _token; }
 
         public event Action<LogContext> OnLog;
 
-        private ulong NextDeliveryId() => DeliveryId++;
-
-        public void ResetDeileryId() => DeliveryId = 0;
+        private readonly string _url;
+        private readonly ulong _id;
+        private readonly string _token;
 
         public Webhook(ulong id, string token, string url)
         {
-            Id = id;
-            Token = token;
+            _id = id;
+            _token = token;
             _url = url;
 
-            DeliveryId = 0L;
             WebhookInfo = new WebhookInfo();
             RestClient = new RestClient(this);
         }
@@ -54,20 +48,15 @@ namespace DSharp4Webhook.Core
             OnLog?.Invoke(context);
         }
 
-        public ulong QueueMessage(IWebhookMessage message)
+        public void QueueMessage(IWebhookMessage message)
         {
-            WebhookMessage messageImpl = new WebhookMessage(message);
-            messageImpl.DeliveryId = NextDeliveryId();
-            MessageQueue.Enqueue(messageImpl);
-            return messageImpl.DeliveryId;
+            MessageQueue.Enqueue(message);
         }
 
-        public ulong QueueMessage(string message, bool isTTS = false)
+        public void QueueMessage(string message, bool isTTS = false)
         {
             WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
-            messageImpl.DeliveryId = NextDeliveryId();
             MessageQueue.Enqueue(messageImpl);
-            return messageImpl.DeliveryId;
         }
 
         public async Task SendMessage(IWebhookMessage message, bool waitForRatelimit = true)
@@ -78,7 +67,6 @@ namespace DSharp4Webhook.Core
         public async Task SendMessage(string message, bool isTTS = false, bool waitForRatelimit = true)
         {
             WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
-            messageImpl.DeliveryId = NextDeliveryId();
             await RestClient.SendMessage(messageImpl, waitForRatelimit);
         }
 

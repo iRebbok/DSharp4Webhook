@@ -1,4 +1,4 @@
-﻿using DSharp4Webhook.Logging;
+using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest;
 using System;
 using System.Collections.Concurrent;
@@ -41,22 +41,13 @@ namespace DSharp4Webhook.Core
         /// </summary>
         string Token { get; }
 
-        /// <summary>
-        ///     Gets the delivery id of the future message.
-        /// </summary>
-        ulong DeliveryId { get; }
-
         #endregion
 
         #region Methods
 
         /// <summary>
-        ///     Resets the id of the delivery.
-        /// </summary>
-        void ResetDeileryId();
-
-        /// <summary>
-        ///     Gets the webhook Url or null if its data is incorrect.
+        ///     Gets the url of the webhack to interact with the API,
+        ///     and your subdomain Url can be used if it is valid.
         /// </summary>
         string GetWebhookUrl();
 
@@ -69,7 +60,7 @@ namespace DSharp4Webhook.Core
         /// <returns>
         ///     Delivery id of this message.
         /// </returns>
-        ulong QueueMessage(IWebhookMessage message);
+        void QueueMessage(IWebhookMessage message);
 
         /// <summary>
         ///     Sends a message to the queue.
@@ -83,7 +74,7 @@ namespace DSharp4Webhook.Core
         /// <returns>
         ///     Delivery id of this message.
         /// </returns>
-        ulong QueueMessage(string message, bool isTTS = false);
+        void QueueMessage(string message, bool isTTS = false);
 
         /// <summary>
         ///     Sends a message synchronously blocking the main thread.
