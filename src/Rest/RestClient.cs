@@ -30,6 +30,7 @@ namespace DSharp4Webhook.Rest
             _locker = new SemaphoreSlim(1, 1);
             _webhook = webhook;
 
+            // Immediately launch the worker
             Start();
         }
 

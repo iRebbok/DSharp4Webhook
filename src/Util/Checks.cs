@@ -62,5 +62,20 @@ namespace DSharp4Webhook.Util
             if (instance == null)
                 throw new ArgumentNullException(paramName ?? typeof(T).Name, message ?? $"The object {typeof(T).Name} can't be null");
         }
+
+        /// <summary>
+        ///     Checks for an argument.
+        /// </summary>
+        /// <param name="boolean">
+        ///     Specifies whether to throw an exception or not.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        ///     If boolean is true.
+        /// </exception>
+        public static void CheckForArgument(bool boolean, string paramName = null, string message = null)
+        {
+            if (boolean)
+                throw new ArgumentException(message, paramName);
+        }
     }
 }

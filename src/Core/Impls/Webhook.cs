@@ -40,8 +40,29 @@ namespace DSharp4Webhook.Core
         private readonly string _token;
         private readonly string _url;
 
+        /// <summary>
+        ///     Creates a webhook.
+        /// </summary>
+        /// <param name="provider">
+        ///     Provider of the webhook, may be null.
+        /// </param>
+        /// <param name="id">
+        ///     Webhook id.
+        /// </param>
+        /// <param name="token">
+        ///     Webhook token.
+        /// </param>
+        /// <param name="url">
+        ///     Webhook url.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        ///     If the url or token is null or empty.
+        /// </exception>
         public Webhook(WebhookProvider provider, ulong id, string token, string url)
         {
+            Checks.CheckForArgument(string.IsNullOrEmpty(token), nameof(token), "The token can't be empty or null");
+            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url), "The url can't be empty or null");
+
             _id = id;
             _token = token;
             _url = url;
@@ -67,12 +88,14 @@ namespace DSharp4Webhook.Core
         public void QueueMessage(IWebhookMessage message)
         {
             Checks.CheckWebhookStatus(_status);
+            Checks.CheckForNull(message, nameof(message), "The message cannot be null");
             MessageQueue.Enqueue(message);
         }
 
         public void QueueMessage(string message, bool isTTS = false)
         {
             Checks.CheckWebhookStatus(_status);
+            Checks.CheckForArgument(string.IsNullOrWhiteSpace(message), nameof(message), "The message cannot be empty, null, or completely whitespace");
             WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
             MessageQueue.Enqueue(messageImpl);
         }
@@ -80,12 +103,14 @@ namespace DSharp4Webhook.Core
         public async Task SendMessageAsync(IWebhookMessage message)
         {
             Checks.CheckWebhookStatus(_status);
+            Checks.CheckForNull(message, nameof(message), "The message cannot be null");
             await RestClient.ProcessMessage(message);
         }
 
         public async Task SendMessageAsync(string message, bool isTTS = false)
         {
             Checks.CheckWebhookStatus(_status);
+            Checks.CheckForArgument(string.IsNullOrWhiteSpace(message), nameof(message), "The message cannot be empty, null, or completely whitespace");
             WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
             await RestClient.ProcessMessage(messageImpl);
         }
@@ -93,12 +118,14 @@ namespace DSharp4Webhook.Core
         public async Task<Exception> SendMessageAsyncSafely(IWebhookMessage message)
         {
             Checks.CheckWebhookStatus(_status);
+            Checks.CheckForNull(message, nameof(message), "The message cannot be null");
             return await RestClient.ProcessMessage(message);
         }
 
         public async Task<Exception> SendMessageAsyncSafely(string message, bool isTTS = false)
         {
             Checks.CheckWebhookStatus(_status);
+            Checks.CheckForArgument(string.IsNullOrWhiteSpace(message), nameof(message), "The message cannot be empty, null, or completely whitespace");
             WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
             return await RestClient.ProcessMessage(messageImpl);
         }
