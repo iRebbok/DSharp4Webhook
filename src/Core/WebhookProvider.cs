@@ -1,4 +1,5 @@
 using DSharp4Webhook.Logging;
+using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -263,6 +264,40 @@ namespace DSharp4Webhook.Core
                 _webhooks.Add(webhook.Id, webhook);
 
             return allow;
+        }
+
+        /// <summary>
+        ///     Removes the webhook from the collection.
+        /// </summary>
+        /// <param name="id">
+        ///     Webhook id.
+        /// </param>
+        /// <returns>
+        ///     true if the webhook was found in the collection and deleted,
+        ///     otherwise false.
+        /// </returns>
+        public bool RemoveWebhookById(ulong id)
+        {
+            return _webhooks.Remove(id);
+        }
+
+        /// <summary>
+        ///     Removes the webhook from the collection.
+        /// </summary>
+        /// <param name="webhook">
+        ///     Webhook instance.
+        /// </param>
+        /// <returns>
+        ///     true if the webhook was found in the collection and deleted,
+        ///     otherwise false.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        ///     If webhook instance is null.
+        /// </exception>
+        public bool RemoveWebhook(IWebhook webhook)
+        {
+            Checks.CheckForNull(webhook, nameof(webhook), "Webhook cannot be null to delete");
+            return _webhooks.Remove(webhook.Id);
         }
 
         /// <summary>
