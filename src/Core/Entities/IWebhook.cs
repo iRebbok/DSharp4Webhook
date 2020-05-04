@@ -37,6 +37,17 @@ namespace DSharp4Webhook.Core
         IWebhookInfo WebhookInfo { get; }
 
         /// <summary>
+        ///     Webhook statuses.
+        ///     Used for internal processing of rest requests.
+        ///     Do not set the values without the need.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to assign a value to a nonexistent webhook
+        ///     or downgrade the status to an existing webhook.
+        /// </exception>
+        WebhookStatus Status { get; set; }
+
+        /// <summary>
         ///     Webhook id.
         /// </summary>
         ulong Id { get; }
@@ -62,6 +73,9 @@ namespace DSharp4Webhook.Core
         /// <param name="message">
         ///     A message that can be built via MessageBuilder.
         /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
         void QueueMessage(IWebhookMessage message);
 
         /// <summary>
@@ -74,6 +88,9 @@ namespace DSharp4Webhook.Core
         ///     Manages the voice over of the message to all clients
         ///     who are in the corresponding channel.
         /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
         void QueueMessage(string message, bool isTTS = false);
 
         /// <summary>
@@ -82,6 +99,9 @@ namespace DSharp4Webhook.Core
         /// <param name="message">
         ///     A message that can be build via MessageBuilder.
         /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
         Task SendMessageAsync(IWebhookMessage message);
 
         /// <summary>
@@ -94,6 +114,9 @@ namespace DSharp4Webhook.Core
         ///     Manages the voice over of the message to all clients
         ///     who are in the corresponding channel.
         /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
         Task SendMessageAsync(string message, bool isTTS = false);
 
         /// <summary>
@@ -104,6 +127,9 @@ namespace DSharp4Webhook.Core
         /// <param name="message">
         ///     A message that can be built via MessageBuilder.
         /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
         Task<Exception> SendMessageAsyncSafely(IWebhookMessage message);
 
         /// <summary>
@@ -118,7 +144,9 @@ namespace DSharp4Webhook.Core
         ///     Manages the voice over of the message to all clients
         ///     who are in the corresponding channel.
         /// </param>
-        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
         Task<Exception> SendMessageAsyncSafely(string mesage, bool isTTS = false);
 
         #endregion

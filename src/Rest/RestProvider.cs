@@ -1,3 +1,4 @@
+using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Util;
 using System;
@@ -15,6 +16,10 @@ namespace DSharp4Webhook.Rest
     /// </summary>
     public static class RestProvider
     {
+        /// <summary>
+        ///     Caching policy for all requests.
+        ///     Exists to minimize the cost of requests.
+        /// </summary>
         private static readonly RequestCachePolicy _cachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
 
         /// <param name="maxAttempts">
@@ -22,9 +27,10 @@ namespace DSharp4Webhook.Rest
         ///     Set to 0 if you want infinite attempts.
         /// </param>
         /// <param name="client">
-        ///     Responsible solely for logging in the context of a single webhook.
+        ///     The client from which the request was sent may be null,
+        ///     which will add incorrect request processing.
         /// </param>
-        public static async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1, RestClient client = null)
+        public static async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1, IWebhook client = null)
         {
             return await Raw("POST", url, maxAttempts, data, client);
         }
@@ -32,11 +38,16 @@ namespace DSharp4Webhook.Rest
         /// <remarks>
         ///     Wrapper for all requests.
         /// </remarks>
-        private static async Task<RestResponse[]> Raw(string method, string url, uint maxAttempts = 1, string content = null, RestClient client = null)
+        private static async Task<RestResponse[]> Raw(string method, string url, uint maxAttempts = 1, string content = null, IWebhook client = null)
         {
-            client?._locker.Wait();
+            Checks.CheckWebhookStatus(client?.Status ?? WebhookStatus.NOT_CHECKED);
+            client?.RestClient._locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
+
             uint currentAttimpts = 0;
+            // Used to prevent calls if something went wrong
+            bool forceStop = false;
+
             do
             {
                 if (responses.Count != 0)
@@ -75,23 +86,43 @@ namespace DSharp4Webhook.Rest
                         responses.Add(restResponse);
 
                         response.Close();
+
+                        // Processing the necessary status codes
+                        switch (response.StatusCode)
+                        {
+                            case HttpStatusCode.NotFound:
+                                if (client != null)
+                                    client.Status = WebhookStatus.NOT_EXISTING;
+                                client?.Provider?.Log(new LogContext(LogSensitivity.ERROR, $"A REST request of the {method} type returned 404, the webhack does not exist, and we are deleting it...", client?.Id));
+                                forceStop = true;
+                                client?.Dispose();
+                                break;
+                            case HttpStatusCode.BadRequest:
+                                client?.Provider?.Log(new LogContext(LogSensitivity.ERROR, $"A REST request of the {method} type returnet 400, something went wrong...", client?.Id));
+                                forceStop = true;
+                                break;
+                        }
                     }
                 }
 
-                client?.Webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", client?.Webhook.Id));
+                client?.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", client?.Id));
 
-            } while (responses.Last().StatusCode != HttpStatusCode.NoContent && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true));
+                // first of all we check the forceStop so that we don't go any further if
+            } while (!forceStop && (responses.Last().StatusCode != HttpStatusCode.NoContent && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
 
-            client?._locker.Release();
+            client?.RestClient._locker.Release();
             return responses.ToArray();
         }
 
-        public static async Task FollowRateLimit(RateLimitInfo rateLimit, RestClient client = null)
+        /// <summary>
+        ///     Waits for the specified rate limit to expire.
+        /// </summary>
+        public static async Task FollowRateLimit(RateLimitInfo rateLimit, IWebhook client = null)
         {
             TimeSpan mustWait = rateLimit.MustWait;
             if (mustWait != TimeSpan.Zero)
             {
-                client?.Webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", client?.Webhook.Id));
+                client?.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", client?.Id));
                 await Task.Delay(mustWait).ConfigureAwait(false);
             }
         }

@@ -51,6 +51,10 @@ namespace DSharp4Webhook.Rest
         {
             while (_isntDisposed)
             {
+                // Destroyed if the status is unsuitable for iteration
+                if (_webhook.Status == WebhookStatus.NOT_EXISTING)
+                    break;
+
                 if (_webhook.MessageQueue.TryDequeue(out IWebhookMessage message))
                 {
                     _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"Processing message with content: {(message.Content.Length < 60 ? message.Content : string.Concat(message.Content.Substring(0, 30), "..."))}", _webhook.Id));
@@ -74,14 +78,25 @@ namespace DSharp4Webhook.Rest
             }
         }
 
+        /// <summary>
+        ///     Asynchronous sends the specified message.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     If the message is null.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        ///     If the webhook is unusable.
+        /// </exception>
         public async Task SendMessage(IWebhookMessage message, uint maxAttempts = 1)
         {
+            Checks.CheckForNull(message, nameof(message), "The message cannot be null");
+            Checks.CheckWebhookStatus(_webhook.Status);
             RateLimitInfo? ratelimit = GetRateLimit();
             if (ratelimit.HasValue)
-                await RestProvider.FollowRateLimit(ratelimit.Value, this);
+                await RestProvider.FollowRateLimit(ratelimit.Value, _webhook);
 
             message = (IWebhookMessage)Merger.Merge(_webhook.WebhookInfo, message);
-            RestResponse[] responses = await RestProvider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, this);
+            RestResponse[] responses = await RestProvider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, _webhook);
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse.RateLimit);
             _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook.Id));

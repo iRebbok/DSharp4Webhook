@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Linq;
+using DSharp4Webhook.Core;
 
 namespace DSharp4Webhook.Util
 {
@@ -33,6 +34,33 @@ namespace DSharp4Webhook.Util
             if (length1 != null)
                 result += length1.Sum(a => (long)a);
             return result >= safeLength;
+        }
+
+        /// <summary>
+        ///     Checks the status of the webhook.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        ///     If the state is not suitable for interaction.
+        /// </exception>
+        public static void CheckWebhookStatus(WebhookStatus status)
+        {
+            if (status == WebhookStatus.NOT_EXISTING)
+                throw new InvalidOperationException("Attempt to interact with a nonexistent webhook");
+        }
+
+        /// <summary>
+        ///     Checks the object for null.
+        /// </summary>
+        /// <param name="message">
+        ///     Customized message.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///     If the specified object is null.
+        /// </exception>
+        public static void CheckForNull<T>(T instance, string paramName = null, string message = null)
+        {
+            if (instance == null)
+                throw new ArgumentNullException(paramName ?? typeof(T).Name, message ?? $"The object {typeof(T).Name} can't be null");
         }
     }
 }
