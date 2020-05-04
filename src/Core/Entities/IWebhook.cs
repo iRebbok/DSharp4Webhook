@@ -82,12 +82,7 @@ namespace DSharp4Webhook.Core
         /// <param name="message">
         ///     A message that can be built via MessageBuilder.
         /// </param>
-        /// <param name="waitForRatelimit">
-        ///     Defines waiting for the rate limit, 
-        ///     if true, it waits until the rate limit ends, 
-        ///     delaying the main thread all the time.
-        /// </param>
-        Task SendMessage(IWebhookMessage message, bool waitForRatelimit = true);
+        Task SendMessageAsync(IWebhookMessage message);
 
         /// <summary>
         ///     Sends a message synchronously blocking the main thread.
@@ -98,12 +93,7 @@ namespace DSharp4Webhook.Core
         /// <param name="isTTS">
         ///     Whether the TTS determines this message or not.
         /// </param>
-        /// <param name="waitForRatelimit">
-        ///     Defines waiting for the rate limit, 
-        ///     if true, it waits until the rate limit ends, 
-        ///     delaying the main thread all the time.
-        /// </param>
-        Task SendMessage(string message, bool isTTS = false, bool waitForRatelimit = true);
+        Task SendMessageAsync(string message, bool isTTS = false);
 
         /// <summary>
         ///     Sends a message synchronously blocking the main thread.
@@ -113,12 +103,7 @@ namespace DSharp4Webhook.Core
         /// <param name="message">
         ///     A message that can be built via MessageBuilder.
         /// </param>
-        /// <param name="waitForRatelimit">
-        ///     Defines waiting for the rate limit, 
-        ///     if true, it waits until the rate limit ends, 
-        ///     delaying the main thread all the time. 
-        /// </param>
-        Task<Exception> SendMessageSafely(IWebhookMessage message, bool waitForRatelimit = true);
+        Task<Exception> SendMessageAsyncSafely(IWebhookMessage message);
 
         #endregion
     }

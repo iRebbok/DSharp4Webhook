@@ -55,7 +55,7 @@ namespace DSharp4Webhook.Rest
                 {
                     LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"Processing message with content: {(message.Content.Length < 60 ? message.Content : string.Concat(message.Content.Substring(0, 30), "..."))}", _webhook));
                     Exception ex;
-                    if ((ex = await ProcessMessage(message, true)) != null)
+                    if ((ex = await ProcessMessage(message)) != null)
                     {
                         // If we are'nt able to filter
                         throw ex;
@@ -73,24 +73,24 @@ namespace DSharp4Webhook.Rest
             }
         }
 
-        public async Task SendMessage(IWebhookMessage message, bool waitForRatelimit = true, uint maxAttempts = 1)
+        public async Task SendMessage(IWebhookMessage message, uint maxAttempts = 1)
         {
             RateLimitInfo? ratelimit = GetRateLimit();
-            if (waitForRatelimit && ratelimit.HasValue)
+            if (ratelimit.HasValue)
                 await RestProvider.FollowRateLimit(ratelimit.Value, this);
 
             message = (IWebhookMessage)Merger.Merge(_webhook.WebhookInfo, message);
-            RestResponse[] responses = await RestProvider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), waitForRatelimit, maxAttempts, this);
+            RestResponse[] responses = await RestProvider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, this);
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse.RateLimit);
             LogProvider.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook));
         }
 
-        public async Task<Exception> ProcessMessage(IWebhookMessage message, bool waitForRatelimit = true, uint maxAttempts = 1)
+        public async Task<Exception> ProcessMessage(IWebhookMessage message, uint maxAttempts = 1)
         {
             try
             {
-                await SendMessage(message, waitForRatelimit, maxAttempts);
+                await SendMessage(message, maxAttempts);
             }
             catch (Exception ex)
             {

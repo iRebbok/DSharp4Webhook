@@ -24,19 +24,19 @@ namespace DSharp4Webhook.Rest
         /// <param name="client">
         ///     Responsible solely for logging in the context of a single webhook.
         /// </param>
-        public static async Task<RestResponse[]> POST(string url, string data, bool waitRatelimit = true, uint maxAttempts = 1, RestClient client = null)
+        public static async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1, RestClient client = null)
         {
-            return await Raw("POST", url, data, waitRatelimit, maxAttempts, client);
+            return await Raw("POST", url, data, maxAttempts, client);
         }
 
-        private static async Task<RestResponse[]> Raw(string method, string url, string content = null, bool waitRatelimit = true, uint maxAttempts = 1, RestClient client = null)
+        private static async Task<RestResponse[]> Raw(string method, string url, string content = null, uint maxAttempts = 1, RestClient client = null)
         {
             client?._locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
             uint currentAttimpts = 0;
             do
             {
-                if (waitRatelimit && responses.Count != 0)
+                if (responses.Count != 0)
                     await FollowRateLimit(responses.Last().RateLimit, client);
 
 
