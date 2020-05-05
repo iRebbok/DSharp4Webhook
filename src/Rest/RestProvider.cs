@@ -166,6 +166,11 @@ namespace DSharp4Webhook.Rest
             // Processing the necessary status codes
             switch (statusCode)
             {
+                case HttpStatusCode.NoContent:
+                    if (client != null)
+                        client.Status = WebhookStatus.EXISTING;
+                    client?.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", client?.Id));
+                    break;
                 case HttpStatusCode.NotFound:
                     if (client != null)
                         client.Status = WebhookStatus.NOT_EXISTING;
