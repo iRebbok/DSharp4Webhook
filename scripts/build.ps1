@@ -1,8 +1,12 @@
 # Processing incoming arguments
 param (
-    [bool]$IsMono = $false,
+    # the only thing that keeps me from using boolean directly - github actions
+    [string]$IsMonoArg = "",
     [string]$VersionPrefix = ""
 )
+
+$IsMono = $false;
+if ($IsMonoArg -eq "true") { $IsMono = $true }
 
 Write-Output @"
 IsMono=$IsMono
