@@ -20,11 +20,11 @@ jobs:
 
     - name: DSharp4Webhook Build (Mono)
       shell: pwsh
-      run: pwsh ./scripts/build.ps1 $True %{env:REF_TAG}
+      run: pwsh ./scripts/build.ps1 $True ${env:REF_TAG}
 
     - name: DSharp4Webhook Build
       shell: pwsh
-      run: pwsh ./scripts/build.ps1 $False %{env:REF_TAG}
+      run: pwsh ./scripts/build.ps1 $False ${env:REF_TAG}
 
   deploy:
     runs-on: self-hosted
