@@ -1,4 +1,5 @@
-﻿using System.IO;
+#if MONO_BUILD
+using System.IO;
 using System.Text;
 
 namespace DSharp4Webhook.Util
@@ -24,3 +25,4 @@ namespace DSharp4Webhook.Util
         }
     }
 }
+#endif

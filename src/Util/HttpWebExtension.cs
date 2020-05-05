@@ -1,11 +1,9 @@
 #if MONO_BUILD
 using System.Collections.Generic;
 using System.Net;
-#endif
 
 namespace DSharp4Webhook.Util
 {
-#if MONO_BUILD
     public static class HttpWebExtension
     {
         /// <summary>
@@ -34,5 +32,5 @@ namespace DSharp4Webhook.Util
             return result;
         }
     }
-#endif
 }
+#endif
