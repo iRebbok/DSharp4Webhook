@@ -5,7 +5,7 @@ param (
     [string]$VersionPrefix = ""
 )
 
-$IsMono = $false;
+$IsMono = $false
 if ($IsMonoArg -eq "true") { $IsMono = $true }
 
 Write-Output @"
@@ -31,14 +31,14 @@ Invoke-Expression $Expression
 if(!$?) { Exit $LASTEXITCODE }
 
 if (-not (Test-Path $DeployPath)) { New-Item $DeployPath -ItemType "directory" }
-if (-not (Test-Path $DeployFolder)) { New-Item $DeployFolder -ItemType "directory" }
 
 Get-ChildItem -Path "src/bin/Release" -Directory -Recurse | ForEach-Object {
     $FolderName = Split-Path $_.FullName -Leaf
-    if (-not (Test-Path (Join-Path $DeployFolder $FolderName))) { New-Item (Join-Path $DeployFolder $FolderName) -ItemType "directory" }
-    Get-ChildItem -Path $_.FullName -File -Recurse | ForEach-Object { Copy-Item $_.FullName (Join-Path $DeployFolder $FolderName $_.Name) -Force }
+    $FinalFolder = ($IsMono ? ($DeployFolder + '-') : $DeployFolder) + $FolderName
+    if (-not (Test-Path $FinalFolder)) { New-Item $FinalFolder -ItemType "directory" }
+    Get-ChildItem -Path $_.FullName -File -Recurse | ForEach-Object { Copy-Item $_.FullName (Join-Path $FinalFolder $_.Name) -Force }
     # Immediately pack them
-    Compress-Archive -Path ($_.FullName + "\*") -DestinationPath (($IsMono ? ($DeployFolder + '-') : $DeployFolder) + $FolderName + ".zip") -Force
+    Compress-Archive -Path ($_.FullName + "\*") -DestinationPath ($FinalFolder + ".zip") -Force
 }
 
 # Transferring the remaining nuget packages if it's not mono
