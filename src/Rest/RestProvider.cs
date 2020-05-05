@@ -65,6 +65,7 @@ namespace DSharp4Webhook.Rest
                 HttpResponseMessage response = await httpClient.PostAsync(url, new StringContent(data, Encoding.UTF8, "application/json"));
                 RateLimitInfo rateLimitInfo = new RateLimitInfo(response.Headers.ToDictionary(h => h.Key, h => h.Value.FirstOrDefault()));
                 RestResponse restResponse = new RestResponse(response.StatusCode, rateLimitInfo, await response.Content.ReadAsStringAsync(), currentAttimpts);
+                responses.Add(restResponse);
 
                 // Processing the necessary status codes
                 ProcessStatusCode(response.StatusCode, ref forceStop, client);
