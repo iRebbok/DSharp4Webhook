@@ -16,7 +16,7 @@ jobs:
     - name: Set environmental variables
       uses: allenevans/set-env@v1.1.0
       with:
-        REF_TAG: ${{ steps.tag.outputs.result }}
+        REF_TAG: ${{ steps.tag.outputs.SOURCE_TAG }}
 
     - name: DSharp4Webhook Build (Mono)
       shell: pwsh
