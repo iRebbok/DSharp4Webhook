@@ -8,15 +8,10 @@ jobs:
 
     - uses: actions/checkout@v2
 
-    # Get tag or empty string
-    - name: Tagging
-      id: tag
-      run: echo ::set-output name=SOURCE_TAG::${env:GITHUB_REF#refs/tags/}
-
     - name: Set environmental variables
       uses: allenevans/set-env@v1.1.0
       with:
-        REF_TAG: ${{ steps.tag.outputs.SOURCE_TAG }}
+        REF_TAG: ${{env.GITHUB_REF#refs/tags/}}
 
     - name: DSharp4Webhook Build (Mono)
       shell: pwsh
