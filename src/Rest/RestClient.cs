@@ -40,6 +40,9 @@ namespace DSharp4Webhook.Rest
 
 #if !MONO_BUILD
             _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.UserAgent.Clear();
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("DSharp4Webhook");
+            _httpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
 #endif
 
             // Immediately launch the worker
@@ -170,6 +173,9 @@ namespace DSharp4Webhook.Rest
         public void Dispose()
         {
             _isntDisposed = false;
+#if !MONO_BUILD
+            _httpClient.Dispose();
+#endif
         }
     }
 }
