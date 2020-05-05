@@ -4,7 +4,8 @@
     <AssemblyName>DSharp4Webhook</AssemblyName>
     <RootNamespace>DSharp4Webhook</RootNamespace>
     <Description>Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support</Description>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(DefineConstants.Contains('MONO_BUILD')) == 'true'">net471</TargetFrameworks>
+    <TargetFrameworks Condition="$(DefineConstants.Contains('MONO_BUILD')) != 'true'">net471;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 	<PropertyGroup>
     <LangVersion>7.3</LangVersion>
@@ -35,13 +36,5 @@
     <Version>$(VersionPrefix)</Version>
     <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
     <FileVersion>$(VersionPrefix).0</FileVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>$(Version)-$(VersionSuffix)</Version>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(BuildNumber)' != ''">
-    <Version>$(Version)-$(BuildNumber)</Version>
-    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
-    <FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
   </PropertyGroup>
 </Project>

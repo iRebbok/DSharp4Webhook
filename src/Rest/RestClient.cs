@@ -7,6 +7,10 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if !MONO_BUILD
+using System.Net.Http;
+#endif
+
 namespace DSharp4Webhook.Rest
 {
     /// <summary>
@@ -22,6 +26,10 @@ namespace DSharp4Webhook.Rest
         internal readonly SemaphoreSlim _locker;
         private readonly IWebhook _webhook;
         private Task _worker;
+#if !MONO_BUILD
+        // We use HttpClient to prevent memory leaks where mono support is not needed
+        private readonly HttpClient _httpClient;
+#endif
 
         public RestClient(IWebhook webhook)
         {
@@ -29,6 +37,10 @@ namespace DSharp4Webhook.Rest
             _rateLimitInfo = null;
             _locker = new SemaphoreSlim(1, 1);
             _webhook = webhook;
+
+#if !MONO_BUILD
+            _httpClient = new HttpClient();
+#endif
 
             // Immediately launch the worker
             Start();
@@ -98,7 +110,11 @@ namespace DSharp4Webhook.Rest
                 await RestProvider.FollowRateLimit(ratelimit.Value, _webhook);
 
             message = (IWebhookMessage)Merger.Merge(_webhook.WebhookInfo, message);
+#if MONO_BUILD
             RestResponse[] responses = await RestProvider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, _webhook);
+#else
+            RestResponse[] responses = await RestProvider.POST(_httpClient, _webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, _webhook);
+#endif
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse.RateLimit);
             _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook.Id));
