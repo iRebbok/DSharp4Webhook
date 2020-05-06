@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../DSharp4Webhook.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>DSharp4Webhook.Rest.Mono</AssemblyName>
+    <Description>REST module DSharp4Webhook that provides RESTProvider for execution in the Mono environment</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharp4Webhook\DSharp4Webhook.csproj" />
+  </ItemGroup>
+
+</Project>

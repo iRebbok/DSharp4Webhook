@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DSharp4Webhook.Rest;
 
 namespace DSharp4Webhook.Core
 {
@@ -76,6 +77,25 @@ namespace DSharp4Webhook.Core
         }
 
         #region Static Methods
+
+        /// <summary>
+        ///     Sets the rest of the provider to be used in the application.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     Type is null.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        ///     Provider not suitable.
+        /// </exception>
+        /// <remarks>
+        ///     Since dotnet just doesn't load all the assemblies
+        ///     that are inserted in the project if they are not used,
+        ///     I have to use this...
+        /// </remarks>
+        public static void SetRestProvider(Type type)
+        {
+            RestProviderLoader.SetProviderType(type);
+        }
 
         /// <summary>
         ///     Creates a webhack with url without binding to the provider,

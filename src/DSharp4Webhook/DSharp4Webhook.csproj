@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../DSharp4Webhook.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>DSharp4Webhook</AssemblyName>
+    <Description>Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support</Description>
+  </PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+	</ItemGroup>
+
+</Project>

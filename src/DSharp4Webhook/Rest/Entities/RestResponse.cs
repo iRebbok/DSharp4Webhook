@@ -1,6 +1,6 @@
-﻿using System.Net;
+using System.Net;
 
-namespace DSharp4Webhook.Rest
+namespace DSharp4Webhook.Rest.Entities
 {
     /// <summary>
     ///     Structure of the server response containing the required data.

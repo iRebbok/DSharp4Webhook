@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace DSharp4Webhook.Rest
+namespace DSharp4Webhook.Rest.Entities
 {
     /// <remarks>
     ///     Taken from

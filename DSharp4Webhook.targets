@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
   <PropertyGroup>
-    <AssemblyName>DSharp4Webhook</AssemblyName>
     <RootNamespace>DSharp4Webhook</RootNamespace>
-    <Description>Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support</Description>
-    <TargetFrameworks Condition="$(DefineConstants.Contains('MONO_BUILD')) == 'true'">net471</TargetFrameworks>
-    <TargetFrameworks Condition="$(DefineConstants.Contains('MONO_BUILD')) != 'true'">net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+
 	<PropertyGroup>
     <LangVersion>7.3</LangVersion>
     <Optimize>True</Optimize>
@@ -15,6 +14,7 @@
     <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
     <WarningsAsErrors>true</WarningsAsErrors>
 	</PropertyGroup>
+
 	<PropertyGroup>
 		<Authors>iRebbok</Authors>
     <RepositoryType>Git</RepositoryType>
@@ -25,6 +25,7 @@
     <PackageTags>discord;discordapp</PackageTags>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
 		<Optimize>False</Optimize>
 	</PropertyGroup>
@@ -34,7 +35,5 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(VersionPrefix)' != ''">
     <Version>$(VersionPrefix)</Version>
-    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
-    <FileVersion>$(VersionPrefix).0</FileVersion>
   </PropertyGroup>
 </Project>

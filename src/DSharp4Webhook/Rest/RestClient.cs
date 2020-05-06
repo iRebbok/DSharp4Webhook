@@ -1,15 +1,13 @@
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
+using DSharp4Webhook.Rest.Entities;
+using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
 using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-
-#if !MONO_BUILD
-using System.Net.Http;
-#endif
 
 namespace DSharp4Webhook.Rest
 {
@@ -23,13 +21,10 @@ namespace DSharp4Webhook.Rest
         // Tracks dispose.
         private bool _isntDisposed;
         private RateLimitInfo? _rateLimitInfo;
-        internal readonly SemaphoreSlim _locker;
+        private readonly SemaphoreSlim _locker;
         private readonly IWebhook _webhook;
+        private readonly BaseRestProvider _provider;
         private Task _worker;
-#if !MONO_BUILD
-        // We use HttpClient to prevent memory leaks where mono support is not needed
-        private readonly HttpClient _httpClient;
-#endif
 
         public RestClient(IWebhook webhook)
         {
@@ -38,13 +33,7 @@ namespace DSharp4Webhook.Rest
             _locker = new SemaphoreSlim(1, 1);
             _webhook = webhook;
 
-#if !MONO_BUILD
-            _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.UserAgent.Clear();
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("DSharp4Webhook");
-            _httpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
-#endif
-
+            _provider = RestProviderLoader.CreateProvider(this, _locker);
             // Immediately launch the worker
             Start();
         }
@@ -110,14 +99,10 @@ namespace DSharp4Webhook.Rest
             Checks.CheckWebhookStatus(_webhook.Status);
             RateLimitInfo? ratelimit = GetRateLimit();
             if (ratelimit.HasValue)
-                await RestProvider.FollowRateLimit(ratelimit.Value, _webhook);
+                await FollowRateLimit(ratelimit.Value);
 
             message = (IWebhookMessage)Merger.Merge(_webhook.WebhookInfo, message);
-#if MONO_BUILD
-            RestResponse[] responses = await RestProvider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, _webhook);
-#else
-            RestResponse[] responses = await RestProvider.POST(_httpClient, _webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts, _webhook);
-#endif
+            RestResponse[] responses = await _provider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts);
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse.RateLimit);
             _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook.Id));
@@ -170,12 +155,22 @@ namespace DSharp4Webhook.Rest
             return result;
         }
 
+        /// <summary>
+        ///     Waits for the specified rate limit to expire.
+        /// </summary>
+        public async Task FollowRateLimit(RateLimitInfo rateLimit)
+        {
+            TimeSpan mustWait = rateLimit.MustWait;
+            if (mustWait != TimeSpan.Zero)
+            {
+                _webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", _webhook.Id));
+                await Task.Delay(mustWait).ConfigureAwait(false);
+            }
+        }
+
         public void Dispose()
         {
             _isntDisposed = false;
-#if !MONO_BUILD
-            _httpClient.Dispose();
-#endif
         }
     }
 }
