@@ -35,8 +35,10 @@ namespace DSharp4Webhook.Rest.Manipulation
             {
                 case HttpStatusCode.NoContent:
                     if (_restClient.Webhook.Status != WebhookStatus.EXISTING)
+                    {
                         _restClient.Webhook.Status = WebhookStatus.EXISTING;
-                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", _restClient.Webhook.Id));
+                        _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", _restClient.Webhook.Id));
+                    }
                     break;
                 case HttpStatusCode.NotFound:
                     _restClient.Webhook.Status = WebhookStatus.NOT_EXISTING;
