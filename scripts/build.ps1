@@ -1,15 +1,25 @@
 # Processing incoming arguments
 param (
-    # the only thing that keeps me from using boolean directly - github actions
-    [string]$IsMonoArg = "",
     [string]$VersionPrefix = ""
 )
 
-$IsMono = $false
-if ($IsMonoArg -eq "true") { $IsMono = $true }
+# Processing the error if there is one
+function ProcessFailed {
+    param ($Message)
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Output $Message
+        Exit $LASTEXITCODE
+    }
+}
+
+function ProcessDirectory {
+    param ($Path)
+    
+    if (-not (Test-Path $Path -PathType Container)) { New-Item -Path $Path -ItemType Container }
+}
 
 Write-Output @"
-IsMono=$IsMono
 VersionPrefix=$($VersionPrefix.Length -eq 0 ? "None" : $VersionPrefix)
 "@
 
@@ -17,29 +27,30 @@ VersionPrefix=$($VersionPrefix.Length -eq 0 ? "None" : $VersionPrefix)
 Set-Location -Path "$PSScriptRoot\..\"
 
 $DeployPath = Join-Path -Path (Get-Location) -ChildPath "deploy"
-$DeployFolder = Join-Path -Path $DeployPath -ChildPath ($IsMono ? "mono" : "")
 
 Invoke-Expression 'dotnet restore'
+ProcessFailed "Restoring failed"
 
 $Expression = 'dotnet pack -c Release'
 
-if ($IsMono) { $Expression += ' /p:DefineConstants=MONO_BUILD' }
 if ($VersionPrefix.Length -ne 0) { $Expression += ' /p:VersionPrefix=$VersionPrefix' }
 
 Invoke-Expression $Expression
+# This is how we handle errors
+# $? does not work properly with the Invoke-Expression
+ProcessFailed "Build failed"
+Write-Output "Build is successful"
 
-if(!$?) { Exit $LASTEXITCODE }
-
-if (-not (Test-Path $DeployPath)) { New-Item $DeployPath -ItemType "directory" }
-
-Get-ChildItem -Path "src/bin/Release" -Directory -Recurse | ForEach-Object {
-    $FolderName = Split-Path $_.FullName -Leaf
-    $FinalFolder = ($IsMono ? ($DeployFolder + '-') : $DeployFolder) + $FolderName
-    if (-not (Test-Path $FinalFolder)) { New-Item $FinalFolder -ItemType "directory" }
-    Get-ChildItem -Path $_.FullName -File -Recurse | ForEach-Object { Copy-Item $_.FullName (Join-Path $FinalFolder $_.Name) -Force }
-    # Immediately pack them
-    Compress-Archive -Path ($_.FullName + "\*") -DestinationPath ($FinalFolder + ".zip") -Force
+# Packing everything in a deploy folder
+ProcessDirectory $DeployPath
+Get-ChildItem -Path 'src\' -Directory -Recurse | Where-Object { $_.FullName.EndsWith("bin\Release") } | ForEach-Object {
+    $ProjectName = $_.FullName.Split('\')[6]
+    Get-ChildItem -Path $_.FullName -Directory -Recurse | ForEach-Object {
+        $FrameworkName = $_.Name
+        $FinalName = "$ProjectName-$FrameworkName"
+        $OutputPath = Join-Path $DeployPath $FinalName
+        ProcessDirectory $OutputPath
+        Copy-Item -Path ($_.FullName + "\*") -Destination $OutputPath -Recurse -Force
+        Compress-Archive -Path ($_.FullName + "\*") -DestinationPath ($OutputPath + ".zip") -Force
+    }
 }
-
-# Transferring the remaining nuget packages if it's not mono
-if (-not $IsMono) { Get-ChildItem -Path "src/bin/Release" -File | Where-Object Name -Match ".+\.nupkg" | ForEach-Object { Copy-Item $_.FullName (Join-Path $DeployPath $_.Name) -Force } }
