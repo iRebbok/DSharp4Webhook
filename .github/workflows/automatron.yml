@@ -17,13 +17,9 @@ jobs:
       with:
         REF_TAG: ${{steps.tag.outputs.SOURCE_TAG}}
 
-    - name: DSharp4Webhook Build (Mono)
-      shell: pwsh
-      run: pwsh ./scripts/build.ps1 true ${env:REF_TAG}
-
     - name: DSharp4Webhook Build
       shell: pwsh
-      run: pwsh ./scripts/build.ps1 false ${env:REF_TAG}
+      run: pwsh ./scripts/build.ps1 ${env:REF_TAG}
 
   deploy:
     runs-on: self-hosted
@@ -44,4 +40,4 @@ jobs:
     # Push NuGet if it is a tag
     - name: NuGet Push
       if: startsWith(github.ref, 'refs/tags/')
-      run: Get-ChildItem -Path "./deploy/" -File -Recurse | Where-Object Name -Match ".+\.nupkg" | % {dotnet nuget push $_.FullName -s nuget.org -k ${{secrets.NUGET_API_KEY}}}
+      run: Get-ChildItem -Path "src\" -File -Recurse | Where-Object Name -Match ".+\.nupkg" | % {dotnet nuget push $_.FullName -s nuget.org -k ${{secrets.NUGET_API_KEY}}}
