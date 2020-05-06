@@ -44,7 +44,7 @@ Write-Output "Build is successful"
 # Packing everything in a deploy folder
 ProcessDirectory $DeployPath
 Get-ChildItem -Path 'src\' -Directory -Recurse | Where-Object { $_.FullName.EndsWith("bin\Release") } | ForEach-Object {
-    $ProjectName = $_.FullName.Split('\')[6]
+    $ProjectName = $_.FullName.Split('\')[-3]
     Get-ChildItem -Path $_.FullName -Directory -Recurse | ForEach-Object {
         $FrameworkName = $_.Name
         $FinalName = "$ProjectName-$FrameworkName"
