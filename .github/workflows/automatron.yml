@@ -11,7 +11,7 @@ jobs:
     - name: Tag getter
       uses: olegtarasov/get-tag@v2
       with:
-        tagRegex: "(\d+\.\d+\.\d+)"
+        tagRegex: "(\\d+\\.\\d+\\.\\d+)"
 
     - name: DSharp4Webhook Build
       shell: pwsh
