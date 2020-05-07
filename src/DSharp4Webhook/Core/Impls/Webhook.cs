@@ -114,6 +114,14 @@ namespace DSharp4Webhook.Core
             return _info;
         }
 
+        public async Task Delete()
+        {
+            Checks.CheckWebhookStatus(_status);
+            await RestClient.Delete();
+            // Instantly destroy it
+            Dispose();
+        }
+
         public async Task SendMessageAsync(IWebhookMessage message)
         {
             Checks.CheckWebhookStatus(_status);

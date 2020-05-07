@@ -150,6 +150,18 @@ namespace DSharp4Webhook.Rest
             return JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
         }
 
+        /// <summary>
+        ///     Destroys the webhook.
+        /// </summary>
+        public async Task Delete(uint maxAttempts = 1)
+        {
+            await FollowRateLimit(GetRateLimit());
+            RestResponse[] responses = await _provider.DELETE(_webhook.GetWebhookUrl(), maxAttempts);
+            RestResponse lastResponse = responses[responses.Length - 1];
+            // don't need to set a ratelimit, it's not necessary
+            _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful DELETE request", _webhook.Id));
+        }
+
         public void SetRateLimit(RestResponse response)
         {
             SetRateLimit(response.RateLimit);

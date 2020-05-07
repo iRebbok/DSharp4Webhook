@@ -106,6 +106,12 @@ namespace DSharp4Webhook.Core
         Task<IWebhookInfo> GetInfoAsync(bool forceUpdate = false);
 
         /// <summary>
+        ///     Deletes the webhook.
+        ///     Destroys webhook at the level of the discord.
+        /// </summary>
+        Task Delete();
+
+        /// <summary>
         ///     Sends a message asynchronously out of a queue.
         /// </summary>
         /// <param name="message">
