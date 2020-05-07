@@ -34,7 +34,9 @@ namespace DSharp4Webhook.Core
         private readonly WebhookProvider _provider;
         private readonly RestClient _restClient;
         private readonly IWebhookMessageInfo _webhookInfo;
+
         private WebhookStatus _status;
+        private IWebhookInfo _info;
 
         private readonly ulong _id;
         private readonly string _token;
@@ -101,6 +103,15 @@ namespace DSharp4Webhook.Core
             Checks.CheckForArgument(string.IsNullOrWhiteSpace(message), nameof(message), "The message cannot be empty, null, or completely whitespace");
             WebhookMessage messageImpl = new WebhookMessage(message, isTTS);
             MessageQueue.Enqueue(messageImpl);
+        }
+
+        public async Task<IWebhookInfo> GetInfoAsync(bool forceUpdate = false)
+        {
+            Checks.CheckWebhookStatus(_status);
+            if (!forceUpdate && _info != null)
+                return _info;
+            _info = await RestClient.GetInfo();
+            return _info;
         }
 
         public async Task SendMessageAsync(IWebhookMessage message)

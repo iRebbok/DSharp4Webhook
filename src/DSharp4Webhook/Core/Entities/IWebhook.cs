@@ -94,6 +94,17 @@ namespace DSharp4Webhook.Core
         void QueueMessage(string message, bool isTTS = false);
 
         /// <summary>
+        ///     Retrieves information about webhook.
+        /// </summary>
+        /// <param name="forceUpdate">
+        ///     Forced update if it was cached.
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+        Task<IWebhookInfo> GetInfoAsync(bool forceUpdate = false);
+
+        /// <summary>
         ///     Sends a message asynchronously out of a queue.
         /// </summary>
         /// <param name="message">

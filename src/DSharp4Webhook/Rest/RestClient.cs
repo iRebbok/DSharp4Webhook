@@ -14,7 +14,7 @@ namespace DSharp4Webhook.Rest
     /// <summary>
     ///     Rest worker for each webhook.
     /// </summary>
-    public class RestClient : IDisposable
+    public sealed class RestClient : IDisposable
     {
         public IWebhook Webhook { get => _webhook; }
 
@@ -97,14 +97,12 @@ namespace DSharp4Webhook.Rest
         {
             Checks.CheckForNull(message, nameof(message), "The message cannot be null");
             Checks.CheckWebhookStatus(_webhook.Status);
-            RateLimitInfo? ratelimit = GetRateLimit();
-            if (ratelimit.HasValue)
-                await FollowRateLimit(ratelimit.Value);
+            await FollowRateLimit(GetRateLimit());
 
             message = (IWebhookMessage)Merger.Merge(_webhook.WebhookMessageInfo, message);
             RestResponse[] responses = await _provider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts);
             RestResponse lastResponse = responses[responses.Length - 1];
-            SetRateLimit(lastResponse.RateLimit);
+            SetRateLimit(lastResponse);
             _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful POST request", _webhook.Id));
         }
 
@@ -139,6 +137,24 @@ namespace DSharp4Webhook.Rest
             return null;
         }
 
+        /// <summary>
+        ///     Gets information about the webook.
+        /// </summary>
+        public async Task<IWebhookInfo> GetInfo(uint maxAttemps = 1)
+        {
+            await FollowRateLimit(GetRateLimit());
+            RestResponse[] responses = await _provider.GET(_webhook.GetWebhookUrl(), 1);
+            RestResponse lastResponse = responses[responses.Length - 1];
+            SetRateLimit(lastResponse);
+            _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful GET request", _webhook.Id));
+            return JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
+        }
+
+        public void SetRateLimit(RestResponse response)
+        {
+            SetRateLimit(response.RateLimit);
+        }
+
         public void SetRateLimit(RateLimitInfo rateLimit)
         {
             _locker.Wait();
@@ -158,13 +174,16 @@ namespace DSharp4Webhook.Rest
         /// <summary>
         ///     Waits for the specified rate limit to expire.
         /// </summary>
-        public async Task FollowRateLimit(RateLimitInfo rateLimit)
+        public async Task FollowRateLimit(RateLimitInfo? rateLimit)
         {
-            TimeSpan mustWait = rateLimit.MustWait;
-            if (mustWait != TimeSpan.Zero)
+            if (rateLimit.HasValue)
             {
-                _webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", _webhook.Id));
-                await Task.Delay(mustWait).ConfigureAwait(false);
+                TimeSpan mustWait = rateLimit.Value.MustWait;
+                if (mustWait != TimeSpan.Zero)
+                {
+                    _webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Saving for {mustWait.TotalMilliseconds}ms", _webhook.Id));
+                    await Task.Delay(mustWait).ConfigureAwait(false);
+                }
             }
         }
 

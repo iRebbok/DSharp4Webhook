@@ -11,7 +11,7 @@ namespace DSharp4Webhook.Core
     /// <summary>
     ///     Manager of all created Webhooks.
     /// </summary>
-    public class WebhookProvider : IDisposable
+    public sealed class WebhookProvider : IDisposable
     {
         #region Static Properties
 
@@ -24,6 +24,11 @@ namespace DSharp4Webhook.Core
         ///     Base url for generating a webhook url if it was created using a token and id.
         /// </summary>
         public static string WebhookBaseUrl { get; } = "https://discordapp.com/api/webhooks/{0}/{1}";
+
+        /// <summary>
+        ///     Base url for generating avatar urls.
+        /// </summary>
+        public static string WebhookBaseAvatarUrl { get; } = "https://cdn.discordapp.com/avatars/{0}/{1}.{2}";
 
         /// <summary>
         ///     The maximum number of characters that can be sent as a message.
