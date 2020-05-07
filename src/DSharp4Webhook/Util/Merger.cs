@@ -7,7 +7,7 @@ namespace DSharp4Webhook.Util
         /// <summary>
         ///     Combines data about their absence.
         /// </summary>
-        public static IWebhookInfo Merge(IWebhookInfo from, IWebhookInfo to)
+        public static IWebhookMessageInfo Merge(IWebhookMessageInfo from, IWebhookMessageInfo to)
         {
             if (string.IsNullOrEmpty(to.Username) && !string.IsNullOrEmpty(from.Username))
                 to.Username = from.Username;

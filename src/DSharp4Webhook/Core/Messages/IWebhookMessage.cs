@@ -7,7 +7,7 @@ namespace DSharp4Webhook.Core
     ///     The webhook message.
     /// </summary>
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    public interface IWebhookMessage : IWebhookInfo
+    public interface IWebhookMessage : IWebhookMessageInfo
     {
         /// <summary>
         ///     The content of the message.

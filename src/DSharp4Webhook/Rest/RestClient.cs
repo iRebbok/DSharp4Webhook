@@ -101,7 +101,7 @@ namespace DSharp4Webhook.Rest
             if (ratelimit.HasValue)
                 await FollowRateLimit(ratelimit.Value);
 
-            message = (IWebhookMessage)Merger.Merge(_webhook.WebhookInfo, message);
+            message = (IWebhookMessage)Merger.Merge(_webhook.WebhookMessageInfo, message);
             RestResponse[] responses = await _provider.POST(_webhook.GetWebhookUrl(), JsonConvert.SerializeObject(message), maxAttempts);
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse.RateLimit);

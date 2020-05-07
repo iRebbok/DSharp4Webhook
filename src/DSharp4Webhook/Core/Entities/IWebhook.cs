@@ -34,7 +34,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Constant data that is used when sending a message.
         /// </summary>
-        IWebhookInfo WebhookInfo { get; }
+        IWebhookMessageInfo WebhookMessageInfo { get; }
 
         /// <summary>
         ///     Webhook statuses.

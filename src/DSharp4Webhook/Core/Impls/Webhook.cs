@@ -10,7 +10,7 @@ namespace DSharp4Webhook.Core
     {
         public ConcurrentQueue<IWebhookMessage> MessageQueue { get => _queue; }
         public RestClient RestClient { get => _restClient; }
-        public IWebhookInfo WebhookInfo { get => _webhookInfo; }
+        public IWebhookMessageInfo WebhookMessageInfo { get => _webhookInfo; }
         public WebhookProvider Provider { get => _provider; }
         public WebhookStatus Status
         {
@@ -33,7 +33,7 @@ namespace DSharp4Webhook.Core
         private readonly ConcurrentQueue<IWebhookMessage> _queue;
         private readonly WebhookProvider _provider;
         private readonly RestClient _restClient;
-        private readonly IWebhookInfo _webhookInfo;
+        private readonly IWebhookMessageInfo _webhookInfo;
         private WebhookStatus _status;
 
         private readonly ulong _id;
@@ -68,7 +68,7 @@ namespace DSharp4Webhook.Core
             _url = url;
 
             _queue = new ConcurrentQueue<IWebhookMessage>();
-            _webhookInfo = new WebhookInfo();
+            _webhookInfo = new WebhookMessageInfo();
             _restClient = new RestClient(this);
             _provider = provider;
             // Setting the unverified status

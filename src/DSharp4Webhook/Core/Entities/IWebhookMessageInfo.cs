@@ -8,10 +8,10 @@ namespace DSharp4Webhook.Core
     /// </summary>
     /// <remarks>
     ///     Used as constant information for webhook integration.
-    ///     The implementation is located in <see cref="WebhookInfo"/>.
+    ///     The implementation is located in <see cref="WebhookMessageInfo"/>.
     /// </remarks>
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    public interface IWebhookInfo
+    public interface IWebhookMessageInfo
     {
         /// <summary>
         ///     The nickname of the webhook that will be displayed in the message.

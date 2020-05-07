@@ -1,9 +1,9 @@
-﻿
+
 using System;
 
 namespace DSharp4Webhook.Core
 {
-    public class WebhookInfo : IWebhookInfo
+    public class WebhookMessageInfo : IWebhookMessageInfo
     {
         private string username;
         public string Username

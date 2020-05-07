@@ -2,7 +2,7 @@ using System;
 
 namespace DSharp4Webhook.Core
 {
-    public class WebhookMessage : WebhookInfo, IWebhookMessage
+    public class WebhookMessage : WebhookMessageInfo, IWebhookMessage
     {
         private string content;
         public string Content
