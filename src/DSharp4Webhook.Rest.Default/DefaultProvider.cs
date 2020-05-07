@@ -40,7 +40,7 @@ namespace DSharp4Webhook.Rest.Default
         {
             Checks.CheckWebhookStatus(_restClient.Webhook.Status);
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            return await Raw(_httpClient.GetAsync(url), maxAttempts);
+            return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, maxAttempts);
         }
 
         public override async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1)
@@ -49,12 +49,13 @@ namespace DSharp4Webhook.Rest.Default
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
             // Need 'multipart/form-data' to send files
-            return await Raw(_httpClient.PostAsync(url, new StringContent(data, Encoding.UTF8, "application/json")), maxAttempts);
+            return await Raw(_httpClient.PostAsync(url, new StringContent(data, Encoding.UTF8, "application/json")), POST_ALLOWED_STATUSES, maxAttempts);
         }
 
-        private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, uint maxAttempts = 1)
+        private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1)
         {
             Checks.CheckWebhookStatus(_restClient.Webhook.Status);
+            Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
 
             _locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
@@ -73,10 +74,10 @@ namespace DSharp4Webhook.Rest.Default
                 responses.Add(restResponse);
 
                 // Processing the necessary status codes
-                ProcessStatusCode(response.StatusCode, ref forceStop);
+                ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
                 Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _restClient.Webhook.Id));
 
-            } while (!forceStop && (responses.Last().StatusCode != HttpStatusCode.NoContent && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
+            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
 
             _locker.Release();
             return responses.ToArray();

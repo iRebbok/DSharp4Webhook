@@ -2,6 +2,7 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Util;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,9 @@ namespace DSharp4Webhook.Rest.Manipulation
 {
     public abstract class BaseRestProvider
     {
+        protected static readonly HttpStatusCode[] POST_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
+        protected static readonly HttpStatusCode[] GET_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
+
         protected readonly RestClient _restClient;
         protected readonly SemaphoreSlim _locker;
 
@@ -29,27 +33,34 @@ namespace DSharp4Webhook.Rest.Manipulation
         /// <remarks>
         ///     Wrapper for processing returned status codes.
         /// </remarks>
-        protected void ProcessStatusCode(HttpStatusCode statusCode, ref bool forceStop)
+        /// <param name="allowedStatuses">
+        ///     Allowed statuses that are considered successful requests.
+        /// </param>
+        protected void ProcessStatusCode(HttpStatusCode statusCode, ref bool forceStop, HttpStatusCode[] allowedStatuses)
         {
+            Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
+
             switch (statusCode)
             {
-                case HttpStatusCode.NoContent:
-                    if (_restClient.Webhook.Status != WebhookStatus.EXISTING)
-                    {
-                        _restClient.Webhook.Status = WebhookStatus.EXISTING;
-                        _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", _restClient.Webhook.Id));
-                    }
-                    break;
                 case HttpStatusCode.NotFound:
                     _restClient.Webhook.Status = WebhookStatus.NOT_EXISTING;
-                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, "A REST request of the POST type returned 404, the webhack does not exist, and we are deleting it...", _restClient.Webhook.Id));
+                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, "A REST request returned 404, the webhack does not exist, and we are deleting it...", _restClient.Webhook.Id));
                     forceStop = true;
                     _restClient.Webhook.Dispose();
                     break;
                 case HttpStatusCode.BadRequest:
-                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, "A REST request of the POST type returnet 400, something went wrong...", _restClient.Webhook.Id));
+                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, "A REST request returnet 400, something went wrong...", _restClient.Webhook.Id));
                     forceStop = true;
                     break;
+            }
+
+            if (allowedStatuses.Contains(statusCode))
+            {
+                if (_restClient.Webhook.Status != WebhookStatus.EXISTING)
+                {
+                    _restClient.Webhook.Status = WebhookStatus.EXISTING;
+                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", _restClient.Webhook.Id));
+                }
             }
         }
 

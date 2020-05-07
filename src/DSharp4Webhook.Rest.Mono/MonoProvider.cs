@@ -35,19 +35,20 @@ namespace DSharp4Webhook.Rest.Mono
 
         public override async Task<RestResponse[]> GET(string url, uint maxAttempts)
         {
-            return await Raw("GET", url, maxAttempts);
+            return await Raw("GET", url, GET_ALLOWED_STATUSES, maxAttempts);
         }
 
         public override async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1)
         {
-            return await Raw("POST", url, maxAttempts, data);
+            return await Raw("POST", url, POST_ALLOWED_STATUSES, maxAttempts, data);
         }
 
-        private async Task<RestResponse[]> Raw(string method, string url, uint maxAttempts = 1, string data = null)
+        private async Task<RestResponse[]> Raw(string method, string url, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1, string data = null)
         {
             Checks.CheckWebhookStatus(_restClient.Webhook.Status);
             Checks.CheckForArgument(string.IsNullOrEmpty(method), nameof(method));
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
+            Checks.CheckForNull(allowedStatuses);
 
             _locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
@@ -96,13 +97,13 @@ namespace DSharp4Webhook.Rest.Mono
                         response.Close();
 
                         // Processing the necessary status codes
-                        ProcessStatusCode(response.StatusCode, ref forceStop);
+                        ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
                     }
                 }
                 Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _restClient.Webhook.Id));
 
                 // first of all we check the forceStop so that we don't go any further if
-            } while (!forceStop && (responses.Last().StatusCode != HttpStatusCode.NoContent && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
+            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
 
             _locker.Release();
             return responses.ToArray();
