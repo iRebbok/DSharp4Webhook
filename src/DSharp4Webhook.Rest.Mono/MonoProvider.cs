@@ -40,7 +40,19 @@ namespace DSharp4Webhook.Rest.Mono
 
         public override async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1)
         {
+            Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
             return await Raw("POST", url, POST_ALLOWED_STATUSES, maxAttempts, data);
+        }
+
+        public override async Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1)
+        {
+            return await Raw("DELETE", url, DELETE_ALLOWED_STATUSES, maxAttempts);
+        }
+
+        public override async Task<RestResponse[]> PATCH(string url, string data, uint maxAttempts = 1)
+        {
+            Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
+            return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, maxAttempts, data);
         }
 
         private async Task<RestResponse[]> Raw(string method, string url, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1, string data = null)
@@ -82,7 +94,8 @@ namespace DSharp4Webhook.Rest.Mono
                 RestResponse restResponse;
                 using (Stream requestStream = request.GetRequestStream())
                 {
-                    StreamUtil.Write(requestStream, data);
+                    if (data != null)
+                        StreamUtil.Write(requestStream, data);
 
                     using (HttpWebResponse response = request.GetResponseNoException())
                     {

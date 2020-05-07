@@ -13,6 +13,9 @@ namespace DSharp4Webhook.Rest.Manipulation
     {
         protected static readonly HttpStatusCode[] POST_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
         protected static readonly HttpStatusCode[] GET_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
+        protected static readonly HttpStatusCode[] DELETE_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
+        protected static readonly HttpStatusCode[] PATCH_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
+
 
         protected readonly RestClient _restClient;
         protected readonly SemaphoreSlim _locker;
@@ -29,6 +32,10 @@ namespace DSharp4Webhook.Rest.Manipulation
         public abstract Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1);
 
         public abstract Task<RestResponse[]> GET(string url, uint maxAttempts = 1);
+
+        public abstract Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1);
+
+        public abstract Task<RestResponse[]> PATCH(string url, string data, uint maxAttempts = 1);
 
         /// <remarks>
         ///     Wrapper for processing returned status codes.

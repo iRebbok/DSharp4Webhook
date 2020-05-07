@@ -38,19 +38,31 @@ namespace DSharp4Webhook.Rest.Default
 
         public override async Task<RestResponse[]> GET(string url, uint maxAttempts = 1)
         {
-            Checks.CheckWebhookStatus(_restClient.Webhook.Status);
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, maxAttempts);
         }
 
         public override async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1)
         {
-            Checks.CheckWebhookStatus(_restClient.Webhook.Status);
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
             // Need 'multipart/form-data' to send files
             using (var content = new StringContent(data, Encoding.UTF8, "application/json"))
                 return await Raw(_httpClient.PostAsync(url, content), POST_ALLOWED_STATUSES, maxAttempts);
+        }
+
+        public override async Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1)
+        {
+            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
+            return await Raw(_httpClient.DeleteAsync(url), DELETE_ALLOWED_STATUSES, maxAttempts);
+        }
+
+        public override async Task<RestResponse[]> PATCH(string url, string data, uint maxAttempts = 1)
+        {
+            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
+            Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
+            using (var content = new StringContent(data, Encoding.UTF8, "application/json"))
+                return await Raw(_httpClient.PatchAsync(url, content), PATCH_ALLOWED_STATUSES, maxAttempts);
         }
 
         private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1)
