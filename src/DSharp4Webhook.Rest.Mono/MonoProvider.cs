@@ -1,3 +1,8 @@
+using DSharp4Webhook.Logging;
+using DSharp4Webhook.Rest.Entities;
+using DSharp4Webhook.Rest.Manipulation;
+using DSharp4Webhook.Rest.Mono.Util;
+using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,12 +11,6 @@ using System.Net;
 using System.Net.Cache;
 using System.Threading;
 using System.Threading.Tasks;
-
-using DSharp4Webhook.Logging;
-using DSharp4Webhook.Rest.Entities;
-using DSharp4Webhook.Rest.Manipulation;
-using DSharp4Webhook.Rest.Mono.Util;
-using DSharp4Webhook.Util;
 
 namespace DSharp4Webhook.Rest.Mono
 {

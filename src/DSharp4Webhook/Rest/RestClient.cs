@@ -1,15 +1,13 @@
-using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
-
 using Newtonsoft.Json;
+using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest
 {

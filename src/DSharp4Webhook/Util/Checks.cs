@@ -1,7 +1,6 @@
+using DSharp4Webhook.Core;
 using System;
 using System.Linq;
-
-using DSharp4Webhook.Core;
 
 namespace DSharp4Webhook.Util
 {

@@ -21,9 +21,6 @@ indent_style = tab
 dotnet_naming_symbols.without_interfaces_and_fields.applicable_kinds = class, struct, enum, property, method, event, namespace, delegate, type_parameter
 dotnet_naming_symbols.without_interfaces_and_fields.applicable_accessibilities = *
 
-dotnet_sort_system_directives_first = true
-dotnet_separate_import_directive_groups = true
-
 # Avoid "this." and "Me." if not necessary
 dotnet_style_qualification_for_field = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
