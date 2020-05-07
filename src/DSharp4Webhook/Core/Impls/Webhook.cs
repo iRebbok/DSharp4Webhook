@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Core
 {
-    public class Webhook : IWebhook
+    public sealed class Webhook : IWebhook
     {
         public ConcurrentQueue<IWebhookMessage> MessageQueue { get => _queue; }
         public RestClient RestClient { get => _restClient; }
