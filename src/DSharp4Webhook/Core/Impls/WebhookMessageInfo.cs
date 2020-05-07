@@ -3,7 +3,7 @@ using System;
 
 namespace DSharp4Webhook.Core
 {
-    public sealed class WebhookMessageInfo : IWebhookMessageInfo
+    public class WebhookMessageInfo : IWebhookMessageInfo
     {
         private string username;
         public string Username

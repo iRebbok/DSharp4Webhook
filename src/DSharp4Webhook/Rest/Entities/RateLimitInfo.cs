@@ -18,27 +18,33 @@ namespace DSharp4Webhook.Rest.Entities
         /// <summary>
         ///    Total number of requests that can be made before entering the RateLimit.
         /// </summary>
+#nullable enable
         public int? Limit { get; }
         /// <summary>
         ///     How many requests can be made before entering the RateLimit.
         /// </summary>
+#nullable enable
         public int? Remaining { get; }
         /// <summary>
         ///     How long to wait before the Rate Limit expires.
         /// </summary>
+#nullable enable
         public uint? RetryAfter { get; }
         /// <summary>
         ///     Date when the Rate Limit is reset.
         /// </summary>
+#nullable enable
         public DateTimeOffset? Reset { get; }
         /// <summary>
         ///     How long wait before can repeat the request.
         /// </summary>
+#nullable enable
         public TimeSpan? ResetAfter { get; }
         /// <summary>
         ///     Date sent by Discord servers.
         ///     This helps find time lags.
         /// </summary>
+#nullable enable
         public DateTimeOffset? Date { get; }
 
         /// <summary>

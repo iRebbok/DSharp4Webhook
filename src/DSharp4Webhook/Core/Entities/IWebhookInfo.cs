@@ -33,6 +33,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Avatar id for webhook.
         /// </summary>
+#nullable enable
         string AvatarId { get; }
 
         /// <summary>

@@ -1,10 +1,11 @@
-using DSharp4Webhook.Logging;
-using DSharp4Webhook.Util;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+
+using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest;
+using DSharp4Webhook.Util;
 
 namespace DSharp4Webhook.Core
 {

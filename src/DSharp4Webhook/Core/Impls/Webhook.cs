@@ -1,8 +1,9 @@
-using DSharp4Webhook.Rest;
-using DSharp4Webhook.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+
+using DSharp4Webhook.Rest;
+using DSharp4Webhook.Util;
 
 namespace DSharp4Webhook.Core
 {

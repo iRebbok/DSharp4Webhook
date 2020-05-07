@@ -1,5 +1,6 @@
-using Newtonsoft.Json;
 using System;
+
+using Newtonsoft.Json;
 
 namespace DSharp4Webhook.Core
 {

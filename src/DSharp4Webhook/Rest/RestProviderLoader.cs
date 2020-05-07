@@ -1,11 +1,10 @@
-using DSharp4Webhook.Rest.Manipulation;
-using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
+
+using DSharp4Webhook.Rest.Manipulation;
+using DSharp4Webhook.Util;
 
 namespace DSharp4Webhook.Rest
 {

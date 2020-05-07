@@ -1,13 +1,15 @@
+using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
+
 using Newtonsoft.Json;
-using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest
 {
@@ -143,7 +145,7 @@ namespace DSharp4Webhook.Rest
         public async Task<IWebhookInfo> GetInfo(uint maxAttemps = 1)
         {
             await FollowRateLimit(GetRateLimit());
-            RestResponse[] responses = await _provider.GET(_webhook.GetWebhookUrl(), 1);
+            RestResponse[] responses = await _provider.GET(_webhook.GetWebhookUrl(), maxAttemps);
             RestResponse lastResponse = responses[responses.Length - 1];
             SetRateLimit(lastResponse);
             _webhook.Provider?.Log(new LogContext(LogSensitivity.VERBOSE, $"[RC {responses.Length}] [A {lastResponse.Attempts}] Successful GET request", _webhook.Id));
@@ -190,6 +192,7 @@ namespace DSharp4Webhook.Rest
         public void Dispose()
         {
             _isntDisposed = false;
+            _locker.Dispose();
         }
     }
 }

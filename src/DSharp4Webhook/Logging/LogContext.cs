@@ -25,9 +25,10 @@ namespace DSharp4Webhook.Logging
         /// <summary>
         ///     Exception that triggered this log.
         /// </summary>
-        public Exception Exception { get; }
+#nullable enable
+        public Exception? Exception { get; }
 
-        public LogContext(LogSensitivity sensitivity, string message, ulong? webhookId = null, Exception exception = null)
+        public LogContext(LogSensitivity sensitivity, string message, ulong? webhookId = null, Exception? exception = null)
         {
             Sensitivity = sensitivity;
             Message = message;

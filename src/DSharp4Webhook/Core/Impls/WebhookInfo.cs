@@ -1,4 +1,5 @@
 using DSharp4Webhook.Core.Enums;
+
 using Newtonsoft.Json;
 
 namespace DSharp4Webhook.Core

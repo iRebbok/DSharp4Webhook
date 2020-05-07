@@ -1,7 +1,8 @@
-using DSharp4Webhook.Rest;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+
+using DSharp4Webhook.Rest;
 
 namespace DSharp4Webhook.Core
 {
@@ -24,6 +25,7 @@ namespace DSharp4Webhook.Core
         ///     Webhook provider.
         ///     Is null for webhooks created without a provider.
         /// </summary>
+#nullable enable
         WebhookProvider Provider { get; }
 
         /// <summary>
