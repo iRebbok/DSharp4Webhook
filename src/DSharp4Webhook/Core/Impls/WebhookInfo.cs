@@ -1,6 +1,7 @@
 using DSharp4Webhook.Core.Enums;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DSharp4Webhook.Core
 {
@@ -10,6 +11,7 @@ namespace DSharp4Webhook.Core
         #region Fields
 
         [JsonProperty(PropertyName = "type")]
+        [JsonConverter(typeof(StringEnumConverter))]
         private WebhookType type;
         [JsonProperty(PropertyName = "id")]
         private string id;
