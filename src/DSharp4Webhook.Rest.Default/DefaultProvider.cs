@@ -49,7 +49,8 @@ namespace DSharp4Webhook.Rest.Default
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
             // Need 'multipart/form-data' to send files
-            return await Raw(_httpClient.PostAsync(url, new StringContent(data, Encoding.UTF8, "application/json")), POST_ALLOWED_STATUSES, maxAttempts);
+            using (var content = new StringContent(data, Encoding.UTF8, "application/json"))
+                return await Raw(_httpClient.PostAsync(url, content), POST_ALLOWED_STATUSES, maxAttempts);
         }
 
         private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1)
