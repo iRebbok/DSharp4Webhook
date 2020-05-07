@@ -1,10 +1,14 @@
+using Newtonsoft.Json;
 using System;
 
 namespace DSharp4Webhook.Core
 {
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     public class WebhookMessage : WebhookMessageInfo, IWebhookMessage
     {
         private string content;
+
+        [JsonProperty(PropertyName = "content")]
         public string Content
         {
             get => content?.Length <= WebhookProvider.MAX_CONTENT_LENGTH && content?.Length > 0 ? content : null;
@@ -23,6 +27,7 @@ namespace DSharp4Webhook.Core
             }
         }
 
+        [JsonProperty(PropertyName = "tts")]
         public bool IsTTS { get; set; } = false;
 
         public WebhookMessage() { }

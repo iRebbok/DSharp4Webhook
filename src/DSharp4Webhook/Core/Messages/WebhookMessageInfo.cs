@@ -1,11 +1,14 @@
 
+using Newtonsoft.Json;
 using System;
 
 namespace DSharp4Webhook.Core
 {
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     public class WebhookMessageInfo : IWebhookMessageInfo
     {
         private string username;
+        [JsonProperty(PropertyName = "username")]
         public string Username
         {
             get => username?.Length <= WebhookProvider.MAX_NICKNAME_LENGTH && username?.Length >= WebhookProvider.MIX_NICKNAME_LENGHT ? username : null;
@@ -24,6 +27,7 @@ namespace DSharp4Webhook.Core
             }
         }
 
+        [JsonProperty(PropertyName = "avatar_url")]
         public string AvatarUrl { get; set; } = null;
     }
 }

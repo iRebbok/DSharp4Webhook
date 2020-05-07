@@ -7,7 +7,7 @@ namespace DSharp4Webhook.Core
     /// <summary>
     ///     Message builder that allows you to create messages for webhook.
     /// </summary>
-    public class MessageBuilder : IDisposable
+    public sealed class MessageBuilder : IDisposable
     {
         private readonly WebhookMessage _message;
         private readonly StringBuilder _builder;
