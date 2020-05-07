@@ -28,7 +28,7 @@ namespace DSharp4Webhook.Util
             {
                 response = await client.SendAsync(request, cancellationToken);
             }
-            catch (TaskCanceledException e) { }
+            catch (TaskCanceledException) { }
 
             return response;
         }
