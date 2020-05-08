@@ -1,7 +1,7 @@
-using DSharp4Webhook.Core.Serialization;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Rest.Manipulation;
+using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 

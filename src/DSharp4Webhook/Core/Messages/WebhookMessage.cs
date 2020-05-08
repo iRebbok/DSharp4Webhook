@@ -1,4 +1,4 @@
-using DSharp4Webhook.Core.Serialization;
+using DSharp4Webhook.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Text;

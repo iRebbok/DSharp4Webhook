@@ -1,4 +1,4 @@
-namespace DSharp4Webhook.Core.Serialization
+namespace DSharp4Webhook.Serialization
 {
     /// <summary>
     ///     Indicates whether webhook data can be serialized.

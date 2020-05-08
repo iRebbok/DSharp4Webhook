@@ -2,7 +2,7 @@ using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
 
-namespace DSharp4Webhook.Core.Serialization
+namespace DSharp4Webhook.Serialization
 {
     /// <summary>
     ///     Data serialization context that is used for the web.

@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharp4Webhook.Core.Serialization
+namespace DSharp4Webhook.Serialization
 {
     /// <summary>
     ///     Data serialization types for discord.

@@ -1,5 +1,5 @@
 using DSharp4Webhook.Core;
-using DSharp4Webhook.Core.Serialization;
+using DSharp4Webhook.Serialization;
 using System;
 using System.Linq;
 

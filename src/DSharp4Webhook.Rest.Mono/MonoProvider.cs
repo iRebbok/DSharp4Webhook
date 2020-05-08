@@ -1,8 +1,8 @@
-using DSharp4Webhook.Core.Serialization;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Rest.Mono.Util;
+using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
