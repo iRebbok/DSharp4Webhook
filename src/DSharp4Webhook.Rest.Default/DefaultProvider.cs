@@ -1,3 +1,4 @@
+using DSharp4Webhook.Core.Serialization;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Rest.Manipulation;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +20,9 @@ namespace DSharp4Webhook.Rest.Default
     public sealed class DefaultProvider : BaseRestProvider
     {
         private readonly HttpClient _httpClient;
+
+        // This type of request is not available in the .NET Framework 4.7.1.
+        private static readonly HttpMethod PATCHMethod = new HttpMethod("PATH");
 
         /// <summary>
         ///     Sets the given provider is the default.
@@ -42,13 +47,15 @@ namespace DSharp4Webhook.Rest.Default
             return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, maxAttempts);
         }
 
-        public override async Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> POST(string url, SerializeContext data, uint maxAttempts = 1)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
-            // Need 'multipart/form-data' to send files
-            using (var content = new StringContent(data, Encoding.UTF8, "application/json"))
-                return await Raw(_httpClient.PostAsync(url, content), POST_ALLOWED_STATUSES, maxAttempts);
+
+            using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                PrepareContent(requestMessage, data);
+                return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, maxAttempts);
+            }
         }
 
         public override async Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1)
@@ -57,12 +64,16 @@ namespace DSharp4Webhook.Rest.Default
             return await Raw(_httpClient.DeleteAsync(url), DELETE_ALLOWED_STATUSES, maxAttempts);
         }
 
-        public override async Task<RestResponse[]> PATCH(string url, string data, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, uint maxAttempts = 1)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            Checks.CheckForArgument(string.IsNullOrEmpty(data), nameof(data));
-            using (var content = new StringContent(data, Encoding.UTF8, "application/json"))
-                return await Raw(_httpClient.PatchAsync(url, content), PATCH_ALLOWED_STATUSES, maxAttempts);
+            Checks.CheckForArgument(data.Type != SerializeType.APPLICATION_JSON, nameof(data), "API do not support sending PATH as 'multipart/from-data'");
+
+            using (HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url))
+            {
+                PrepareContent(requestMessage, data);
+                return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, maxAttempts);
+            }
         }
 
         private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1)
@@ -94,6 +105,40 @@ namespace DSharp4Webhook.Rest.Default
 
             _locker.Release();
             return responses.ToArray();
+        }
+
+        private void PrepareContent(HttpRequestMessage requestMessage, SerializeContext data)
+        {
+            switch (data.Type)
+            {
+                case SerializeType.APPLICATION_JSON:
+                    {
+                        requestMessage.Content = new ByteArrayContent(data.Content);
+                        requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON));
+                        break;
+                    }
+
+                case SerializeType.MULTIPART_FROM_DATA:
+                    {
+                        var multipartContent = new MultipartFormDataContent();
+                        if (data.Files != null && data.Files.Keys.Count != 0)
+                        {
+                            int index = 0;
+                            foreach (var filePair in data.Files)
+                            {
+                                index++;
+                                multipartContent.Add(new ByteArrayContent(filePair.Value), $"file{index}", filePair.Key);
+                            }
+                        }
+
+                        if (data.Content != null)
+                            multipartContent.Add(new ByteArrayContent(data.Content), "payload_json");
+
+                        requestMessage.Content = multipartContent;
+                        requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA));
+                        break;
+                    }
+            }
         }
     }
 }

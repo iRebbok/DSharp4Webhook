@@ -1,3 +1,5 @@
+
+using DSharp4Webhook.Core.Serialization;
 using System;
 
 namespace DSharp4Webhook.Core
@@ -5,7 +7,7 @@ namespace DSharp4Webhook.Core
     /// <summary>
     ///     The webhook message.
     /// </summary>
-    public interface IWebhookMessage : IWebhookMessageInfo
+    public interface IWebhookMessage : IWebhookMessageInfo, IWSerializable
     {
         /// <summary>
         ///     The content of the message.

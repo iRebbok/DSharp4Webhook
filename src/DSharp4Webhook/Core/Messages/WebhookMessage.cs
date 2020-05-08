@@ -1,5 +1,7 @@
+using DSharp4Webhook.Core.Serialization;
 using Newtonsoft.Json;
 using System;
+using System.Text;
 
 namespace DSharp4Webhook.Core
 {
@@ -46,5 +48,9 @@ namespace DSharp4Webhook.Core
             IsTTS = source.IsTTS;
         }
 
+        public SerializeContext Serialize()
+        {
+            return new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)));
+        }
     }
 }

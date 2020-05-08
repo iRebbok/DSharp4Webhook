@@ -1,4 +1,5 @@
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Core.Serialization;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Util;
@@ -11,7 +12,8 @@ namespace DSharp4Webhook.Rest.Manipulation
 {
     public abstract class BaseRestProvider
     {
-        protected static readonly HttpStatusCode[] POST_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
+        // When we send a file, we get the status code 200 with detailed information in response, also when 'wait=true' as a query parameter
+        protected static readonly HttpStatusCode[] POST_ALLOWED_STATUSES = new HttpStatusCode[2] { HttpStatusCode.NoContent, HttpStatusCode.OK };
         protected static readonly HttpStatusCode[] GET_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
         protected static readonly HttpStatusCode[] DELETE_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
         protected static readonly HttpStatusCode[] PATCH_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
@@ -29,13 +31,13 @@ namespace DSharp4Webhook.Rest.Manipulation
             _locker = locker;
         }
 
-        public abstract Task<RestResponse[]> POST(string url, string data, uint maxAttempts = 1);
+        public abstract Task<RestResponse[]> POST(string url, SerializeContext data, uint maxAttempts = 1);
 
         public abstract Task<RestResponse[]> GET(string url, uint maxAttempts = 1);
 
         public abstract Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1);
 
-        public abstract Task<RestResponse[]> PATCH(string url, string data, uint maxAttempts = 1);
+        public abstract Task<RestResponse[]> PATCH(string url, SerializeContext data, uint maxAttempts = 1);
 
         /// <remarks>
         ///     Wrapper for processing returned status codes.
@@ -57,6 +59,10 @@ namespace DSharp4Webhook.Rest.Manipulation
                     break;
                 case HttpStatusCode.BadRequest:
                     _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, "A REST request returnet 400, something went wrong...", _restClient.Webhook.Id));
+                    forceStop = true;
+                    break;
+                case HttpStatusCode.RequestEntityTooLarge:
+                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.WARN, "A REST request returned 413, you sent too much data", _restClient.Webhook.Id));
                     forceStop = true;
                     break;
             }

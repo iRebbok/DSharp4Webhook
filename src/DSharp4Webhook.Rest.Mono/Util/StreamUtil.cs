@@ -8,9 +8,12 @@ namespace DSharp4Webhook.Rest.Mono.Util
         /// <summary>
         ///     Writes data to a stream.
         /// </summary>
-        public static void Write(Stream source, string content)
+        public static void Write(Stream source, string content, Encoding encoding)
         {
-            byte[] buffer = Encoding.UTF8.GetBytes(content);
+            if (encoding == null)
+                encoding = Encoding.UTF8;
+
+            byte[] buffer = encoding.GetBytes(content);
             source.Write(buffer, 0, buffer.Length);
         }
 

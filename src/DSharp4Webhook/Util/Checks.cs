@@ -1,4 +1,5 @@
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Core.Serialization;
 using System;
 using System.Linq;
 
@@ -76,6 +77,24 @@ namespace DSharp4Webhook.Util
         {
             if (boolean)
                 throw new ArgumentException(message, paramName);
+        }
+
+        /// <summary>
+        ///     Checks for compliance with the serialization type.
+        /// </summary>
+        /// <param name="context">
+        ///     The context of serialization.
+        /// </param>
+        /// <param name="requireType">
+        ///     Required type for serialization.
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     The serialization type is not suitable.
+        /// </exception>
+        public static void CheckForSerializeType(SerializeContext context, SerializeType requireType)
+        {
+            if (context.Type != requireType)
+                throw new InvalidOperationException($"The current operation needs the {requireType} serialization type, not the {context.Type}");
         }
     }
 }
