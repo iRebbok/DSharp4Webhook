@@ -3,7 +3,6 @@
 
   <PropertyGroup>
     <RootNamespace>DSharp4Webhook</RootNamespace>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
 	<PropertyGroup>

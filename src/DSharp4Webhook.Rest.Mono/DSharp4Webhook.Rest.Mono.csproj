@@ -5,6 +5,7 @@
   <PropertyGroup>
     <AssemblyName>DSharp4Webhook.Rest.Mono</AssemblyName>
     <Description>REST module DSharp4Webhook that provides RESTProvider for execution in the Mono environment</Description>
+    <TargetFrameworks>net471</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
