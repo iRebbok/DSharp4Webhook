@@ -1,9 +1,9 @@
+using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
 
 namespace DSharp4Webhook.Rest
 {
@@ -19,7 +19,7 @@ namespace DSharp4Webhook.Rest
         {
             Checks.CheckForNull(type, nameof(type));
             return type.IsSubclassOf(typeof(BaseRestProvider)) &&
-                type.GetConstructor(new Type[] { typeof(RestClient), typeof(SemaphoreSlim) }) != null;
+                type.GetConstructor(new Type[] { typeof(IWebhook) }) != null;
         }
 
         /// <summary>
@@ -63,13 +63,12 @@ namespace DSharp4Webhook.Rest
         /// <exception cref="InvalidOperationException">
         ///     If no suitable implementation is found.
         /// </exception>
-        public static BaseRestProvider CreateProvider(RestClient restClient, SemaphoreSlim locker)
+        public static BaseRestProvider CreateProvider(IWebhook webhook)
         {
-            Checks.CheckForNull(restClient, nameof(restClient));
-            Checks.CheckForNull(locker, nameof(locker));
+            Checks.CheckForNull(webhook, nameof(webhook));
 
             var providerType = GetProviderType();
-            return Activator.CreateInstance(providerType, restClient, locker) as BaseRestProvider;
+            return Activator.CreateInstance(providerType, webhook) as BaseRestProvider;
         }
 
         private class RestProviderComparer : IComparer<Type>

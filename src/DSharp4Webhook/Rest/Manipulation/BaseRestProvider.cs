@@ -1,11 +1,9 @@
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
-using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest.Manipulation
@@ -13,22 +11,18 @@ namespace DSharp4Webhook.Rest.Manipulation
     public abstract class BaseRestProvider
     {
         // When we send a file, we get the status code 200 with detailed information in response, also when 'wait=true' as a query parameter
-        protected static readonly HttpStatusCode[] POST_ALLOWED_STATUSES = new HttpStatusCode[2] { HttpStatusCode.NoContent, HttpStatusCode.OK };
-        protected static readonly HttpStatusCode[] GET_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
-        protected static readonly HttpStatusCode[] DELETE_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
-        protected static readonly HttpStatusCode[] PATCH_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
+        public static readonly HttpStatusCode[] POST_ALLOWED_STATUSES = new HttpStatusCode[2] { HttpStatusCode.NoContent, HttpStatusCode.OK };
+        public static readonly HttpStatusCode[] GET_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
+        public static readonly HttpStatusCode[] DELETE_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
+        public static readonly HttpStatusCode[] PATCH_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
 
+        protected readonly IWebhook _webhook;
 
-        protected readonly RestClient _restClient;
-        protected readonly SemaphoreSlim _locker;
-
-        protected BaseRestProvider(RestClient restClient, SemaphoreSlim locker)
+        protected BaseRestProvider(IWebhook webhook)
         {
-            Checks.CheckForNull(restClient, nameof(restClient));
-            Checks.CheckForNull(locker, nameof(locker));
+            Checks.CheckForNull(webhook, nameof(webhook));
 
-            _restClient = restClient;
-            _locker = locker;
+            _webhook = webhook;
         }
 
         public abstract Task<RestResponse[]> POST(string url, SerializeContext data, uint maxAttempts = 1);
@@ -52,34 +46,34 @@ namespace DSharp4Webhook.Rest.Manipulation
             switch (statusCode)
             {
                 case HttpStatusCode.NotFound:
-                    _restClient.Webhook.Status = WebhookStatus.NOT_EXISTING;
-                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, "A REST request returned 404, the webhack does not exist, and we are deleting it...", _restClient.Webhook.Id));
+                    _webhook.Status = WebhookStatus.NOT_EXISTING;
+                    Log(new LogContext(LogSensitivity.ERROR, "A REST request returned 404, the webhack does not exist, and we are deleting it...", _webhook.Id));
                     forceStop = true;
-                    _restClient.Webhook.Dispose();
+                    _webhook.Dispose();
                     break;
                 case HttpStatusCode.BadRequest:
-                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.ERROR, "A REST request returnet 400, something went wrong...", _restClient.Webhook.Id));
+                    Log(new LogContext(LogSensitivity.ERROR, "A REST request returnet 400, something went wrong...", _webhook.Id));
                     forceStop = true;
                     break;
                 case HttpStatusCode.RequestEntityTooLarge:
-                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.WARN, "A REST request returned 413, you sent too much data", _restClient.Webhook.Id));
+                    Log(new LogContext(LogSensitivity.WARN, "A REST request returned 413, you sent too much data", _webhook.Id));
                     forceStop = true;
                     break;
             }
 
             if (allowedStatuses.Contains(statusCode))
             {
-                if (_restClient.Webhook.Status != WebhookStatus.EXISTING)
+                if (_webhook.Status != WebhookStatus.EXISTING)
                 {
-                    _restClient.Webhook.Status = WebhookStatus.EXISTING;
-                    _restClient.Webhook.Provider?.Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", _restClient.Webhook.Id));
+                    _webhook.Status = WebhookStatus.EXISTING;
+                    Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", _webhook.Id));
                 }
             }
         }
 
         protected void Log(LogContext context)
         {
-            _restClient.Webhook.Provider?.Log(context);
+            //todo: webhook logs
         }
     }
 }

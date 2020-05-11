@@ -1,5 +1,5 @@
+using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
-using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest.Default
@@ -31,7 +30,7 @@ namespace DSharp4Webhook.Rest.Default
             RestProviderLoader.SetProviderType(typeof(DefaultProvider));
         }
 
-        public DefaultProvider(RestClient restClient, SemaphoreSlim locker) : base(restClient, locker)
+        public DefaultProvider(IWebhook webhook) : base(webhook)
         {
             _httpClient = new HttpClient();
 
@@ -77,10 +76,9 @@ namespace DSharp4Webhook.Rest.Default
 
         private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1)
         {
-            Checks.CheckWebhookStatus(_restClient.Webhook.Status);
+            Checks.CheckWebhookStatus(_webhook.Status);
             Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
 
-            _locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
             uint currentAttimpts = 0;
             // Used to prevent calls if something went wrong
@@ -89,7 +87,7 @@ namespace DSharp4Webhook.Rest.Default
             do
             {
                 if (responses.Count != 0)
-                    await _restClient.FollowRateLimit(responses.Last().RateLimit);
+                    await _webhook.ActionManager.FollowRateLimit(responses.Last().RateLimit);
 
                 HttpResponseMessage response = await func;
                 RateLimitInfo rateLimitInfo = new RateLimitInfo(response.Headers.ToDictionary(h => h.Key, h => h.Value.FirstOrDefault()));
@@ -98,11 +96,10 @@ namespace DSharp4Webhook.Rest.Default
 
                 // Processing the necessary status codes
                 ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
-                Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _restClient.Webhook.Id));
+                Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
 
             } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
 
-            _locker.Release();
             return responses.ToArray();
         }
 
@@ -134,7 +131,8 @@ namespace DSharp4Webhook.Rest.Default
                             multipartContent.Add(new ByteArrayContent(data.Content), "payload_json");
 
                         requestMessage.Content = multipartContent;
-                        requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA));
+                        // it doesn't seem to be necessary, it works automatically
+                        //requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA));
                         break;
                     }
             }

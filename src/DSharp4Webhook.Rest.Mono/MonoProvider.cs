@@ -1,5 +1,5 @@
+using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
-using DSharp4Webhook.Rest.Entities;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Rest.Mono.Util;
 using DSharp4Webhook.Serialization;
@@ -11,7 +11,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest.Mono
@@ -33,7 +32,7 @@ namespace DSharp4Webhook.Rest.Mono
             RestProviderLoader.SetProviderType(typeof(MonoProvider));
         }
 
-        public MonoProvider(RestClient restClient, SemaphoreSlim locker) : base(restClient, locker) { }
+        public MonoProvider(IWebhook webhook) : base(webhook) { }
 
         public override async Task<RestResponse[]> GET(string url, uint maxAttempts)
         {
@@ -58,12 +57,11 @@ namespace DSharp4Webhook.Rest.Mono
 
         private async Task<RestResponse[]> Raw(string method, string url, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1, SerializeContext? data = null)
         {
-            Checks.CheckWebhookStatus(_restClient.Webhook.Status);
+            Checks.CheckWebhookStatus(_webhook.Status);
             Checks.CheckForArgument(string.IsNullOrEmpty(method), nameof(method));
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             Checks.CheckForNull(allowedStatuses);
 
-            _locker.Wait();
             List<RestResponse> responses = new List<RestResponse>();
 
             uint currentAttimpts = 0;
@@ -73,7 +71,7 @@ namespace DSharp4Webhook.Rest.Mono
             do
             {
                 if (responses.Count != 0)
-                    await _restClient.FollowRateLimit(responses.Last().RateLimit);
+                    await _webhook.ActionManager.FollowRateLimit(responses.Last().RateLimit);
 
 
                 HttpWebRequest request = WebRequest.CreateHttp(url);
@@ -108,12 +106,11 @@ namespace DSharp4Webhook.Rest.Mono
                     // Processing the necessary status codes
                     ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
                 }
-                Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _restClient.Webhook.Id));
+                Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
 
                 // first of all we check the forceStop so that we don't go any further if
             } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
 
-            _locker.Release();
             return responses.ToArray();
         }
 

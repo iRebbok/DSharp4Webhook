@@ -1,12 +1,11 @@
-using DSharp4Webhook.Core.Enums;
-
+using DSharp4Webhook.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace DSharp4Webhook.Core
+namespace DSharp4Webhook.Internal
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemRequired = Required.Default)]
-    public sealed class WebhookInfo : IWebhookInfo
+    internal sealed class WebhookInfo : IWebhookInfo
     {
         #region Fields
 

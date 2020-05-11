@@ -1,4 +1,4 @@
-using DSharp4Webhook.Logging;
+using DSharp4Webhook.Internal;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Util;
 using System;
@@ -37,7 +37,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Minimum limit on the number of characters in a nickname.
         /// </summary>
-        public static int MIX_NICKNAME_LENGHT { get; } = 1;
+        public static int MIN_NICKNAME_LENGHT { get; } = 1;
         /// <summary>
         ///     Maximum limit on the number of characters in a nickname.
         /// </summary>
@@ -60,11 +60,6 @@ namespace DSharp4Webhook.Core
         ///     Stores all registered webhooks as Id-Webhook.
         /// </summary>
         private readonly Dictionary<ulong, IWebhook> _webhooks;
-
-        /// <summary>
-        ///     It is the main event provider for the provider.
-        /// </summary>
-        public event Action<LogContext> OnLog;
 
         #endregion
 
@@ -155,7 +150,7 @@ namespace DSharp4Webhook.Core
             if (string.IsNullOrEmpty(url)) throw new ArgumentException("Url cannot be null or empty", nameof(url));
 
             Match match = WebhookUrlRegex.Match(url);
-            if (!match.Success) throw new InvalidOperationException("");
+            if (!match.Success) throw new InvalidOperationException("The url is not valid");
 
             Webhook webhook = new Webhook(provider, ulong.Parse(match.Groups[1].Value), match.Groups[2].Value, url);
             provider?._webhooks.Add(webhook.Id, webhook);
@@ -352,17 +347,6 @@ namespace DSharp4Webhook.Core
         public IWebhook[] GetWebhooks()
         {
             return _webhooks.Select(x => x.Value).ToArray();
-        }
-
-        /// <summary>
-        ///     Sends logs to all subscribed channels.
-        /// </summary>
-        /// <remarks>
-        ///     The user does not need to send logs.
-        /// </remarks>
-        internal void Log(LogContext context)
-        {
-            OnLog?.Invoke(context);
         }
 
         public void Dispose()

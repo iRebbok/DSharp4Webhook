@@ -1,12 +1,13 @@
+using DSharp4Webhook.Core;
 using DSharp4Webhook.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Text;
 
-namespace DSharp4Webhook.Core
+namespace DSharp4Webhook.Internal
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    public class WebhookMessage : WebhookMessageInfo, IWebhookMessage
+    internal sealed class Message : IMessage
     {
         private string content;
 
@@ -32,15 +33,38 @@ namespace DSharp4Webhook.Core
         [JsonProperty(PropertyName = "tts")]
         public bool IsTTS { get; set; } = false;
 
-        public WebhookMessage() { }
+        private string username;
+        [JsonProperty(PropertyName = "username")]
+        public string Username
+        {
+            get => username?.Length <= WebhookProvider.MAX_NICKNAME_LENGTH || username?.Length >= WebhookProvider.MIN_NICKNAME_LENGHT ? username : null;
+            set
+            {
+                if (value != null)
+                {
+                    if ((value = value.Trim()).Length >= WebhookProvider.MIN_NICKNAME_LENGHT || value.Length <= WebhookProvider.MAX_NICKNAME_LENGTH)
+                        username = value;
+                    else
+                        throw new ArgumentOutOfRangeException(nameof(Username), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGHT} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
+                }
+                // Null set possible
+                else
+                    username = value;
+            }
+        }
 
-        public WebhookMessage(string message, bool isTTS = false)
+        [JsonProperty(PropertyName = "avatar_url")]
+        public string AvatarUrl { get; set; } = null;
+
+        public Message() { }
+
+        public Message(string message, bool isTTS = false)
         {
             Content = message;
             IsTTS = isTTS;
         }
 
-        public WebhookMessage(IWebhookMessage source)
+        public Message(IMessage source)
         {
             Username = source.Username;
             AvatarUrl = source.AvatarUrl;

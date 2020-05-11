@@ -1,7 +1,8 @@
-using DSharp4Webhook.Rest;
+using DSharp4Webhook.Action;
+using DSharp4Webhook.Action.Rest;
+using DSharp4Webhook.Internal;
+using DSharp4Webhook.Rest.Manipulation;
 using System;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Core
 {
@@ -16,26 +17,21 @@ namespace DSharp4Webhook.Core
         #region Properties
 
         /// <summary>
-        ///     Message queue to send.
-        /// </summary>
-        ConcurrentQueue<IWebhookMessage> MessageQueue { get; }
-
-        /// <summary>
         ///     Webhook provider.
         ///     Is null for webhooks created without a provider.
         /// </summary>
 #nullable enable
-        WebhookProvider Provider { get; }
+        WebhookProvider? Provider { get; }
 
         /// <summary>
-        ///     Used by RestClient to send data.
+        ///     Provider for REST requests.
         /// </summary>
-        RestClient RestClient { get; }
+        BaseRestProvider RestProvider { get; }
 
         /// <summary>
-        ///     Constant data that is used when sending a message.
+        ///     Action manager.
         /// </summary>
-        IWebhookMessageInfo WebhookMessageInfo { get; }
+        IActionManager ActionManager { get; }
 
         /// <summary>
         ///     Webhook statuses.
@@ -69,18 +65,7 @@ namespace DSharp4Webhook.Core
         string GetWebhookUrl();
 
         /// <summary>
-        ///     Sends a message to the queue.
-        /// </summary>
-        /// <param name="message">
-        ///     A message that can be built via MessageBuilder.
-        /// </param>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-        void QueueMessage(IWebhookMessage message);
-
-        /// <summary>
-        ///     Sends a message to the queue.
+        ///     Send messages.
         /// </summary>
         /// <param name="message">
         ///     Message content.
@@ -92,80 +77,74 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        void QueueMessage(string message, bool isTTS = false);
+        IMessageAction SendMessage(string message, bool isTTS = false);
 
         /// <summary>
-        ///     Retrieves information about webhook.
+        ///     Send messages.
         /// </summary>
-        /// <param name="forceUpdate">
-        ///     Forced update if it was cached.
+        /// <param name="message">
+        ///     A message that can be build via MessageBuilder.
         /// </param>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task<IWebhookInfo> GetInfoAsync(bool forceUpdate = false);
+        IMessageAction SendMessage(IMessage message);
+
+        /// <summary>
+        ///     Retrieves information about webhook.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+        IInfoAction Info();
 
         /// <summary>
         ///     Deletes the webhook.
         ///     Destroys webhook at the level of the discord.
         /// </summary>
-        Task Delete();
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+        IDeleteAction Delete();
 
         /// <summary>
-        ///     Sends a message asynchronously out of a queue.
+        ///     Updates the webhook.
+        /// </summary>
+        /// <param name="name">
+        ///     Webhook name.
+        /// </param>
+        /// <param name="avatarUrl">
+        ///     Avatar that will use webhook.
+        /// </param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     One of the arguments does not meet the requirements.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+        IUpdateAction Update(string name, string avatarUrl);
+
+        /// <summary>
+        ///     Updates the webhook using data from <see cref="IMessage"/>.
         /// </summary>
         /// <param name="message">
-        ///     A message that can be build via MessageBuilder.
+        ///     The message contains the data.
         /// </param>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task SendMessageAsync(IWebhookMessage message);
+        IUpdateAction Update(IMessage message);
 
         /// <summary>
-        ///     Sends a message asynchronously out of a queue.
+        ///     Updates the webhook using data from <see cref="IWebhookInfo"/>.
         /// </summary>
-        /// <param name="message">
-        ///     Message content.
-        /// </param>
-        /// <param name="isTTS">
-        ///     Manages the voice over of the message to all clients
-        ///     who are in the corresponding channel.
+        /// <param name="webhookInfo">
+        ///     The webhook info contains the data.
         /// </param>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task SendMessageAsync(string message, bool isTTS = false);
-
-        /// <summary>
-        ///     Sends a message asynchronously out of a queue,
-        ///     The only difference is that it does not throw an exception if it occurs, 
-        ///     but returns it as a variable.
-        /// </summary>
-        /// <param name="message">
-        ///     A message that can be built via MessageBuilder.
-        /// </param>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-        Task<Exception> SendMessageAsyncSafely(IWebhookMessage message);
-
-        /// <summary>
-        ///     Sends a message asynchronously out of a queue,
-        ///     The only difference is that it does not throw an exception if it occurs, 
-        ///     but returns it as a variable.
-        /// </summary>
-        /// <param name="mesage">
-        ///     A message that can be build via MessageBuilder.
-        /// </param>
-        /// <param name="isTTS">
-        ///     Manages the voice over of the message to all clients
-        ///     who are in the corresponding channel.
-        /// </param>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-        Task<Exception> SendMessageAsyncSafely(string mesage, bool isTTS = false);
+        IUpdateAction Update(IWebhookInfo webhookInfo);
 
         #endregion
     }

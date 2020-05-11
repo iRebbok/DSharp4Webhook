@@ -1,3 +1,4 @@
+using DSharp4Webhook.Internal;
 using DSharp4Webhook.Util;
 using System;
 using System.Text;
@@ -9,7 +10,7 @@ namespace DSharp4Webhook.Core
     /// </summary>
     public sealed class MessageBuilder : IDisposable
     {
-        private readonly WebhookMessage _message;
+        private readonly Message _message;
         private readonly StringBuilder _builder;
 
         #region Properties
@@ -43,7 +44,7 @@ namespace DSharp4Webhook.Core
         public MessageBuilder()
         {
             _builder = new StringBuilder();
-            _message = new WebhookMessage();
+            _message = new Message();
         }
 
         public MessageBuilder(MessageBuilder source)
@@ -144,7 +145,7 @@ namespace DSharp4Webhook.Core
             return this;
         }
 
-        public IWebhookMessage Build()
+        public IMessage Build()
         {
             _message.Content = _builder.ToString();
             return _message;

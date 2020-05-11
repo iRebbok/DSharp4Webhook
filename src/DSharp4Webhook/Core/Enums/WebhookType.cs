@@ -1,4 +1,4 @@
-namespace DSharp4Webhook.Core.Enums
+namespace DSharp4Webhook.Core
 {
     public enum WebhookType
     {
