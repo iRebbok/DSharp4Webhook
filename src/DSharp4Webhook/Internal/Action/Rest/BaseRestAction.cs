@@ -60,5 +60,12 @@ namespace DSharp4Webhook.Internal
             if (Result != null && Result.LastResponse.HasValue)
                 Webhook.ActionManager.SetRateLimit(Result.LastResponse.Value.RateLimit);
         }
+
+        protected void CheckExecution()
+        {
+            if (IsExecuted)
+                throw new InvalidOperationException("The action has already been performed");
+            IsExecuted = true;
+        }
     }
 }

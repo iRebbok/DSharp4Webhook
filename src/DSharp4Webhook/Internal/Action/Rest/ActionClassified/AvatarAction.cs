@@ -16,15 +16,17 @@ namespace DSharp4Webhook.Internal
 
         public override async Task<bool> ExecuteAsync()
         {
+            CheckExecution();
+
             string avatarUrl;
             if (_webhookInfo == null)
             {
                 var infoAction = Webhook.Info();
                 await infoAction.ExecuteAsync();
-                avatarUrl = infoAction.Result.WebhookInfo.AvatarUrl;
+                _webhookInfo = infoAction.Result.WebhookInfo;
             }
-            else
-                avatarUrl = _webhookInfo.AvatarUrl;
+
+            avatarUrl = _webhookInfo.AvatarUrl;
 
             if (!string.IsNullOrEmpty(avatarUrl))
             {
