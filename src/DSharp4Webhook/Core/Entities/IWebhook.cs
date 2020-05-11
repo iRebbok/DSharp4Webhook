@@ -113,7 +113,7 @@ namespace DSharp4Webhook.Core
         /// <param name="name">
         ///     Webhook name.
         /// </param>
-        /// <param name="avatarUrl">
+        /// <param name="image">
         ///     Avatar that will use webhook.
         /// </param>
         /// <exception cref="ArgumentOutOfRangeException">
@@ -122,29 +122,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IUpdateAction Update(string name, string avatarUrl);
-
-        /// <summary>
-        ///     Updates the webhook using data from <see cref="IMessage"/>.
-        /// </summary>
-        /// <param name="message">
-        ///     The message contains the data.
-        /// </param>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-        IUpdateAction Update(IMessage message);
-
-        /// <summary>
-        ///     Updates the webhook using data from <see cref="IWebhookInfo"/>.
-        /// </summary>
-        /// <param name="webhookInfo">
-        ///     The webhook info contains the data.
-        /// </param>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-        IUpdateAction Update(IWebhookInfo webhookInfo);
+        IUpdateAction Update(string name, IWebhookImage image);
 
         #endregion
     }

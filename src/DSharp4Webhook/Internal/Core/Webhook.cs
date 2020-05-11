@@ -107,7 +107,7 @@ namespace DSharp4Webhook.Internal
             return new DeleteAction(this);
         }
 
-        public IUpdateAction Update(string name, string avatarUrl)
+        public IUpdateAction Update(string name, IWebhookImage image)
         {
             if (name != null)
             {
@@ -116,18 +116,8 @@ namespace DSharp4Webhook.Internal
                     throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGHT} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
             }
 
-            string data = string.Format("{ {0} {1} }", (name != null ? string.Concat($"\"name\": \"{name}\"", avatarUrl != null ? "," : string.Empty) : string.Empty), $"\"avatar\": \"{avatarUrl}\"");
+            string data = string.Format("{ {0} {1} }", (name != null ? string.Concat($"\"name\": \"{name}\"", image != null ? "," : string.Empty) : string.Empty), $"\"avatar\": \"{image.ToUriScheme()}\"");
             return new UpdateAction(new SerializeContext(Encoding.UTF8.GetBytes(data)), this);
-        }
-
-        public IUpdateAction Update(IMessage message)
-        {
-            return Update(message.Username, message.AvatarUrl);
-        }
-
-        public IUpdateAction Update(IWebhookInfo webhookInfo)
-        {
-            return Update(webhookInfo.Name, webhookInfo.AvatarUrl);
         }
     }
 }

@@ -1,3 +1,4 @@
+using DSharp4Webhook.Action.Rest;
 using DSharp4Webhook.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -42,5 +43,13 @@ namespace DSharp4Webhook.Internal
         public string Token { get => token; }
 
         #endregion
+
+        // the webhook it was created from
+        internal IWebhook _webhook;
+
+        public IAvatarAction GetAvatar()
+        {
+            return new AvatarAction(_webhook, this);
+        }
     }
 }

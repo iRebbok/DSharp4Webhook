@@ -1,3 +1,5 @@
+using DSharp4Webhook.Action.Rest;
+
 namespace DSharp4Webhook.Core
 {
     /// <summary>
@@ -61,5 +63,10 @@ namespace DSharp4Webhook.Core
         ///     Webhook token.
         /// </summary>
         string Token { get; }
+
+        /// <summary>
+        ///     Gets a webhook avatar.
+        /// </summary>
+        IAvatarAction GetAvatar();
     }
 }
