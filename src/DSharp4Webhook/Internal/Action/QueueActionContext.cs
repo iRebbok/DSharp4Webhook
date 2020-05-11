@@ -1,11 +1,12 @@
+using DSharp4Webhook.Action;
 using System;
 
-namespace DSharp4Webhook.Action
+namespace DSharp4Webhook.Internal
 {
     /// <remarks>
     ///     Used for passing the callback to the action manager.
     /// </remarks>
-    public struct QueueActionContext
+    internal struct QueueActionContext
     {
         public IAction Action { get; }
         public Action<IResult, bool> FirstCallback { get; }
