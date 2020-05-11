@@ -53,10 +53,12 @@ namespace DSharp4Webhook.Internal
                     try { successfulness = await actionContext.Action?.ExecuteAsync(); }
                     catch { }
 
-                    actionContext.FirstCallback?.Invoke(actionContext.Action?.GetResult(), successfulness);
-                    actionContext.SecondCallback?.Invoke(successfulness);
-
-                    OnActionExecuted?.Invoke(new ActionContext(actionContext.Action, successfulness));
+                    if (actionContext.FirstCallback != null)
+                        actionContext.FirstCallback.Invoke(actionContext.Action?.GetResult(), successfulness);
+                    else if (actionContext.SecondCallback != null)
+                        actionContext.SecondCallback.Invoke(successfulness);
+                    else
+                        OnActionExecuted?.Invoke(new ActionContext(actionContext.Action, successfulness));
                 }
                 else
                     await Task.Delay(150);
