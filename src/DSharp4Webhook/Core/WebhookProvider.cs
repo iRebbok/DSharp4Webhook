@@ -18,12 +18,13 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Regular expression for parsing the webhook Url.
         /// </summary>
-        public static Regex WebhookUrlRegex { get; } = new Regex(@"^.*discordapp\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static Regex WebhookUrlRegex { get; } = new Regex(@"^.*discord(?:app)?\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$",
+            RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         /// <summary>
         ///     Base url for generating a webhook url if it was created using a token and id.
         /// </summary>
-        public static string WebhookBaseUrl { get; } = "https://discordapp.com/api/webhooks/{0}/{1}";
+        public static string WebhookBaseUrl { get; } = "https://discord.com/api/webhooks/{0}/{1}";
 
         /// <summary>
         ///     Base url for generating avatar urls.
