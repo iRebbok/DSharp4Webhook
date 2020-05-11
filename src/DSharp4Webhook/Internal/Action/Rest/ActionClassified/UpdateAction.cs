@@ -3,6 +3,7 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Serialization;
 using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,6 +20,10 @@ namespace DSharp4Webhook.Internal
 
         public override async Task<bool> ExecuteAsync()
         {
+            if (IsExecuted)
+                throw new InvalidOperationException("The action has already been performed");
+            IsExecuted = true;
+
             var responses = await Webhook.RestProvider.PATCH(Webhook.GetWebhookUrl(), Context, 1);
             var lastResponse = responses[responses.Length - 1];
             WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);

@@ -42,6 +42,10 @@ namespace DSharp4Webhook.Internal
             {
                 if (_actions.TryDequeue(out var actionContext))
                 {
+                    // Skips completed actions
+                    if (actionContext.Action?.IsExecuted ?? false)
+                        continue;
+
                     //todo: logs
                     await FollowRateLimit(_limitInfo);
                     bool successfulness = false;
