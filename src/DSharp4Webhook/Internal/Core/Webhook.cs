@@ -28,6 +28,11 @@ namespace DSharp4Webhook.Internal
                 _status = value;
             }
         }
+        public RestSettings RestSettings
+        {
+            get => _restSettings;
+            set => _restSettings = value ?? _restSettings;
+        }
         public ulong Id { get => _id; }
         public string Token { get => _token; }
 
@@ -35,6 +40,7 @@ namespace DSharp4Webhook.Internal
         private readonly BaseRestProvider _restProvider;
         private readonly ActionManager _actionManager;
 
+        private RestSettings _restSettings;
         private WebhookStatus _status;
 
         private readonly ulong _id;
@@ -73,6 +79,7 @@ namespace DSharp4Webhook.Internal
             _actionManager = new ActionManager(this);
             // Setting the unverified status
             _status = WebhookStatus.NOT_CHECKED;
+            _restSettings = provider?.RestSettings ?? new RestSettings();
         }
 
         public void Dispose()
@@ -85,27 +92,27 @@ namespace DSharp4Webhook.Internal
             return _url;
         }
 
-        public IMessageAction SendMessage(string message, bool isTTS = false)
+        public IMessageAction SendMessage(string message, bool isTTS = false, RestSettings restSettings = null)
         {
-            return new MessageAction(new Message(message, isTTS), this);
+            return new MessageAction(new Message(message, isTTS), this, restSettings ?? _restSettings);
         }
 
-        public IMessageAction SendMessage(IMessage message)
+        public IMessageAction SendMessage(IMessage message, RestSettings restSettings = null)
         {
-            return new MessageAction(message, this);
+            return new MessageAction(message, this, restSettings ?? _restSettings);
         }
 
-        public IInfoAction GetInfo()
+        public IInfoAction GetInfo(RestSettings restSettings = null)
         {
-            return new InfoAction(this);
+            return new InfoAction(this, restSettings ?? _restSettings);
         }
 
-        public IDeleteAction Delete()
+        public IDeleteAction Delete(RestSettings restSettings = null)
         {
-            return new DeleteAction(this);
+            return new DeleteAction(this, restSettings ?? _restSettings);
         }
 
-        public IModifyAction Modify(string name)
+        public IModifyAction Modify(string name, RestSettings restSettings = null)
         {
             if (name != null)
             {
@@ -116,10 +123,10 @@ namespace DSharp4Webhook.Internal
 
             var data = new ModifyContent();
             data.name = name;
-            return new ModifyAction(data.Serialize(), this);
+            return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
         }
 
-        public IModifyAction Modify(string name, IWebhookImage image)
+        public IModifyAction Modify(string name, IWebhookImage image, RestSettings restSettings = null)
         {
             if (name != null)
             {
@@ -131,7 +138,7 @@ namespace DSharp4Webhook.Internal
             var data = new ModifyContent();
             data.name = name;
             data.avatar = image == null ? null : image.ToUriScheme();
-            return new ModifyAction(data.Serialize(), this);
+            return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
         }
     }
 }

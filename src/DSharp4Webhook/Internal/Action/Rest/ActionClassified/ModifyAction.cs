@@ -1,5 +1,6 @@
 using DSharp4Webhook.Action.Rest;
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Rest;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Serialization;
 using Newtonsoft.Json;
@@ -12,7 +13,7 @@ namespace DSharp4Webhook.Internal
     {
         public SerializeContext Context { get; }
 
-        public ModifyAction(SerializeContext context, IWebhook webhook) : base(webhook)
+        public ModifyAction(SerializeContext context, IWebhook webhook, RestSettings restSettings) : base(webhook, restSettings)
         {
             Context = context;
         }
@@ -20,7 +21,7 @@ namespace DSharp4Webhook.Internal
         public override async Task<bool> ExecuteAsync()
         {
             CheckExecution();
-            var responses = await Webhook.RestProvider.PATCH(Webhook.GetWebhookUrl(), Context, 1);
+            var responses = await Webhook.RestProvider.PATCH(Webhook.GetWebhookUrl(), Context, RestSettings);
             var lastResponse = responses[responses.Length - 1];
             WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
             webhookInfo._webhook = Webhook;

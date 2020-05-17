@@ -1,5 +1,6 @@
 using DSharp4Webhook.Action.Rest;
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Rest;
 using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Internal
@@ -8,7 +9,7 @@ namespace DSharp4Webhook.Internal
     {
         private IWebhookInfo _webhookInfo;
 
-        public AvatarAction(IWebhook webhook, IWebhookInfo webhookInfo = null) : base(webhook)
+        public AvatarAction(IWebhook webhook, RestSettings restSettings, IWebhookInfo webhookInfo = null) : base(webhook, restSettings)
         {
             _webhookInfo = webhookInfo;
         }
@@ -29,7 +30,7 @@ namespace DSharp4Webhook.Internal
 
             if (!string.IsNullOrEmpty(avatarUrl))
             {
-                var responses = await Webhook.RestProvider.GET(avatarUrl, 1);
+                var responses = await Webhook.RestProvider.GET(avatarUrl, RestSettings);
                 var lastResponse = responses[responses.Length - 1];
                 Result = new AvatarResult(new WebhookImage(lastResponse.Data), responses);
                 return true;

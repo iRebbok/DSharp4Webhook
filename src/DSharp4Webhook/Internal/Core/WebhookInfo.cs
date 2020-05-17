@@ -49,7 +49,7 @@ namespace DSharp4Webhook.Internal
 
         public IAvatarAction GetAvatar()
         {
-            return new AvatarAction(_webhook, this);
+            return new AvatarAction(_webhook, _webhook.RestSettings, this);
         }
     }
 }

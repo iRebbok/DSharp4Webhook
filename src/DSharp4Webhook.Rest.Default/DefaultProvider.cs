@@ -39,30 +39,30 @@ namespace DSharp4Webhook.Rest.Default
             _httpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
 
-        public override async Task<RestResponse[]> GET(string url, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> GET(string url, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, maxAttempts);
+            return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, restSettings);
         }
 
-        public override async Task<RestResponse[]> POST(string url, SerializeContext data, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
 
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url))
             {
                 PrepareContent(requestMessage, data);
-                return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, maxAttempts);
+                return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, restSettings);
             }
         }
 
-        public override async Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> DELETE(string url, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            return await Raw(_httpClient.DeleteAsync(url), DELETE_ALLOWED_STATUSES, maxAttempts);
+            return await Raw(_httpClient.DeleteAsync(url), DELETE_ALLOWED_STATUSES, restSettings);
         }
 
-        public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             Checks.CheckForArgument(data.Type != SerializeType.APPLICATION_JSON, nameof(data), "API do not support sending PATH as 'multipart/from-data'");
@@ -70,12 +70,13 @@ namespace DSharp4Webhook.Rest.Default
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url))
             {
                 PrepareContent(requestMessage, data);
-                return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, maxAttempts);
+                return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, restSettings);
             }
         }
 
-        private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1)
+        private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, RestSettings restSettings)
         {
+            Checks.CheckForNull(restSettings, nameof(restSettings));
             Checks.CheckWebhookStatus(_webhook.Status);
             Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
 
@@ -98,7 +99,7 @@ namespace DSharp4Webhook.Rest.Default
                 ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
                 Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
 
-            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
+            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.MaxAttempts > 0 ? ++currentAttimpts <= restSettings.MaxAttempts : true)));
 
             return responses.ToArray();
         }

@@ -25,13 +25,13 @@ namespace DSharp4Webhook.Rest.Manipulation
             _webhook = webhook;
         }
 
-        public abstract Task<RestResponse[]> POST(string url, SerializeContext data, uint maxAttempts = 1);
+        public abstract Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings);
 
-        public abstract Task<RestResponse[]> GET(string url, uint maxAttempts = 1);
+        public abstract Task<RestResponse[]> GET(string url, RestSettings restSettings);
 
-        public abstract Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1);
+        public abstract Task<RestResponse[]> DELETE(string url, RestSettings restSettings);
 
-        public abstract Task<RestResponse[]> PATCH(string url, SerializeContext data, uint maxAttempts = 1);
+        public abstract Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings);
 
         /// <remarks>
         ///     Wrapper for processing returned status codes.

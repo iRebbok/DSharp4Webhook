@@ -53,6 +53,12 @@ namespace DSharp4Webhook.Core
         /// </summary>
         public string Id { get; }
 
+        private RestSettings _restSettings;
+        /// <summary>
+        ///     Rest settings which will use the following webhook when creating it.
+        /// </summary>
+        public RestSettings RestSettings { get => _restSettings; set => _restSettings = value ?? _restSettings; }
+
         #endregion
 
         #region Fields
@@ -75,6 +81,7 @@ namespace DSharp4Webhook.Core
             Id = !string.IsNullOrEmpty(id) ? id : throw new ArgumentException("Unique identifier cannot be null or empty", nameof(id));
 
             _webhooks = new Dictionary<ulong, IWebhook>();
+            _restSettings = new RestSettings();
         }
 
         #region Static Methods

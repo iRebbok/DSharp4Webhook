@@ -27,7 +27,7 @@ namespace DSharp4Webhook.Util
             Checks.CheckForNull(webhook, nameof(webhook));
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
 
-            return new AvatarAction(webhook, null);
+            return new AvatarAction(webhook, webhook.RestSettings, null);
         }
 
         /// <summary>

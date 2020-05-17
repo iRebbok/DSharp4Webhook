@@ -1,3 +1,5 @@
+using DSharp4Webhook.Rest;
+
 namespace DSharp4Webhook.Action
 {
     /// <remarks>
@@ -8,5 +10,11 @@ namespace DSharp4Webhook.Action
     /// <summary>
     ///     Action related to rest.
     /// </summary>
-    public interface IRestAction<TResult> : IAction<TResult> where TResult : IRestResult { }
+    public interface IRestAction<TResult> : IAction<TResult> where TResult : IRestResult
+    {
+        /// <summary>
+        ///     Rest settings that the current action will be performed with.
+        /// </summary>
+        public RestSettings RestSettings { get; }
+    }
 }

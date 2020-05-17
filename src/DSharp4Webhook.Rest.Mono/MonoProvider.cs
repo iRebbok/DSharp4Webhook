@@ -33,33 +33,34 @@ namespace DSharp4Webhook.Rest.Mono
 
         public MonoProvider(IWebhook webhook) : base(webhook) { }
 
-        public override async Task<RestResponse[]> GET(string url, uint maxAttempts)
+        public override async Task<RestResponse[]> GET(string url, RestSettings restSettings)
         {
-            return await Raw("GET", url, GET_ALLOWED_STATUSES, maxAttempts);
+            return await Raw("GET", url, GET_ALLOWED_STATUSES, restSettings);
         }
 
-        public override async Task<RestResponse[]> POST(string url, SerializeContext data, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
         {
-            return await Raw("POST", url, POST_ALLOWED_STATUSES, maxAttempts, data);
+            return await Raw("POST", url, POST_ALLOWED_STATUSES, restSettings, data);
         }
 
-        public override async Task<RestResponse[]> DELETE(string url, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> DELETE(string url, RestSettings restSettings)
         {
-            return await Raw("DELETE", url, DELETE_ALLOWED_STATUSES, maxAttempts);
+            return await Raw("DELETE", url, DELETE_ALLOWED_STATUSES, restSettings);
         }
 
-        public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, uint maxAttempts = 1)
+        public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
         {
             Checks.CheckForArgument(data.Type != SerializeType.APPLICATION_JSON, nameof(data), "API do not support sending PATH as 'multipart/from-data'");
-            return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, maxAttempts, data);
+            return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, restSettings, data);
         }
 
-        private async Task<RestResponse[]> Raw(string method, string url, HttpStatusCode[] allowedStatuses, uint maxAttempts = 1, SerializeContext? data = null)
+        private async Task<RestResponse[]> Raw(string method, string url, HttpStatusCode[] allowedStatuses, RestSettings restSettings, SerializeContext? data = null)
         {
             Checks.CheckWebhookStatus(_webhook.Status);
             Checks.CheckForArgument(string.IsNullOrEmpty(method), nameof(method));
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            Checks.CheckForNull(allowedStatuses);
+            Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
+            Checks.CheckForNull(restSettings, nameof(restSettings));
 
             List<RestResponse> responses = new List<RestResponse>();
 
@@ -104,7 +105,7 @@ namespace DSharp4Webhook.Rest.Mono
                 Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
 
                 // first of all we check the forceStop so that we don't go any further if
-            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (maxAttempts > 0 ? ++currentAttimpts <= maxAttempts : true)));
+            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.MaxAttempts > 0 ? ++currentAttimpts <= restSettings.MaxAttempts : true)));
 
             return responses.ToArray();
         }

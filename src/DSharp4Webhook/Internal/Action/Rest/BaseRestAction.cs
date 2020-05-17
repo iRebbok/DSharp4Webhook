@@ -1,5 +1,6 @@
 using DSharp4Webhook.Action;
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Rest;
 using System;
 using System.Threading.Tasks;
 
@@ -10,10 +11,12 @@ namespace DSharp4Webhook.Internal
         public TResult Result { get; protected set; }
         public IWebhook Webhook { get; }
         public bool IsExecuted { get; protected set; }
+        public RestSettings RestSettings { get; }
 
-        protected BaseRestAction(IWebhook webhook)
+        protected BaseRestAction(IWebhook webhook, RestSettings restSettings)
         {
             Webhook = webhook;
+            RestSettings = restSettings;
         }
 
         public bool Execute()
