@@ -97,7 +97,7 @@ namespace DSharp4Webhook.Internal
             return new MessageAction(message, this);
         }
 
-        public IInfoAction Info()
+        public IInfoAction GetInfo()
         {
             return new InfoAction(this);
         }
@@ -107,7 +107,7 @@ namespace DSharp4Webhook.Internal
             return new DeleteAction(this);
         }
 
-        public IUpdateAction Update(string name, IWebhookImage image)
+        public IUpdateAction Modify(string name, IWebhookImage image)
         {
             if (name != null)
             {

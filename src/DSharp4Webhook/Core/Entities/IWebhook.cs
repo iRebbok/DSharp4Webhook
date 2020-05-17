@@ -96,7 +96,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IInfoAction Info();
+        IInfoAction GetInfo();
 
         /// <summary>
         ///     Deletes the webhook.
@@ -122,7 +122,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IUpdateAction Update(string name, IWebhookImage image);
+        IUpdateAction Modify(string name, IWebhookImage image);
 
         #endregion
     }
