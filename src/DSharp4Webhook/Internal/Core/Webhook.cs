@@ -110,8 +110,8 @@ namespace DSharp4Webhook.Internal
             if (name != null)
             {
                 name = name.Trim();
-                if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGHT || name.Length >= WebhookProvider.MIN_NICKNAME_LENGHT)
-                    throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGHT} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
+                if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)
+                    throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
             }
 
             var data = new ModifyContent();
@@ -124,8 +124,8 @@ namespace DSharp4Webhook.Internal
             if (name != null)
             {
                 name = name.Trim();
-                if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGHT || name.Length >= WebhookProvider.MIN_NICKNAME_LENGHT)
-                    throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGHT} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
+                if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)
+                    throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
             }
 
             var data = new ModifyContent();

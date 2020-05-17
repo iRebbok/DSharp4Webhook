@@ -38,7 +38,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Minimum limit on the number of characters in a nickname.
         /// </summary>
-        public static int MIN_NICKNAME_LENGHT { get; } = 1;
+        public static int MIN_NICKNAME_LENGTH { get; } = 1;
         /// <summary>
         ///     Maximum limit on the number of characters in a nickname.
         /// </summary>

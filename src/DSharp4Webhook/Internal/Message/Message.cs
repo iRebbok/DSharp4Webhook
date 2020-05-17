@@ -37,15 +37,15 @@ namespace DSharp4Webhook.Internal
         [JsonProperty(PropertyName = "username")]
         public string Username
         {
-            get => username?.Length <= WebhookProvider.MAX_NICKNAME_LENGTH || username?.Length >= WebhookProvider.MIN_NICKNAME_LENGHT ? username : null;
+            get => username?.Length <= WebhookProvider.MAX_NICKNAME_LENGTH || username?.Length >= WebhookProvider.MIN_NICKNAME_LENGTH ? username : null;
             set
             {
                 if (value != null)
                 {
-                    if ((value = value.Trim()).Length >= WebhookProvider.MIN_NICKNAME_LENGHT || value.Length <= WebhookProvider.MAX_NICKNAME_LENGTH)
+                    if ((value = value.Trim()).Length >= WebhookProvider.MIN_NICKNAME_LENGTH || value.Length <= WebhookProvider.MAX_NICKNAME_LENGTH)
                         username = value;
                     else
-                        throw new ArgumentOutOfRangeException(nameof(Username), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGHT} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
+                        throw new ArgumentOutOfRangeException(nameof(Username), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
                 }
                 // Null set possible
                 else
