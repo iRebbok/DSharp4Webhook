@@ -3,10 +3,8 @@ using DSharp4Webhook.Action.Rest;
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Rest.Manipulation;
-using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System;
-using System.Text;
 
 namespace DSharp4Webhook.Internal
 {

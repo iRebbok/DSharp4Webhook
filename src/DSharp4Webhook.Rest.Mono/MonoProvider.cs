@@ -6,7 +6,6 @@ using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
@@ -92,7 +91,7 @@ namespace DSharp4Webhook.Rest.Mono
 
                 RestResponse restResponse;
                 using (HttpWebResponse response = request.GetResponseNoException())
-                {           
+                {
                     RateLimitInfo rateLimitInfo = new RateLimitInfo(response.Headers.GetAsDictionary());
                     restResponse = new RestResponse(response, rateLimitInfo, currentAttimpts);
                     responses.Add(restResponse);

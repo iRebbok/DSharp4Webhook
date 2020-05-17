@@ -1,6 +1,5 @@
 using DSharp4Webhook.Action.Rest;
 using DSharp4Webhook.Core;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Internal
