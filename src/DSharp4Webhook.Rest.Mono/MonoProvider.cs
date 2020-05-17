@@ -92,13 +92,9 @@ namespace DSharp4Webhook.Rest.Mono
 
                 RestResponse restResponse;
                 using (HttpWebResponse response = request.GetResponseNoException())
-                {
-                    string responseContent;
-                    using (Stream responseStream = response.GetResponseStream())
-                        responseContent = StreamUtil.Read(responseStream);
+                {           
                     RateLimitInfo rateLimitInfo = new RateLimitInfo(response.Headers.GetAsDictionary());
-                    HttpStatusCode statusCode = response.StatusCode;
-                    restResponse = new RestResponse(statusCode, rateLimitInfo, responseContent, currentAttimpts);
+                    restResponse = new RestResponse(response, rateLimitInfo, currentAttimpts);
                     responses.Add(restResponse);
 
                     response.Close();

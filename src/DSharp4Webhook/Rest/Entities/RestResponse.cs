@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 
 namespace DSharp4Webhook.Rest
 {
@@ -9,14 +10,28 @@ namespace DSharp4Webhook.Rest
     {
         public HttpStatusCode StatusCode { get; }
         public RateLimitInfo RateLimit { get; }
-        public string Content { get; }
+        public byte[] Data { get; }
+        public string Content { get => Encoding.UTF8.GetString(Data); }
         public uint Attempts { get; }
 
-        public RestResponse(HttpStatusCode code, RateLimitInfo rateLimit, string content, uint attempts)
+        public RestResponse(HttpWebResponse webResponse, RateLimitInfo rateLimit, uint attempts)
         {
-            StatusCode = code;
+            StatusCode = webResponse.StatusCode;
             RateLimit = rateLimit;
-            Content = content;
+            Attempts = attempts;
+
+            using (var stream = webResponse.GetResponseStream())
+            {
+                Data = new byte[stream.Length];
+                stream.Read(Data, 0, Data.Length);
+            }
+        }
+
+        public RestResponse(HttpStatusCode statusCode, RateLimitInfo rateLimit, byte[] data, uint attempts)
+        {
+            StatusCode = statusCode;
+            RateLimit = rateLimit;
+            Data = data;
             Attempts = attempts;
         }
     }

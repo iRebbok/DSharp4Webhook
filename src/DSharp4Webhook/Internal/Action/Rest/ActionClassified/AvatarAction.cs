@@ -32,7 +32,7 @@ namespace DSharp4Webhook.Internal
             {
                 var responses = await Webhook.RestProvider.GET(avatarUrl, 1);
                 var lastResponse = responses[responses.Length - 1];
-                Result = new AvatarResult(new WebhookImage(Encoding.ASCII.GetBytes(lastResponse.Content)), responses);
+                Result = new AvatarResult(new WebhookImage(lastResponse.Data), responses);
                 return true;
             }
             return false;
