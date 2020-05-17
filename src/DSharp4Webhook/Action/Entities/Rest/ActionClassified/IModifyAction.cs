@@ -5,7 +5,7 @@ namespace DSharp4Webhook.Action.Rest
     /// <summary>
     ///     Webhook update action, name change, avatar change.
     /// </summary>
-    public interface IUpdateAction : IRestAction<IUpdateResult>
+    public interface IModifyAction : IRestAction<IModifyResult>
     {
         /// <summary>
         ///     The serialized data contains name and avatar_url.

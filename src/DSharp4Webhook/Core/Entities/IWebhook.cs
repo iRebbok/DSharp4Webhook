@@ -108,13 +108,13 @@ namespace DSharp4Webhook.Core
         IDeleteAction Delete();
 
         /// <summary>
-        ///     Updates the webhook.
+        ///     Modifies the webhook.
+        ///     <para>
+        ///         The only difference from a similar method is that it does not modify the image.
+        ///     </para>
         /// </summary>
         /// <param name="name">
         ///     Webhook name.
-        /// </param>
-        /// <param name="image">
-        ///     Avatar that will use webhook.
         /// </param>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     One of the arguments does not meet the requirements.
@@ -122,7 +122,25 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IUpdateAction Modify(string name, IWebhookImage image);
+        IModifyAction Modify(string name);
+
+        /// <summary>
+        ///     Modifies the webhook.
+        /// </summary>
+        /// <param name="name">
+        ///     Webhook name.
+        /// </param>
+        /// <param name="image">
+        ///     Avatar that will use webhook.
+        ///     A null value will mean resetting the image for the webhook.
+        /// </param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     One of the arguments does not meet the requirements.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+        IModifyAction Modify(string name, IWebhookImage image);
 
         #endregion
     }

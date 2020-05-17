@@ -7,10 +7,17 @@ namespace DSharp4Webhook.Internal
 {
     internal sealed class WebhookImage : IWebhookImage
     {
+        /// <summary>
+        ///     An empty image that will not modify the webhook.
+        /// </summary>
+        public static WebhookImage Empty { get; } = new WebhookImage();
+
         public byte[] Data { get => _data; }
 
         private byte[] _data;
         private string _uriCached;
+
+        private WebhookImage() { }
 
         public WebhookImage(byte[] data)
         {
@@ -47,6 +54,10 @@ namespace DSharp4Webhook.Internal
 
         public string ToUriScheme()
         {
+            // Easy processing for an empty image
+            if (_data == null)
+                return "qwerty";
+
             if (!string.IsNullOrEmpty(_uriCached))
                 return _uriCached;
 

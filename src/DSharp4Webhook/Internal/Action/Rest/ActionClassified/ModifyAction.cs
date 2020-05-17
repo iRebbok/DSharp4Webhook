@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Internal
 {
-    internal sealed class UpdateAction : BaseRestAction<IUpdateResult>, IUpdateAction
+    internal sealed class ModifyAction : BaseRestAction<IModifyResult>, IModifyAction
     {
         public SerializeContext Context { get; }
 
-        public UpdateAction(SerializeContext context, IWebhook webhook) : base(webhook)
+        public ModifyAction(SerializeContext context, IWebhook webhook) : base(webhook)
         {
             Context = context;
         }
@@ -24,7 +24,7 @@ namespace DSharp4Webhook.Internal
             var lastResponse = responses[responses.Length - 1];
             WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
             webhookInfo._webhook = Webhook;
-            Result = new UpdateResult(webhookInfo, responses);
+            Result = new ModifyResult(webhookInfo, responses);
             SettingRateLimit();
             return BaseRestProvider.GET_ALLOWED_STATUSES.Contains(lastResponse.StatusCode);
         }
