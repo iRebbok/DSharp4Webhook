@@ -54,11 +54,11 @@ namespace DSharp4Webhook.Internal
                     catch { }
 
                     if (actionContext.FirstCallback != null)
-                        actionContext.FirstCallback.Invoke(actionContext.Action?.GetResult(), successfulness);
+                        EventUtil.HandleSafely(false, actionContext.FirstCallback.Method, null, actionContext.Action?.GetResult(), successfulness);
                     else if (actionContext.SecondCallback != null)
-                        actionContext.SecondCallback.Invoke(successfulness);
+                        EventUtil.HandleSafely(false, actionContext.SecondCallback.Method, null, successfulness);
                     else
-                        OnActionExecuted?.Invoke(new ActionContext(actionContext.Action, successfulness));
+                        OnActionExecuted.InvokeSafely(false, new ActionContext(actionContext.Action, successfulness));
                 }
                 else
                     await Task.Delay(150);
