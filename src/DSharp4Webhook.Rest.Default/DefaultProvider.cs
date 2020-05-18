@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest.Default
 {
-    // Higher priority due to using this type of provider due to some issues about the Mono type
-    [ProviderPriority(1)]
     public sealed class DefaultProvider : BaseRestProvider
     {
         private readonly HttpClient _httpClient;

@@ -70,16 +70,5 @@ namespace DSharp4Webhook.Rest
             var providerType = GetProviderType();
             return Activator.CreateInstance(providerType, webhook) as BaseRestProvider;
         }
-
-        private class RestProviderComparer : IComparer<Type>
-        {
-            public int Compare(Type x, Type y)
-            {
-                byte primaryPriority = x.GetCustomAttribute<ProviderPriorityAttribute>()?.Priority ?? 0;
-                byte secondaryPriority = y.GetCustomAttribute<ProviderPriorityAttribute>()?.Priority ?? 0;
-
-                return secondaryPriority.CompareTo(primaryPriority);
-            }
-        }
     }
 }

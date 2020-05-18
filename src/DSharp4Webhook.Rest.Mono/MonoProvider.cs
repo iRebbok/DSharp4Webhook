@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest.Mono
 {
-    [ProviderPriority(0)]
     public sealed class MonoProvider : BaseRestProvider
     {
         /// <summary>
