@@ -33,6 +33,11 @@ namespace DSharp4Webhook.Internal
             get => _restSettings;
             set => _restSettings = value ?? _restSettings;
         }
+        public AllowedMention AllowedMention
+        {
+            get => _allowedMention;
+            set => _allowedMention = value;
+        }
         public ulong Id { get => _id; }
         public string Token { get => _token; }
 
@@ -42,26 +47,12 @@ namespace DSharp4Webhook.Internal
 
         private RestSettings _restSettings;
         private WebhookStatus _status;
+        private AllowedMention _allowedMention;
 
         private readonly ulong _id;
         private readonly string _token;
         private readonly string _url;
 
-        /// <summary>
-        ///     Creates a webhook.
-        /// </summary>
-        /// <param name="provider">
-        ///     Provider of the webhook, may be null.
-        /// </param>
-        /// <param name="id">
-        ///     Webhook id.
-        /// </param>
-        /// <param name="token">
-        ///     Webhook token.
-        /// </param>
-        /// <param name="url">
-        ///     Webhook url.
-        /// </param>
         /// <exception cref="ArgumentException">
         ///     If the url or token is null or empty.
         /// </exception>
@@ -74,11 +65,13 @@ namespace DSharp4Webhook.Internal
             _token = token;
             _url = url;
 
+            // Setting the unverified status
+            _status = WebhookStatus.NOT_CHECKED;
+            _allowedMention = provider?.AllowedMention ?? AllowedMention.NONE;
+
             _restProvider = RestProviderLoader.CreateProvider(this);
             _provider = provider;
             _actionManager = new ActionManager(this);
-            // Setting the unverified status
-            _status = WebhookStatus.NOT_CHECKED;
             _restSettings = provider?.RestSettings ?? new RestSettings();
         }
 
@@ -92,9 +85,12 @@ namespace DSharp4Webhook.Internal
             return _url;
         }
 
-        public IMessageAction SendMessage(string message, bool isTTS = false, RestSettings restSettings = null)
+        public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention messageMention = null, RestSettings restSettings = null)
         {
-            return new MessageAction(new Message(message, isTTS), this, restSettings ?? _restSettings);
+            messageMention = messageMention ?? new MessageMention(_allowedMention);
+            restSettings = restSettings ?? _restSettings;
+
+            return new MessageAction(new Message(message, messageMention, isTTS), this, restSettings);
         }
 
         public IMessageAction SendMessage(IMessage message, RestSettings restSettings = null)

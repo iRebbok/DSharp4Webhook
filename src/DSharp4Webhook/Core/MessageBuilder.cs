@@ -15,29 +15,50 @@ namespace DSharp4Webhook.Core
 
         #region Properties
 
+        /// <summary>
+        ///     The content of the message.
+        /// </summary>
         public string Content
         {
             get => _message.Content;
             set => _message.Content = value;
         }
 
+        /// <summary>
+        ///     Whether the TTS determines this message or not.
+        /// </summary>
         public bool IsTTS
         {
             get => _message.IsTTS;
             set => _message.IsTTS = value;
         }
 
+        /// <summary>
+        ///     Username of the webhook that will be used for this message.
+        /// </summary>
         public string Username
         {
             get => _message.Username;
             set => _message.Username = value;
         }
 
+        /// <summary>
+        ///     An image that will use webhook on this message.
+        /// </summary>
         public string AvatarUrl
         {
             get => _message.AvatarUrl;
             set => _message.AvatarUrl = value;
         }
+
+        #endregion
+
+        #region Static methods
+
+        /// <summary>
+        ///     Gets default mentions in the message.
+        /// </summary>
+        public static IMessageMention GetDefaultMessageMention() => new MessageMention(AllowedMention.NONE);
 
         #endregion
 
@@ -52,6 +73,8 @@ namespace DSharp4Webhook.Core
             _message = source._message;
             _builder = source._builder;
         }
+
+        #region Methods
 
         /// <summary>
         ///     Adds text to the current text.
@@ -145,6 +168,23 @@ namespace DSharp4Webhook.Core
             return this;
         }
 
+        /// <summary>
+        ///     Sets the handler for mentions in the message.
+        /// </summary>
+        /// <returns>
+        ///     The current MessageBuilder.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        ///     <paramref name="messageMention"/> is null.
+        /// </exception>
+        public MessageBuilder SetMessageMention(IMessageMention messageMention)
+        {
+            Checks.CheckForNull(messageMention, nameof(messageMention));
+            _message.Mention = messageMention;
+
+            return this;
+        }
+
         public IMessage Build()
         {
             _message.Content = _builder.ToString();
@@ -154,6 +194,12 @@ namespace DSharp4Webhook.Core
         public void Dispose()
         {
             _builder.Clear();
+
+            // a null value does not cause an error, just clears it
+            _message.Mention.Roles = null;
+            _message.Mention.Users = null;
         }
+
+        #endregion
     }
 }

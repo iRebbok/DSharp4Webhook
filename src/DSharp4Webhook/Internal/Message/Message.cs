@@ -1,6 +1,8 @@
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Serialization;
+using DSharp4Webhook.Util;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
 
@@ -56,12 +58,17 @@ namespace DSharp4Webhook.Internal
         [JsonProperty(PropertyName = "avatar_url")]
         public string AvatarUrl { get; set; } = null;
 
+        private IMessageMention _mention;
+        public IMessageMention Mention { get => _mention; set => _mention = value ?? _mention; }
+
         public Message() { }
 
-        public Message(string message, bool isTTS = false)
+        public Message(string message, IMessageMention messageMention, bool isTTS = false)
         {
+            Checks.CheckForNull(messageMention, nameof(messageMention));
             Content = message;
             IsTTS = isTTS;
+            _mention = messageMention;
         }
 
         public Message(IMessage source)
@@ -70,11 +77,15 @@ namespace DSharp4Webhook.Internal
             AvatarUrl = source.AvatarUrl;
             Content = source.Content;
             IsTTS = source.IsTTS;
+
+            _mention = source.Mention;
         }
 
         public SerializeContext Serialize()
         {
-            return new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)));
+            var jobject = JObject.FromObject(this);
+            jobject.Add("allowed_mentions", JToken.Parse(Encoding.ASCII.GetString(_mention.Serialize().Content)));
+            return new SerializeContext(Encoding.UTF8.GetBytes(jobject.ToString()));
         }
     }
 }

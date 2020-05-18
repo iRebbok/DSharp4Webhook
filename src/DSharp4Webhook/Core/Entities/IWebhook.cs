@@ -22,17 +22,17 @@ namespace DSharp4Webhook.Core
         ///     Is null for webhooks created without a provider.
         /// </summary>
 #nullable enable
-        WebhookProvider? Provider { get; }
+        public WebhookProvider? Provider { get; }
 
         /// <summary>
         ///     Provider for REST requests.
         /// </summary>
-        BaseRestProvider RestProvider { get; }
+        public BaseRestProvider RestProvider { get; }
 
         /// <summary>
         ///     Action manager.
         /// </summary>
-        IActionManager ActionManager { get; }
+        public IActionManager ActionManager { get; }
 
         /// <summary>
         ///     Webhook statuses.
@@ -43,22 +43,27 @@ namespace DSharp4Webhook.Core
         ///     When trying to assign a value to a nonexistent webhook
         ///     or downgrade the status to an existing webhook.
         /// </exception>
-        WebhookStatus Status { get; set; }
+        public WebhookStatus Status { get; set; }
 
         /// <summary>
         ///     Rest settings that will be used when creating rest queries.
         /// </summary>
-        RestSettings RestSettings { get; set; }
+        public RestSettings RestSettings { get; set; }
+
+        /// <summary>
+        ///     Allowed mentions for webhook.
+        /// </summary>
+        public AllowedMention AllowedMention { get; set; }
 
         /// <summary>
         ///     Webhook id.
         /// </summary>
-        ulong Id { get; }
+        public ulong Id { get; }
 
         /// <summary>
         ///     Webhook token.
         /// </summary>
-        string Token { get; }
+        public string Token { get; }
 
         #endregion
 
@@ -68,7 +73,7 @@ namespace DSharp4Webhook.Core
         ///     Gets the url of the webhack to interact with the API,
         ///     and your subdomain Url can be used if it is valid.
         /// </summary>
-        string GetWebhookUrl();
+        public string GetWebhookUrl();
 
         /// <summary>
         ///     Send messages.
@@ -80,10 +85,17 @@ namespace DSharp4Webhook.Core
         ///     Manages the voice over of the message to all clients
         ///     who are in the corresponding channel.
         /// </param>
+        /// <param name="messageMention">
+        ///     Settings for allowed mentions.
+        ///     By default, the current value for the webhook is used.
+        /// </param>
+        /// <param name="restSettings">
+        ///     Settings for rest request.
+        /// </param>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IMessageAction SendMessage(string message, bool isTTS = false, RestSettings? restSettings = null);
+        public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null);
 
         /// <summary>
         ///     Send messages.
@@ -94,7 +106,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null);
+        public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null);
 
         /// <summary>
         ///     Retrieves information about webhook.
@@ -102,7 +114,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IInfoAction GetInfo(RestSettings? restSettings = null);
+        public IInfoAction GetInfo(RestSettings? restSettings = null);
 
         /// <summary>
         ///     Deletes the webhook.
@@ -111,7 +123,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IDeleteAction Delete(RestSettings? restSettings = null);
+        public IDeleteAction Delete(RestSettings? restSettings = null);
 
         /// <summary>
         ///     Modifies the webhook.
@@ -128,7 +140,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IModifyAction Modify(string name, RestSettings? restSettings = null);
+        public IModifyAction Modify(string name, RestSettings? restSettings = null);
 
         /// <summary>
         ///     Modifies the webhook.
@@ -146,7 +158,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        IModifyAction Modify(string name, IWebhookImage image, RestSettings? restSettings = null);
+        public IModifyAction Modify(string name, IWebhookImage image, RestSettings? restSettings = null);
 
         #endregion
     }

@@ -15,13 +15,13 @@ namespace DSharp4Webhook.Core
         ///     When you try to set <see cref="string.Empty"/> or a value greater than 80 characters.
         /// </exception>
 #nullable enable
-        string? Username { get; set; }
+        public string? Username { get; set; }
 
         /// <summary>
         ///     Avatar that will be displayed in webhook with the message.
         /// </summary>
 #nullable enable
-        string? AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
         /// <summary>
         ///     The content of the message.
@@ -30,11 +30,16 @@ namespace DSharp4Webhook.Core
         ///     When you try to set a value greater than 2000 characters.
         /// </exception>
 #nullable enable
-        string? Content { get; set; }
+        public string? Content { get; set; }
 
         /// <summary>
         ///     Whether the TTS determines this message or not.
         /// </summary>        
-        bool IsTTS { get; set; }
+        public bool IsTTS { get; set; }
+
+        /// <summary>
+        ///     Allowed mentions for a message.
+        /// </summary>
+        public IMessageMention Mention { get; set; }
     }
 }

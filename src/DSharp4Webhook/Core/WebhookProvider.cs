@@ -59,6 +59,11 @@ namespace DSharp4Webhook.Core
         /// </summary>
         public RestSettings RestSettings { get => _restSettings; set => _restSettings = value ?? _restSettings; }
 
+        /// <summary>
+        ///     Allowed mentions to use when creating webhooks.
+        /// </summary>
+        public AllowedMention AllowedMention { get; set; }
+
         #endregion
 
         #region Fields
