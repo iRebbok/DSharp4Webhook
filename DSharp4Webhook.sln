@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharp4Webhook.Rest.Mono", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rest", "Rest", "{45BE34B6-220C-4961-A7AD-CD468941E110}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharp4Webhook.Rest.Default", "src\DSharp4Webhook.Rest.Default\DSharp4Webhook.Rest.Default.csproj", "{1F8AEA19-0A81-4995-943E-19D039D2C2CA}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EditorConfig", "EditorConfig", "{C5DA1D7A-6467-45D8-A7D6-ECF7ACBDFF3B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -30,17 +28,12 @@ Global
 		{A2F3A3FA-9624-4A4D-A705-3596DDABA25E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2F3A3FA-9624-4A4D-A705-3596DDABA25E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2F3A3FA-9624-4A4D-A705-3596DDABA25E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F8AEA19-0A81-4995-943E-19D039D2C2CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F8AEA19-0A81-4995-943E-19D039D2C2CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F8AEA19-0A81-4995-943E-19D039D2C2CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F8AEA19-0A81-4995-943E-19D039D2C2CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2F3A3FA-9624-4A4D-A705-3596DDABA25E} = {45BE34B6-220C-4961-A7AD-CD468941E110}
-		{1F8AEA19-0A81-4995-943E-19D039D2C2CA} = {45BE34B6-220C-4961-A7AD-CD468941E110}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E69E25CF-9808-4F8F-94BA-7C9A2AF51936}
