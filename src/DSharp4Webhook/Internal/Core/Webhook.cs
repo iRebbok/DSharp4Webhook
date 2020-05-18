@@ -133,7 +133,7 @@ namespace DSharp4Webhook.Internal
 
             var data = new ModifyContent();
             data.name = name;
-            data.avatar = image == null ? null : image.ToUriScheme();
+            data.image = image;
             return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
         }
     }

@@ -54,10 +54,6 @@ namespace DSharp4Webhook.Internal
 
         public string ToUriScheme()
         {
-            // Easy processing for an empty image
-            if (_data == null)
-                return "qwerty";
-
             if (!string.IsNullOrEmpty(_uriCached))
                 return _uriCached;
 
