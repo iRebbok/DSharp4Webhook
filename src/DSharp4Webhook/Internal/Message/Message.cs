@@ -2,8 +2,6 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Text;
 
 namespace DSharp4Webhook.Internal
@@ -11,81 +9,67 @@ namespace DSharp4Webhook.Internal
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     internal sealed class Message : IMessage
     {
-        private string content;
+        private readonly string _content;
+        private readonly string _username;
+        private readonly string _avatarUrl;
+        private readonly bool _isTTS;
+        private readonly IMessageMention _mention;
+
+        private SerializeContext? _cache;
 
         [JsonProperty(PropertyName = "content")]
-        public string Content
-        {
-            get => content?.Length <= WebhookProvider.MAX_CONTENT_LENGTH && content?.Length > 0 ? content : null;
-            set
-            {
-                if (value != null)
-                {
-                    if ((value = value.Trim()).Length <= WebhookProvider.MAX_CONTENT_LENGTH)
-                        content = value;
-                    else
-                        throw new ArgumentOutOfRangeException(nameof(Content), "It must not be more than 2000 in length.");
-                }
-                // Null set possible
-                else
-                    content = value;
-            }
-        }
+        public string Content { get => _content; }
 
         [JsonProperty(PropertyName = "tts")]
-        public bool IsTTS { get; set; } = false;
+        public bool IsTTS { get => _isTTS; }
 
-        private string username;
         [JsonProperty(PropertyName = "username")]
-        public string Username
-        {
-            get => username?.Length <= WebhookProvider.MAX_NICKNAME_LENGTH || username?.Length >= WebhookProvider.MIN_NICKNAME_LENGTH ? username : null;
-            set
-            {
-                if (value != null)
-                {
-                    if ((value = value.Trim()).Length >= WebhookProvider.MIN_NICKNAME_LENGTH || value.Length <= WebhookProvider.MAX_NICKNAME_LENGTH)
-                        username = value;
-                    else
-                        throw new ArgumentOutOfRangeException(nameof(Username), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
-                }
-                // Null set possible
-                else
-                    username = value;
-            }
-        }
+        public string Username { get => _username; }
 
         [JsonProperty(PropertyName = "avatar_url")]
-        public string AvatarUrl { get; set; } = null;
+        public string AvatarUrl { get => _avatarUrl; }
 
-        private IMessageMention _mention;
-        public IMessageMention Mention { get => _mention; set => _mention = value ?? _mention; }
+        [JsonProperty(PropertyName = "allowed_mention")]
+        public IMessageMention Mention { get => _mention; }
 
-        public Message() { }
+        public Message()
+        {
+            _mention = ConstructorProvider.GetDefaultMessageMention();
+        }
 
         public Message(string message, IMessageMention messageMention, bool isTTS = false)
         {
             Checks.CheckForNull(messageMention, nameof(messageMention));
-            Content = message;
-            IsTTS = isTTS;
+            _content = message;
+            _isTTS = isTTS;
             _mention = messageMention;
         }
 
         public Message(IMessage source)
         {
-            Username = source.Username;
-            AvatarUrl = source.AvatarUrl;
-            Content = source.Content;
-            IsTTS = source.IsTTS;
+            _username = source.Username;
+            _avatarUrl = source.AvatarUrl;
+            _content = source.Content;
+            _isTTS = source.IsTTS;
 
             _mention = source.Mention;
         }
 
+        public Message(MessageBuilder builder)
+        {
+            _content = builder.Builder.ToString();
+            _username = builder.Username;
+            _avatarUrl = builder.AvatarUrl;
+            _isTTS = builder.IsTTS;
+            _mention = builder.MessageMention;
+        }
+
         public SerializeContext Serialize()
         {
-            var jobject = JObject.FromObject(this);
-            jobject.Add("allowed_mentions", JToken.Parse(Encoding.ASCII.GetString(_mention.Serialize().Content)));
-            return new SerializeContext(Encoding.UTF8.GetBytes(jobject.ToString()));
+            if (_cache.HasValue)
+                return _cache.Value;
+
+            return (_cache = new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)))).Value;
         }
     }
 }

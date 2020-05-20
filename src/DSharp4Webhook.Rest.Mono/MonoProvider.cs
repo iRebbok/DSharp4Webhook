@@ -123,55 +123,55 @@ namespace DSharp4Webhook.Rest.Mono
             switch (context.Type)
             {
                 case SerializeType.APPLICATION_JSON:
-                    {
-                        request.ContentType = SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON);
-                        // Writing a serialized context, no more
-                        using (var resuestStream = request.GetRequestStream())
-                            resuestStream.Write(context.Content, 0, context.Content.Length);
-                        break;
-                    }
+                {
+                    request.ContentType = SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON);
+                    // Writing a serialized context, no more
+                    using (var resuestStream = request.GetRequestStream())
+                        resuestStream.Write(context.Content, 0, context.Content.Length);
+                    break;
+                }
                 case SerializeType.MULTIPART_FROM_DATA:
+                {
+                    string boundary = $"--------------------------{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+                    request.ContentType = $"{SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA)} ;boundary={boundary}";
+                    // Inserted in the spaces between data
+                    byte[] boundarySerialized = Encoding.ASCII.GetBytes($"\r\n--{boundary}\r\n");
+                    // Inserted at the end of the data
+                    byte[] boundarySerializedClose = Encoding.ASCII.GetBytes($"\r\n--{boundary}--\r\n");
+
+                    using (var resuestStream = request.GetRequestStream())
                     {
-                        string boundary = $"--------------------------{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                        request.ContentType = $"{SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA)} ;boundary={boundary}";
-                        // Inserted in the spaces between data
-                        byte[] boundarySerialized = Encoding.ASCII.GetBytes($"\r\n--{boundary}\r\n");
-                        // Inserted at the end of the data
-                        byte[] boundarySerializedClose = Encoding.ASCII.GetBytes($"\r\n--{boundary}--\r\n");
-
-                        using (var resuestStream = request.GetRequestStream())
+                        if (context.Files != null && context.Files.Keys.Count != 0)
                         {
-                            if (context.Files != null && context.Files.Keys.Count != 0)
+                            resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
+
+                            int index = 0;
+                            foreach (var filePair in context.Files)
                             {
-                                resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
+                                index++;
 
-                                int index = 0;
-                                foreach (var filePair in context.Files)
-                                {
-                                    index++;
+                                StreamUtil.Write(resuestStream, string.Format(fileHeaderTemplate, $"file{index}", filePair.Key), Encoding.ASCII);
+                                resuestStream.Write(filePair.Value, 0, filePair.Value.Length);
 
-                                    StreamUtil.Write(resuestStream, string.Format(fileHeaderTemplate, $"file{index}", filePair.Key), Encoding.ASCII);
-                                    resuestStream.Write(filePair.Value, 0, filePair.Value.Length);
+                                // If this is not the last file
+                                // If you put it before, you risk breaking the body of the request
+                                if (index != context.Files.Keys.Count - 1)
+                                    resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
 
-                                    // If this is not the last file
-                                    // If you put it before, you risk breaking the body of the request
-                                    if (index != context.Files.Keys.Count - 1)
-                                        resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
-
-                                }
                             }
-
-                            if (context.Content != null)
-                            {
-                                resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
-                                StreamUtil.Write(resuestStream, headerTemplate, Encoding.ASCII);
-                                resuestStream.Write(context.Content, 0, context.Content.Length);
-                            }
-
-                            resuestStream.Write(boundarySerializedClose, 0, boundarySerializedClose.Length);
                         }
-                        break;
+
+                        if (context.Content != null)
+                        {
+                            resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
+                            StreamUtil.Write(resuestStream, headerTemplate, Encoding.ASCII);
+                            resuestStream.Write(context.Content, 0, context.Content.Length);
+                        }
+
+                        resuestStream.Write(boundarySerializedClose, 0, boundarySerializedClose.Length);
                     }
+                    break;
+                }
             }
         }
     }

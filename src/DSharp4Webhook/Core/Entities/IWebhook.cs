@@ -23,6 +23,7 @@ namespace DSharp4Webhook.Core
         /// </summary>
 #nullable enable
         public WebhookProvider? Provider { get; }
+#nullable restore
 
         /// <summary>
         ///     Provider for REST requests.
@@ -95,7 +96,9 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
+#nullable enable
         public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
         ///     Send messages.
@@ -106,7 +109,9 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
+#nullable enable
         public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
         ///     Retrieves information about webhook.
@@ -114,7 +119,9 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
+#nullable enable
         public IInfoAction GetInfo(RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
         ///     Deletes the webhook.
@@ -123,7 +130,9 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
+#nullable enable
         public IDeleteAction Delete(RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
         ///     Modifies the webhook.
@@ -140,7 +149,9 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
+#nullable enable
         public IModifyAction Modify(string name, RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
         ///     Modifies the webhook.
@@ -158,7 +169,9 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
+#nullable enable
         public IModifyAction Modify(string name, IWebhookImage image, RestSettings? restSettings = null);
+#nullable restore
 
         #endregion
     }

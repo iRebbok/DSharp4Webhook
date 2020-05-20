@@ -2,8 +2,6 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace DSharp4Webhook.Rest
 {

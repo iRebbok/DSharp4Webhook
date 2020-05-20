@@ -1,6 +1,5 @@
 using DSharp4Webhook.Internal;
 using DSharp4Webhook.Rest;
-using DSharp4Webhook.Rest.Default;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;

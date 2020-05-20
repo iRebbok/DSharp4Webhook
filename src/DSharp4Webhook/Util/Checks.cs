@@ -11,7 +11,7 @@ namespace DSharp4Webhook.Util
     public static class Checks
     {
         /// <summary>
-        ///     Ckecks the bounds and if they are exceeded or meet it causes an exception.
+        ///     Checks the bounds and if they are exceeded or meet it causes an exception.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     If the length exceed or meet their bounds.
@@ -19,6 +19,18 @@ namespace DSharp4Webhook.Util
         public static void CheckBounds(string paramName, string message, int safeLength, int length, params int[] length1)
         {
             if (CheckBoundsSafe(safeLength, length, length1))
+                throw new ArgumentOutOfRangeException(paramName, message);
+        }
+
+        /// <summary>
+        ///     Checks the bounds, and if they are belittled or meet, it causes an exception.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     If the length exceed or meet their bounds.
+        /// </exception>
+        public static void CheckBoundsUnderside(string paramName, string message, int safeLength, int length, params int[] length1)
+        {
+            if (CheckBoundsUndersideSafe(safeLength, length, length1))
                 throw new ArgumentOutOfRangeException(paramName, message);
         }
 
@@ -35,6 +47,11 @@ namespace DSharp4Webhook.Util
             if (length1 != null)
                 result += length1.Sum(a => (long)a);
             return result >= safeLength;
+        }
+
+        public static bool CheckBoundsUndersideSafe(int safeLength, int length, params int[] length1)
+        {
+            return !CheckBoundsSafe(safeLength, length, length1);
         }
 
         /// <summary>

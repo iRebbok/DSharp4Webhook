@@ -11,7 +11,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace DSharp4Webhook.Rest.Default
+namespace DSharp4Webhook.Rest
 {
     public sealed class DefaultProvider : BaseRestProvider
     {
@@ -63,7 +63,7 @@ namespace DSharp4Webhook.Rest.Default
         public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            Checks.CheckForArgument(data.Type != SerializeType.APPLICATION_JSON, nameof(data), "API do not support sending PATH as 'multipart/from-data'");
+            Checks.CheckForSerializeType(data, SerializeType.APPLICATION_JSON);
 
             using (HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url))
             {
@@ -107,33 +107,33 @@ namespace DSharp4Webhook.Rest.Default
             switch (data.Type)
             {
                 case SerializeType.APPLICATION_JSON:
-                    {
-                        requestMessage.Content = new ByteArrayContent(data.Content);
-                        requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON));
-                        break;
-                    }
+                {
+                    requestMessage.Content = new ByteArrayContent(data.Content);
+                    requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON));
+                    break;
+                }
 
                 case SerializeType.MULTIPART_FROM_DATA:
+                {
+                    var multipartContent = new MultipartFormDataContent();
+                    if (data.Files != null && data.Files.Keys.Count != 0)
                     {
-                        var multipartContent = new MultipartFormDataContent();
-                        if (data.Files != null && data.Files.Keys.Count != 0)
+                        int index = 0;
+                        foreach (var filePair in data.Files)
                         {
-                            int index = 0;
-                            foreach (var filePair in data.Files)
-                            {
-                                index++;
-                                multipartContent.Add(new ByteArrayContent(filePair.Value), $"file{index}", filePair.Key);
-                            }
+                            index++;
+                            multipartContent.Add(new ByteArrayContent(filePair.Value), $"file{index}", filePair.Key);
                         }
-
-                        if (data.Content != null)
-                            multipartContent.Add(new ByteArrayContent(data.Content), "payload_json");
-
-                        requestMessage.Content = multipartContent;
-                        // it doesn't seem to be necessary, it works automatically
-                        //requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA));
-                        break;
                     }
+
+                    if (data.Content != null)
+                        multipartContent.Add(new ByteArrayContent(data.Content), "payload_json");
+
+                    requestMessage.Content = multipartContent;
+                    // it doesn't seem to be necessary, it works automatically
+                    //requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA));
+                    break;
+                }
             }
         }
     }
