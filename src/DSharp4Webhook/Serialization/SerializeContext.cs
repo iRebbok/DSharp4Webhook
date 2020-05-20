@@ -77,12 +77,12 @@ namespace DSharp4Webhook.Serialization
         ///     Creates an object with already serialized data.
         /// </summary>
 #nullable enable
-        public SerializeContext(byte[]? content, IDictionary<string, byte[]>? files = null)
+        public SerializeContext(byte[]? content, Dictionary<string, byte[]>? files = null)
 #nullable restore
         {
             Type = files == null ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FROM_DATA;
             Content = content;
-            Files = files == null ? null : new Dictionary<string, byte[]>(files);
+            Files = files;
         }
 
         /// <summary>
