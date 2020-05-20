@@ -37,7 +37,7 @@ namespace DSharp4Webhook.Util
                 action.Invoke(instance, args);
             }
             // todo: webhook logs
-            catch (Exception) { }
+            catch (System.Exception) { }
         }
     }
 }
