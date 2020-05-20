@@ -2,6 +2,9 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 namespace DSharp4Webhook.Internal
@@ -14,6 +17,7 @@ namespace DSharp4Webhook.Internal
         private readonly string _avatarUrl;
         private readonly bool _isTTS;
         private readonly IMessageMention _mention;
+        private readonly IReadOnlyDictionary<string, byte[]> _files;
 
         private SerializeContext? _cache;
 
@@ -31,6 +35,8 @@ namespace DSharp4Webhook.Internal
 
         [JsonProperty(PropertyName = "allowed_mention")]
         public IMessageMention Mention { get => _mention; }
+
+        public IReadOnlyDictionary<string, byte[]> Files { get => _files; }
 
         public Message()
         {
@@ -53,6 +59,9 @@ namespace DSharp4Webhook.Internal
             _isTTS = source.IsTTS;
 
             _mention = source.Mention;
+            _files = source.Files;
+
+            Checks.CheckForAttachments(_files);
         }
 
         public Message(MessageBuilder builder)
@@ -62,14 +71,16 @@ namespace DSharp4Webhook.Internal
             _avatarUrl = builder.AvatarUrl;
             _isTTS = builder.IsTTS;
             _mention = builder.MessageMention;
+            _files = builder.Files == null ? null : new ReadOnlyDictionary<string, byte[]>(builder.Files);
+
+            Checks.CheckForAttachments(_files);
         }
 
         public SerializeContext Serialize()
         {
             if (_cache.HasValue)
                 return _cache.Value;
-
-            return (_cache = new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)))).Value;
+            return (_cache = new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)), _files?.ToDictionary(key => key.Key, value => value.Value))).Value;
         }
     }
 }

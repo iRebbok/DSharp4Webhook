@@ -27,11 +27,13 @@ namespace DSharp4Webhook.Serialization
         /// </remarks>
 #nullable enable
         public byte[]? Content { get; }
+#nullable restore
         /// <summary>
         ///     Files: name-content
         /// </summary>
 #nullable enable
         public Dictionary<string, byte[]>? Files { get; private set; }
+#nullable restore
         /// <summary>
         ///     Automatic format that is selected based on arguments.
         /// </summary>
@@ -47,7 +49,9 @@ namespace DSharp4Webhook.Serialization
         /// <exception cref="InvalidOperationException">
         ///     If the serialization type could not be determined/the data defining it is null.
         /// </exception>
+#nullable enable
         public SerializeContext(byte[]? content, byte[]? data, string? fileName = null)
+#nullable restore
         {
             fileName = string.IsNullOrWhiteSpace(fileName) ? Guid.NewGuid().ToString() : fileName;
 
@@ -67,6 +71,18 @@ namespace DSharp4Webhook.Serialization
                 throw new InvalidOperationException("Data is not defined rightly");
 
             Content = content;
+        }
+
+        /// <summary>
+        ///     Creates an object with already serialized data.
+        /// </summary>
+#nullable enable
+        public SerializeContext(byte[]? content, IDictionary<string, byte[]>? files = null)
+#nullable restore
+        {
+            Type = files == null ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FROM_DATA;
+            Content = content;
+            Files = files == null ? null : new Dictionary<string, byte[]>(files);
         }
 
         /// <summary>
@@ -106,7 +122,9 @@ namespace DSharp4Webhook.Serialization
         /// <remarks>
         ///     The file content cannot be null.
         /// </remarks>
+#nullable enable
         public SerializeContext(byte[] data, string? fileName = null)
+#nullable restore
         {
             Checks.CheckForNull(data, nameof(data));
             fileName = string.IsNullOrWhiteSpace(fileName) ? Guid.NewGuid().ToString() : fileName;
@@ -131,7 +149,9 @@ namespace DSharp4Webhook.Serialization
         /// <exception cref="ArgumentNullException">
         ///     File content is null.
         /// </exception>
+#nullable enable
         public void AddFile(byte[] data, string? fileName = null)
+#nullable restore
         {
             Checks.CheckForNull(data, nameof(data));
 
@@ -143,15 +163,9 @@ namespace DSharp4Webhook.Serialization
                 // The format changes when a new file is added
                 Type = SerializeType.MULTIPART_FROM_DATA;
             }
-
-            // Need a unique
+            // Setting the value forcibly even if it exists
 #pragma warning disable CS8604 // Possible null reference argument.
-            while (Files.ContainsKey(fileName))
-#pragma warning restore CS8604 // Possible null reference argument.
-                fileName = Guid.NewGuid().ToString();
-
-#pragma warning disable CS8604 // Possible null reference argument.
-            Files.Add(fileName, data);
+            Files[fileName] = data;
 #pragma warning restore CS8604 // Possible null reference argument.
         }
 

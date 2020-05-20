@@ -18,31 +18,39 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Regular expression for parsing the webhook Url.
         /// </summary>
-        public static Regex WebhookUrlRegex { get; } = new Regex(@"^.*discord(?:app)?\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$",
+        public static readonly Regex WebhookUrlRegex = new Regex(@"^.*discord(?:app)?\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$",
             RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         /// <summary>
         ///     Base url for generating a webhook url if it was created using a token and id.
         /// </summary>
-        public static string WebhookBaseUrl { get; } = "https://discord.com/api/webhooks/{0}/{1}";
+        public static readonly string WebhookBaseUrl = "https://discord.com/api/webhooks/{0}/{1}";
 
         /// <summary>
         ///     Base url for generating avatar urls.
         /// </summary>
-        public static string WebhookBaseAvatarUrl { get; } = "https://cdn.discordapp.com/avatars/{0}/{1}.{2}";
+        public static readonly string WebhookBaseAvatarUrl = "https://cdn.discordapp.com/avatars/{0}/{1}.{2}";
 
         /// <summary>
         ///     The maximum number of characters that can be sent as a message.
         /// </summary>
-        public static int MAX_CONTENT_LENGTH { get; } = 2000;
+        public static readonly int MAX_CONTENT_LENGTH = 2000;
         /// <summary>
         ///     Minimum limit on the number of characters in a nickname.
         /// </summary>
-        public static int MIN_NICKNAME_LENGTH { get; } = 1;
+        public static readonly int MIN_NICKNAME_LENGTH = 1;
         /// <summary>
         ///     Maximum limit on the number of characters in a nickname.
         /// </summary>
-        public static int MAX_NICKNAME_LENGTH { get; } = 80;
+        public static readonly int MAX_NICKNAME_LENGTH = 80;
+        /// <summary>
+        ///     Maximum limit on attachments in a message.
+        /// </summary>
+        public static readonly int MAX_ATTACHMENTS = 10;
+        /// <summary>
+        ///     Limit on the size of all attachments.
+        /// </summary>
+        public static readonly int MAX_ATTACHMENTS_SIZE = 8 * 1024 * 1024; // 8 MB currently
 
         #endregion
 

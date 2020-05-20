@@ -1,5 +1,6 @@
 using DSharp4Webhook.Serialization;
 using System;
+using System.Collections.Generic;
 
 namespace DSharp4Webhook.Core
 {
@@ -44,5 +45,12 @@ namespace DSharp4Webhook.Core
         ///     Allowed mentions for a message.
         /// </summary>
         public IMessageMention Mention { get; }
+
+        /// <summary>
+        ///     Attachments to the message.
+        /// </summary>
+#nullable enable
+        public IReadOnlyDictionary<string, byte[]>? Files { get; }
+#nullable restore
     }
 }

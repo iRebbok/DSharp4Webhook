@@ -1,6 +1,7 @@
 using DSharp4Webhook.Internal;
 using DSharp4Webhook.Util;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace DSharp4Webhook.Core
@@ -16,6 +17,7 @@ namespace DSharp4Webhook.Core
         private string _avatarUrl;
         private bool _isTTS;
         private IMessageMention _mention;
+        private Dictionary<string, byte[]> _files;
 
         #region Properties
 
@@ -71,6 +73,22 @@ namespace DSharp4Webhook.Core
         {
             get => _mention;
             set => _mention = value ?? _mention;
+        }
+
+        /// <summary>
+        ///     Message attachments.
+        ///     <para>
+        ///         The key is the file name, and the value is content.
+        ///     </para>
+        /// </summary>
+        public Dictionary<string, byte[]> Files
+        {
+            get
+            {
+                if (_files == null)
+                    _files = new Dictionary<string, byte[]>();
+                return _files;
+            }
         }
 
         #endregion
@@ -256,6 +274,7 @@ namespace DSharp4Webhook.Core
         public void Dispose()
         {
             _builder.Clear();
+            _files?.Clear();
             _avatarUrl = null;
             _isTTS = false;
             _username = null;

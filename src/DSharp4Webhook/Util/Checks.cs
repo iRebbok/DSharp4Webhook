@@ -1,6 +1,8 @@
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Exception;
 using DSharp4Webhook.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DSharp4Webhook.Util
@@ -112,6 +114,27 @@ namespace DSharp4Webhook.Util
         {
             if (context.Type != requireType)
                 throw new InvalidOperationException($"The current operation needs the {requireType} serialization type, not the {context.Type}");
+        }
+
+        /// <summary>
+        ///     Checking for attachments.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     The number of attachments exceeds the limit.
+        /// </exception>
+        /// <exception cref="SizeOutOfRangeException">
+        ///     The size of attachments exceeds the limit.
+        /// </exception>
+        public static void CheckForAttachments(IEnumerable<KeyValuePair<string, byte[]>> source)
+        {
+            if (source == null)
+                return;
+
+            if (source.Count() > WebhookProvider.MAX_ATTACHMENTS)
+                throw new ArgumentOutOfRangeException();
+
+            if (source.SizeOf() > WebhookProvider.MAX_ATTACHMENTS_SIZE)
+                throw new SizeOutOfRangeException();
         }
     }
 }
