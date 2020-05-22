@@ -13,8 +13,4 @@
     <Reference Condition="'$(TargetFramework)' == 'net471'" Include="System.Net.Http" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Internal\Entities\" />
-	</ItemGroup>
-
 </Project>
