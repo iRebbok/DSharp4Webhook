@@ -43,5 +43,10 @@ namespace DSharp4Webhook.Core
         /// </exception>
         public static MessageBuilder GetMessageBuilder(IWebhook webhook) => MessageBuilder.New(webhook);
 
+        /// <summary>
+        ///     Gets a new modifier content constructor.
+        /// </summary>
+        /// <returns></returns>
+        public static ModifyContentBuilder GetModifyContentBuilder() => ModifyContentBuilder.New();
     }
 }

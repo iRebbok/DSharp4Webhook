@@ -173,6 +173,19 @@ namespace DSharp4Webhook.Core
         public IModifyAction Modify(string name, IWebhookImage image, RestSettings? restSettings = null);
 #nullable restore
 
+        /// <summary>
+        ///     Modifies the webhook using pre-prepared data.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     <paramref name="content"/> is null.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+#nullable enable
+        public IModifyAction Modify(IModifyContent content, RestSettings? restSettings = null);
+#nullable restore
+
         #endregion
     }
 }

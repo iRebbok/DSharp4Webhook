@@ -29,11 +29,9 @@ namespace DSharp4Webhook.Internal
         {
             Checks.CheckForNull(file, nameof(file));
             Checks.CheckForArgument(!file.Exists, nameof(file));
-            using (var stream = file.OpenRead())
-            {
-                _data = new byte[stream.Length];
-                stream.Read(_data, 0, _data.Length);
-            }
+            using var stream = file.OpenRead();
+            _data = new byte[stream.Length];
+            stream.Read(_data, 0, _data.Length);
 
         }
 
