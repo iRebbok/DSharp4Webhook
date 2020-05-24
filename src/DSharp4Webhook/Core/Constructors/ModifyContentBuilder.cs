@@ -1,10 +1,9 @@
 using DSharp4Webhook.Internal;
 using DSharp4Webhook.Util;
-using System;
 
-namespace DSharp4Webhook.Core
+namespace DSharp4Webhook.Core.Constructor
 {
-    public sealed class ModifyContentBuilder : IDisposable
+    public sealed class ModifyContentBuilder : IBuilder
     {
         private string _name;
         private IWebhookImage _image;
@@ -65,11 +64,7 @@ namespace DSharp4Webhook.Core
             return new ModifyContent(this);
         }
 
-        /// <summary>
-        ///     Resets the entire preset, but not allowed mentions.
-        ///     It can be used to reload the constructor.
-        /// </summary>
-        public void Dispose()
+        public void Reset()
         {
             _name = null;
             _image = WebhookImage.Empty;

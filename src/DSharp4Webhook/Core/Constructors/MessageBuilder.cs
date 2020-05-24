@@ -1,17 +1,21 @@
+
 using DSharp4Webhook.Internal;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DSharp4Webhook.Core
+namespace DSharp4Webhook.Core.Constructor
 {
     /// <summary>
     ///     Message builder that allows you to create messages for webhook.
     /// </summary>
-    public sealed class MessageBuilder : IDisposable
+    public sealed class MessageBuilder : IBuilder
     {
         private readonly StringBuilder _builder;
+        // we store the original mentions to replace them when resetting them
+        // by resetting them we can violate the expected functionality
+        private readonly IMessageMention _initialMention;
 
         private string _username;
         private string _avatarUrl;
@@ -71,8 +75,9 @@ namespace DSharp4Webhook.Core
         /// </summary>
         public IMessageMention MessageMention
         {
-            get => _mention;
-            set => _mention = value ?? _mention;
+            // If the setted value is null, then initial value is used
+            get => _mention ?? _initialMention;
+            set => _mention = value;
         }
 
         /// <summary>
@@ -83,12 +88,7 @@ namespace DSharp4Webhook.Core
         /// </summary>
         public Dictionary<string, byte[]> Files
         {
-            get
-            {
-                if (_files == null)
-                    _files = new Dictionary<string, byte[]>();
-                return _files;
-            }
+            get => _files ??= new Dictionary<string, byte[]>();
         }
 
         #endregion
@@ -96,6 +96,7 @@ namespace DSharp4Webhook.Core
         private MessageBuilder()
         {
             _builder = new StringBuilder();
+            _initialMention = ConstructorProvider.GetDefaultMessageMention();
         }
 
         private MessageBuilder(MessageBuilder source) : this()
@@ -106,6 +107,7 @@ namespace DSharp4Webhook.Core
             _username = source._username;
             _avatarUrl = source._avatarUrl;
             _isTTS = source._isTTS;
+            _mention = source._mention;
         }
 
         private MessageBuilder(IWebhook webhook) : this()
@@ -185,7 +187,7 @@ namespace DSharp4Webhook.Core
         /// </returns>
         public MessageBuilder AppendLine()
         {
-            Checks.CheckBounds(string.Empty, $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
+            Checks.CheckBounds(null, $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
                 WebhookProvider.MAX_CONTENT_LENGTH, 1, _builder.Length);
             _builder.AppendLine();
 
@@ -267,17 +269,14 @@ namespace DSharp4Webhook.Core
             return new Message(this);
         }
 
-        /// <summary>
-        ///     Resets the entire preset, but not allowed mentions.
-        ///     It can be used to reload the constructor.
-        /// </summary>
-        public void Dispose()
+        public void Reset()
         {
             _builder.Clear();
             _files?.Clear();
             _avatarUrl = null;
             _isTTS = false;
             _username = null;
+            _mention = null;
         }
 
         #endregion
