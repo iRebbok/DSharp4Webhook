@@ -138,7 +138,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format.
         /// </exception>
-        public static IWebhook CreateSaticWebhook(string url)
+        public static IWebhook CreateStaticWebhook(string url)
         {
             return CreateWebhook(url, null);
         }
