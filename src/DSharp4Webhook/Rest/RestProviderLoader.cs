@@ -2,6 +2,7 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
 using System;
+using System.IO;
 
 namespace DSharp4Webhook.Rest
 {
@@ -23,13 +24,21 @@ namespace DSharp4Webhook.Rest
         /// <summary>
         ///     Gets the type of provider it that intends to use.
         /// </summary>
-        /// <exception cref="InvalidOperationException">
-        ///     If no suitable implementation is found.
+        /// <exception cref="FileNotFoundException">
+        ///     Can't find the <c>System.Net.Http</c> assembly,
+        ///     configure the provider for Mono.
         /// </exception>
+        /// <remarks>
+        ///     Don't intentionally configure the provider for use!!!
+        ///     If the provider is null, it selects the default provider,
+        ///     because so that the user can configure the provider before it is used.
+        ///     If you access code that does not have the necessary dependencies with it,
+        ///     an exception is thrown, so on unity projects that were compiled using the .NET Framework profile.
+        /// </remarks>
         public static Type GetProviderType()
         {
             if (_provider == null)
-                throw new InvalidOperationException("RestProvider does not have any implementation, make sure that you have included at least one of them in the build");
+                DefaultProvider.SetupAsDefault();
 
             return _provider;
         }

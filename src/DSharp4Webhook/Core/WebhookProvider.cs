@@ -99,13 +99,6 @@ namespace DSharp4Webhook.Core
 
         #region Static Methods
 
-        static WebhookProvider()
-        {
-            // Using the default provider
-            // We register it the first time
-            DefaultProvider.SetupAsDefault();
-        }
-
         /// <summary>
         ///     Sets the rest of the provider to be used in the application.
         /// </summary>
