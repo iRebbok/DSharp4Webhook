@@ -79,7 +79,7 @@ namespace DSharp4Webhook.Rest.Mono
                 // Calling 'GetRequestStream()' after setting the request type
                 PrepareRequest(request, data);
                 // Identify themselves
-                request.UserAgent = "DSharp4Webhook";
+                request.UserAgent = $"DSharp4Webhook ({WebhookProvider.LibraryUrl}, {WebhookProvider.LibraryVersion})";
                 // The content type is assigned in 'PrepareRequest'
                 // Uses it for accurate measurement RateLimit
                 request.Headers.Set("X-RateLimit-Precision", "millisecond");

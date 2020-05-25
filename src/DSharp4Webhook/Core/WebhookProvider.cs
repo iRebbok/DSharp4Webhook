@@ -4,6 +4,7 @@ using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DSharp4Webhook.Core
@@ -14,6 +15,16 @@ namespace DSharp4Webhook.Core
     public sealed class WebhookProvider : IDisposable
     {
         #region Static Properties
+
+        /// <summary>
+        ///     Library github url.
+        /// </summary>
+        public static readonly string LibraryUrl = "https://github.com/iRebbok/DSharp4Webhook";
+
+        /// <summary>
+        ///     Library version.
+        /// </summary>
+        public static readonly string LibraryVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyVersionAttribute>().Version;
 
         /// <summary>
         ///     Regular expression for parsing the webhook Url.

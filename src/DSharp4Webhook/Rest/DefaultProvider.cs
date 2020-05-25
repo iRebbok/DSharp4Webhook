@@ -33,7 +33,7 @@ namespace DSharp4Webhook.Rest
             _httpClient = new HttpClient();
 
             _httpClient.DefaultRequestHeaders.UserAgent.Clear();
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("DSharp4Webhook");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"DSharp4Webhook ({WebhookProvider.LibraryUrl}, {WebhookProvider.LibraryVersion})");
             _httpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
 
