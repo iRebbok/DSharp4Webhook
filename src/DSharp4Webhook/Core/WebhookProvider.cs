@@ -95,7 +95,11 @@ namespace DSharp4Webhook.Core
         ///     title, description, field.name, field.value,
         ///     footer.text and author.name.
         /// </summary>
-        public static readonly int MAX_EMBED_LENGTH = 6000;
+        public static readonly int MAX_EMBED_DATA_LENGTH = 6000;
+        /// <summary>
+        ///     Maximum limit on embeds that can be attached to a message.
+        /// </summary>
+        public static readonly int MAX_EMBED_COUNT = 10;
 
         #endregion
 
