@@ -24,6 +24,24 @@ namespace DSharp4Webhook.Core
         public static IMessageMention GetMessageMention(AllowedMention mention) => new MessageMention(mention);
 
         /// <summary>
+        ///     Gets a new mention constructor.
+        /// </summary>
+        public static MessageMentionBuilder GetMentionBuilder() => MessageMentionBuilder.New();
+
+        /// <summary>
+        ///     Gets a new mention constructor with a predefined allowed mention.
+        /// </summary>
+        public static MessageMentionBuilder GetMentionBuilder(AllowedMention mention) => MessageMentionBuilder.New(mention);
+
+        /// <summary>
+        ///     Gets a new mention constructor with a preset of allowed mentions from the webhook.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     <paramref name="webhook"/> is null.
+        /// </exception>
+        public static MessageMentionBuilder GetMentionBuilder(IWebhook webhook) => MessageMentionBuilder.New(webhook);
+
+        /// <summary>
         ///     Gets a new message constructor.
         /// </summary>
         public static MessageBuilder GetMessageBuilder() => MessageBuilder.New();

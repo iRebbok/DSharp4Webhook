@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace DSharp4Webhook.Core
 {
     /// <remarks>
@@ -10,16 +8,16 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Allowed types of mentions.
         /// </summary>
-        public AllowedMention AllowedMention { get; set; }
+        public AllowedMention AllowedMention { get; }
 
         /// <summary>
         ///     Users allowed to be mentioned.
         /// </summary>
-        public List<string> Users { get; }
+        public string[] Users { get; }
 
         /// <summary>
         ///     Roles allowed to be mentioned.
         /// </summary>
-        public List<string> Roles { get; }
+        public string[] Roles { get; }
     }
 }
