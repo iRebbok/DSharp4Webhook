@@ -51,6 +51,40 @@ namespace DSharp4Webhook.Core
         ///     Limit on the size of all attachments.
         /// </summary>
         public static readonly int MAX_ATTACHMENTS_SIZE = 8 * 1024 * 1024; // 8 MB currently
+        /// <summary>
+        ///     Maximum character limit in embed title.
+        /// </summary>
+        public static readonly int MAX_EMBED_TITLE_LENGTH = 256;
+        /// <summary>
+        ///     Maximum character limit in embed description.
+        /// </summary>
+        public static readonly int MAX_EMBED_DESCRIPTION_LENGTH = 2048;
+        /// <summary>
+        ///     Maximum limit on the number of footers in embed.
+        /// </summary>
+        public static readonly int MAX_EMBED_FIELDS_COUNT = 25;
+        /// <summary>
+        ///     Maximum character limit of name in embed field.
+        /// </summary>
+        public static readonly int MAX_EMBED_FIELD_NAME_LENGTH = 256;
+        /// <summary>
+        ///     Maximum character limit of value in embed field.
+        /// </summary>
+        public static readonly int MAX_EMBED_FIELD_VALUE_LENGTH = 1024;
+        /// <summary>
+        ///     Maximum character limit of text in embed footer.
+        /// </summary>
+        public static readonly int MAX_EMBED_FOOTER_TEXT_LENGTH = 2048;
+        /// <summary>
+        ///     Maximum character limit of name in embed author.
+        /// </summary>
+        public static readonly int MAX_EMBED_AUTHOR_NAME_LENGTH = 256;
+        /// <summary>
+        ///     The maximum number of characters in all such as
+        ///     title, description, field.name, field.value,
+        ///     footer.text and author.name.
+        /// </summary>
+        public static readonly int MAX_EMBED_LENGTH = 6000;
 
         #endregion
 
