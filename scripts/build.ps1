@@ -6,7 +6,7 @@ param (
 # Processing the error if there is one
 function ProcessFailed {
     param ($Message)
-    
+
     if ($LASTEXITCODE -ne 0) {
         Write-Output $Message
         Exit $LASTEXITCODE
@@ -15,7 +15,7 @@ function ProcessFailed {
 
 function ProcessDirectory {
     param ($Path)
-    
+
     if (-not (Test-Path $Path -PathType Container)) { New-Item -Path $Path -ItemType Container }
 }
 
@@ -41,6 +41,9 @@ Invoke-Expression $Expression
 ProcessFailed "Build failed"
 Write-Output "Build is successful"
 
+# Temporary solution while waiting for PR acceptance
+Import-Module -Name '.\scripts\7Zip4Powershell\7Zip4Powershell.psd1'
+
 # Packing everything in a deploy folder
 ProcessDirectory $DeployPath
 Get-ChildItem -Path 'src\' -Directory -Recurse | Where-Object { $_.FullName.EndsWith("bin\Release") } | ForEach-Object {
@@ -51,6 +54,8 @@ Get-ChildItem -Path 'src\' -Directory -Recurse | Where-Object { $_.FullName.Ends
         $OutputPath = Join-Path $DeployPath $FinalName
         ProcessDirectory $OutputPath
         Copy-Item -Path ($_.FullName + "\*") -Destination $OutputPath -Recurse -Force
-        Compress-Archive -Path ($_.FullName + "\*") -DestinationPath ($OutputPath + ".zip") -Force
+        Compress-7Zip -ArchiveFileName ($FinalName + '.tar') -Path $_.FullName -OutputPath $DeployPath -Format 'Tar'
+        Compress-7Zip -ArchiveFileName ($FinalName + '.tar.gz') -Path ($OutputPath + '.tar') -OutputPath $DeployPath -Format 'GZip' -CompressionLevel 'High'
+        Remove-Item ($DeployPath + '\*.tar') -Force -Recurse
     }
 }
