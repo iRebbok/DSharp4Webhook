@@ -1,8 +1,10 @@
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Core.Constructor;
+using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,9 +20,12 @@ namespace DSharp4Webhook.Internal
         private readonly string _avatarUrl;
         private readonly bool _isTTS;
         private readonly IMessageMention _mention;
+        private readonly IEmbed[] _embeds;
         private readonly IReadOnlyDictionary<string, byte[]> _files;
 
         private SerializeContext? _cache;
+
+        #region Properties
 
         [JsonProperty(PropertyName = "content")]
         public string Content { get => _content; }
@@ -34,10 +39,15 @@ namespace DSharp4Webhook.Internal
         [JsonProperty(PropertyName = "avatar_url")]
         public string AvatarUrl { get => _avatarUrl; }
 
+        [JsonProperty(PropertyName = "embeds")]
+        public IEmbed[] Embeds { get => _embeds; }
+
         [JsonProperty(PropertyName = "allowed_mention")]
         public IMessageMention Mention { get => _mention; }
 
         public IReadOnlyDictionary<string, byte[]> Files { get => _files; }
+
+        #endregion
 
         public Message()
         {
@@ -54,6 +64,8 @@ namespace DSharp4Webhook.Internal
 
         public Message(IMessage source)
         {
+            Checks.CheckForAttachments(source.Files);
+
             _username = source.Username;
             _avatarUrl = source.AvatarUrl;
             _content = source.Content;
@@ -61,20 +73,27 @@ namespace DSharp4Webhook.Internal
 
             _mention = source.Mention;
             _files = source.Files;
-
-            Checks.CheckForAttachments(_files);
+            _embeds = source.Embeds;
         }
 
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Message exceeds its limit.
+        /// </exception>
         public Message(MessageBuilder builder)
         {
+            Checks.CheckForAttachments(builder.Files);
+
+            if (builder.Embeds.Count > WebhookProvider.MAX_EMBED_COUNT ||
+                builder.Builder.Length > WebhookProvider.MAX_CONTENT_LENGTH)
+                throw new ArgumentOutOfRangeException();
+
             _content = builder.Builder.ToString();
             _username = builder.Username;
             _avatarUrl = builder.AvatarUrl;
             _isTTS = builder.IsTTS;
             _mention = builder.MessageMention;
             _files = builder.Files == null ? null : new ReadOnlyDictionary<string, byte[]>(builder.Files);
-
-            Checks.CheckForAttachments(_files);
+            _embeds = builder.Embeds.ToArray();
         }
 
         public SerializeContext Serialize()

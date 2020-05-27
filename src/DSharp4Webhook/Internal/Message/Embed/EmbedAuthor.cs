@@ -1,4 +1,6 @@
+using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Core.Embed;
+using DSharp4Webhook.Util;
 using Newtonsoft.Json;
 
 namespace DSharp4Webhook.Internal.Embed
@@ -11,6 +13,16 @@ namespace DSharp4Webhook.Internal.Embed
         private readonly string? _iconUrl;
         private readonly string? _proxyIconUrl;
         private readonly string? _url;
+
+        public EmbedAuthor(EmbedAuthorBuilder builder)
+        {
+            Checks.CheckForNull(builder, nameof(builder));
+
+            _name = builder.Name;
+            _iconUrl = builder.IconUrl;
+            _proxyIconUrl = builder.ProxyIconUrl;
+            _url = builder.Url;
+        }
 
         [JsonProperty(PropertyName = "name")]
         public string? Name

@@ -1,7 +1,10 @@
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Core.Embed;
+using DSharp4Webhook.Util;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 
 namespace DSharp4Webhook.Internal.Embed
 {
@@ -27,6 +30,34 @@ namespace DSharp4Webhook.Internal.Embed
         private readonly IEmbedProvider? _provider;
         private readonly IEmbedAuthor? _author;
         private readonly IEmbedField[]? _fields;
+
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Embed exceeds its limit.
+        /// </exception>
+        public Embed(EmbedBuilder builder)
+        {
+            Checks.CheckForNull(builder, nameof(builder));
+
+            int totalLength = builder.GetStringBuilder().Length +
+                builder.GetFields().Sum(field => field.Value.Length + field.Name.Length) +
+                (builder.Footer?.Text.Length ?? 0) + (builder.Author?.Name?.Length ?? 0);
+            if (totalLength > WebhookProvider.MAX_EMBED_DATA_LENGTH)
+                throw new ArgumentOutOfRangeException($"Embed exceed the embed limit of {WebhookProvider.MAX_EMBED_DATA_LENGTH} in length, see https://discord.com/developers/docs/resources/channel#embed-limits-limits");
+
+            _title = builder.Title;
+            _type = builder.Type;
+            _description = builder.GetStringBuilder().ToString();
+            _url = builder.Url;
+            _timestamp = builder.Timestamp;
+            _color = builder.Color;
+            _footer = builder.Footer;
+            _image = builder.Image;
+            _thumbnail = builder.Thumbnail;
+            _video = builder.Video;
+            _provider = builder.Provider;
+            _author = builder.Author;
+            _fields = builder.GetFields().ToArray();
+        }
 
         #region Properties
 

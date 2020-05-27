@@ -1,4 +1,6 @@
+using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Core.Embed;
+using DSharp4Webhook.Util;
 using Newtonsoft.Json;
 
 namespace DSharp4Webhook.Internal.Embed
@@ -12,16 +14,14 @@ namespace DSharp4Webhook.Internal.Embed
         private readonly string? _url;
         private readonly string? _proxyUrl;
 
-        [JsonProperty(PropertyName = "height")]
-        public uint? Height
+        public EmbedImage(EmbedImageBuilder builder)
         {
-            get => _height;
-        }
+            Checks.CheckForNull(builder, nameof(builder));
 
-        [JsonProperty(PropertyName = "width")]
-        public uint? Width
-        {
-            get => _width;
+            _height = builder.Height;
+            _width = builder.Width;
+            _url = builder.Url;
+            _proxyUrl = builder.ProxyUrl;
         }
 
         [JsonProperty(PropertyName = "url")]
@@ -36,5 +36,17 @@ namespace DSharp4Webhook.Internal.Embed
             get => _proxyUrl;
         }
 #nullable restore
+
+        [JsonProperty(PropertyName = "height")]
+        public uint? Height
+        {
+            get => _height;
+        }
+
+        [JsonProperty(PropertyName = "width")]
+        public uint? Width
+        {
+            get => _width;
+        }
     }
 }

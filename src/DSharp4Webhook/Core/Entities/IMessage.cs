@@ -1,3 +1,4 @@
+using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Serialization;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,13 @@ namespace DSharp4Webhook.Core
         ///     Whether the TTS determines this message or not.
         /// </summary>        
         public bool IsTTS { get; }
+
+        /// <summary>
+        ///     Message embeds.
+        /// </summary>
+#nullable enable
+        public IEmbed[]? Embeds { get; }
+#nullable restore
 
         /// <summary>
         ///     Allowed mentions for a message.

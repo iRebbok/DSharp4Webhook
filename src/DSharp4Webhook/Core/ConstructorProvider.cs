@@ -63,6 +63,25 @@ namespace DSharp4Webhook.Core
         public static MessageBuilder GetMessageBuilder(IWebhook webhook) => MessageBuilder.New(webhook);
 
         /// <summary>
+        ///     Gets a new Builder for a embed.
+        /// </summary>
+        public static EmbedBuilder GetEmbedBuilder() => EmbedBuilder.New();
+
+        public static EmbedAuthorBuilder GetEmbedAuthorBuilder() => EmbedAuthorBuilder.New();
+
+        public static EmbedFieldBuilder GetEmbedFieldBuilder() => EmbedFieldBuilder.New();
+
+        public static EmbedFooterBuilder GetEmbedFooterBuilder() => EmbedFooterBuilder.New();
+
+        public static EmbedImageBuilder GetEmbedImageBuilder() => EmbedImageBuilder.New();
+
+        public static EmbedProviderBuilder GetEmbedProviderBuilder() => EmbedProviderBuilder.New();
+
+        public static EmbedThumbnailBuilder GetEmbedThumnailBuiler() => EmbedThumbnailBuilder.New();
+
+        public static EmbedVideoBuilder GetEmbedVideoBuilder() => EmbedVideoBuilder.New();
+
+        /// <summary>
         ///     Gets a new modifier content constructor.
         /// </summary>
         /// <returns></returns>

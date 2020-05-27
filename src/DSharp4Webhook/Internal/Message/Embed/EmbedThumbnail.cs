@@ -1,4 +1,6 @@
+using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Core.Embed;
+using DSharp4Webhook.Util;
 using Newtonsoft.Json;
 
 namespace DSharp4Webhook.Internal.Embed
@@ -11,6 +13,16 @@ namespace DSharp4Webhook.Internal.Embed
         private readonly uint? _width;
         private readonly string? _url;
         private readonly string? _proxyUrl;
+
+        public EmbedThumbnail(EmbedThumbnailBuilder builder)
+        {
+            Checks.CheckForNull(builder, nameof(builder));
+
+            _height = builder.Height;
+            _width = builder.Width;
+            _url = builder.Url;
+            _proxyUrl = builder.ProxyUrl;
+        }
 
         [JsonProperty(PropertyName = "height")]
         public uint? Height

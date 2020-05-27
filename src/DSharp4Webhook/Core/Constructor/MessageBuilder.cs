@@ -1,4 +1,5 @@
 
+using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Internal;
 using DSharp4Webhook.Util;
 using System;
@@ -20,6 +21,7 @@ namespace DSharp4Webhook.Core.Constructor
         private string _username;
         private string _avatarUrl;
         private bool _isTTS;
+        private List<IEmbed> _embeds;
         private IMessageMention _mention;
         private Dictionary<string, byte[]> _files;
 
@@ -29,6 +31,11 @@ namespace DSharp4Webhook.Core.Constructor
         ///     Gets the message builder for this builder.
         /// </summary>
         public StringBuilder Builder { get => _builder; }
+
+        /// <summary>
+        ///     Gets a list of embeds.
+        /// </summary>
+        public List<IEmbed> Embeds { get => _embeds ??= new List<IEmbed>(); }
 
         /// <summary>
         ///     Whether the TTS determines this message or not.
@@ -262,8 +269,41 @@ namespace DSharp4Webhook.Core.Constructor
         }
 
         /// <summary>
+        ///     Adds an embed to the message.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     Embed is null.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Exceeds the allowed limit of embeds.
+        /// </exception>
+        public MessageBuilder AddEmbed(IEmbed embed)
+        {
+            Checks.CheckForNull(embed, nameof(embed));
+            if (Embeds.Count + 1 > WebhookProvider.MAX_EMBED_COUNT)
+                throw new ArgumentOutOfRangeException();
+            _embeds.Add(embed);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Same thing, but doesn't throw exceptions.
+        /// </summary>
+        public MessageBuilder TryAddEmbed(IEmbed embed)
+        {
+            if (embed != null && Embeds.Count + 1 <= WebhookProvider.MAX_EMBED_COUNT)
+                _embeds.Add(embed);
+
+            return this;
+        }
+
+        /// <summary>
         ///     Builds messages.
         /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Message exceeds its limit.
+        /// </exception>
         public IMessage Build()
         {
             return new Message(this);
@@ -277,6 +317,7 @@ namespace DSharp4Webhook.Core.Constructor
             _isTTS = false;
             _username = null;
             _mention = null;
+            _embeds?.Clear();
         }
 
         #endregion
