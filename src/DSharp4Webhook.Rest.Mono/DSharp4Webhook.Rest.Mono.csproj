@@ -5,10 +5,14 @@
   <PropertyGroup>
     <AssemblyName>DSharp4Webhook.Rest.Mono</AssemblyName>
     <Description>REST module DSharp4Webhook that provides RESTProvider for execution in the Mono environment</Description>
+    <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DSharp4Webhook\DSharp4Webhook.csproj" />
+    <ProjectReference Include="..\DSharp4Webhook\DSharp4Webhook.csproj">
+      <CopyLocalDependencies>false</CopyLocalDependencies>
+      <Private>false</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,8 @@
+using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading;
+using System.IO;
 
 namespace DSharp4Webhook.Rest
 {
@@ -19,19 +18,27 @@ namespace DSharp4Webhook.Rest
         {
             Checks.CheckForNull(type, nameof(type));
             return type.IsSubclassOf(typeof(BaseRestProvider)) &&
-                type.GetConstructor(new Type[] { typeof(RestClient), typeof(SemaphoreSlim) }) != null;
+                type.GetConstructor(new Type[] { typeof(IWebhook) }) != null;
         }
 
         /// <summary>
         ///     Gets the type of provider it that intends to use.
         /// </summary>
-        /// <exception cref="InvalidOperationException">
-        ///     If no suitable implementation is found.
+        /// <exception cref="FileNotFoundException">
+        ///     Can't find the <c>System.Net.Http</c> assembly,
+        ///     configure the provider for Mono.
         /// </exception>
+        /// <remarks>
+        ///     Don't intentionally configure the provider for use!!!
+        ///     If the provider is null, it selects the default provider,
+        ///     because so that the user can configure the provider before it is used.
+        ///     If you access code that does not have the necessary dependencies with it,
+        ///     an exception is thrown, so on unity projects that were compiled using the .NET Framework profile.
+        /// </remarks>
         public static Type GetProviderType()
         {
             if (_provider == null)
-                throw new InvalidOperationException("RestProvider does not have any implementation, make sure that you have included at least one of them in the build");
+                DefaultProvider.SetupAsDefault();
 
             return _provider;
         }
@@ -63,24 +70,12 @@ namespace DSharp4Webhook.Rest
         /// <exception cref="InvalidOperationException">
         ///     If no suitable implementation is found.
         /// </exception>
-        public static BaseRestProvider CreateProvider(RestClient restClient, SemaphoreSlim locker)
+        public static BaseRestProvider CreateProvider(IWebhook webhook)
         {
-            Checks.CheckForNull(restClient, nameof(restClient));
-            Checks.CheckForNull(locker, nameof(locker));
+            Checks.CheckForNull(webhook, nameof(webhook));
 
             var providerType = GetProviderType();
-            return Activator.CreateInstance(providerType, restClient, locker) as BaseRestProvider;
-        }
-
-        private class RestProviderComparer : IComparer<Type>
-        {
-            public int Compare(Type x, Type y)
-            {
-                byte primaryPriority = x.GetCustomAttribute<ProviderPriorityAttribute>()?.Priority ?? 0;
-                byte secondaryPriority = y.GetCustomAttribute<ProviderPriorityAttribute>()?.Priority ?? 0;
-
-                return secondaryPriority.CompareTo(primaryPriority);
-            }
+            return Activator.CreateInstance(providerType, webhook) as BaseRestProvider;
         }
     }
 }

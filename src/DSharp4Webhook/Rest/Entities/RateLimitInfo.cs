@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace DSharp4Webhook.Rest.Entities
+namespace DSharp4Webhook.Rest
 {
     /// <remarks>
     ///     Taken from

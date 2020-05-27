@@ -1,7 +1,9 @@
+using DSharp4Webhook.Action;
+using DSharp4Webhook.Action.Rest;
+using DSharp4Webhook.Internal;
 using DSharp4Webhook.Rest;
+using DSharp4Webhook.Rest.Manipulation;
 using System;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Core
 {
@@ -16,26 +18,22 @@ namespace DSharp4Webhook.Core
         #region Properties
 
         /// <summary>
-        ///     Message queue to send.
-        /// </summary>
-        ConcurrentQueue<IWebhookMessage> MessageQueue { get; }
-
-        /// <summary>
         ///     Webhook provider.
         ///     Is null for webhooks created without a provider.
         /// </summary>
 #nullable enable
-        WebhookProvider Provider { get; }
+        public WebhookProvider? Provider { get; }
+#nullable restore
 
         /// <summary>
-        ///     Used by RestClient to send data.
+        ///     Provider for REST requests.
         /// </summary>
-        RestClient RestClient { get; }
+        public BaseRestProvider RestProvider { get; }
 
         /// <summary>
-        ///     Constant data that is used when sending a message.
+        ///     Action manager.
         /// </summary>
-        IWebhookMessageInfo WebhookMessageInfo { get; }
+        public IActionManager ActionManager { get; }
 
         /// <summary>
         ///     Webhook statuses.
@@ -46,17 +44,27 @@ namespace DSharp4Webhook.Core
         ///     When trying to assign a value to a nonexistent webhook
         ///     or downgrade the status to an existing webhook.
         /// </exception>
-        WebhookStatus Status { get; set; }
+        public WebhookStatus Status { get; set; }
+
+        /// <summary>
+        ///     Rest settings that will be used when creating rest queries.
+        /// </summary>
+        public RestSettings RestSettings { get; set; }
+
+        /// <summary>
+        ///     Allowed mentions for webhook.
+        /// </summary>
+        public AllowedMention AllowedMention { get; set; }
 
         /// <summary>
         ///     Webhook id.
         /// </summary>
-        ulong Id { get; }
+        public ulong Id { get; }
 
         /// <summary>
         ///     Webhook token.
         /// </summary>
-        string Token { get; }
+        public string Token { get; }
 
         #endregion
 
@@ -66,21 +74,10 @@ namespace DSharp4Webhook.Core
         ///     Gets the url of the webhack to interact with the API,
         ///     and your subdomain Url can be used if it is valid.
         /// </summary>
-        string GetWebhookUrl();
+        public string GetWebhookUrl();
 
         /// <summary>
-        ///     Sends a message to the queue.
-        /// </summary>
-        /// <param name="message">
-        ///     A message that can be built via MessageBuilder.
-        /// </param>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-        void QueueMessage(IWebhookMessage message);
-
-        /// <summary>
-        ///     Sends a message to the queue.
+        ///     Send messages.
         /// </summary>
         /// <param name="message">
         ///     Message content.
@@ -89,83 +86,105 @@ namespace DSharp4Webhook.Core
         ///     Manages the voice over of the message to all clients
         ///     who are in the corresponding channel.
         /// </param>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-        void QueueMessage(string message, bool isTTS = false);
-
-        /// <summary>
-        ///     Retrieves information about webhook.
-        /// </summary>
-        /// <param name="forceUpdate">
-        ///     Forced update if it was cached.
+        /// <param name="messageMention">
+        ///     Settings for allowed mentions.
+        ///     By default, the current value for the webhook is used.
+        /// </param>
+        /// <param name="restSettings">
+        ///     Settings for rest request.
         /// </param>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task<IWebhookInfo> GetInfoAsync(bool forceUpdate = false);
+#nullable enable
+        public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null);
+#nullable restore
+
+        /// <summary>
+        ///     Send messages.
+        /// </summary>
+        /// <param name="message">
+        ///     A message that can be build via MessageBuilder.
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+#nullable enable
+        public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null);
+#nullable restore
+
+        /// <summary>
+        ///     Retrieves information about webhook.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+#nullable enable
+        public IInfoAction GetInfo(RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
         ///     Deletes the webhook.
         ///     Destroys webhook at the level of the discord.
         /// </summary>
-        Task Delete();
-
-        /// <summary>
-        ///     Sends a message asynchronously out of a queue.
-        /// </summary>
-        /// <param name="message">
-        ///     A message that can be build via MessageBuilder.
-        /// </param>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task SendMessageAsync(IWebhookMessage message);
+#nullable enable
+        public IDeleteAction Delete(RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
-        ///     Sends a message asynchronously out of a queue.
+        ///     Modifies the webhook.
+        ///     <para>
+        ///         The only difference from a similar method is that it does not modify the image.
+        ///     </para>
         /// </summary>
-        /// <param name="message">
-        ///     Message content.
+        /// <param name="name">
+        ///     Webhook name.
         /// </param>
-        /// <param name="isTTS">
-        ///     Manages the voice over of the message to all clients
-        ///     who are in the corresponding channel.
-        /// </param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     One of the arguments does not meet the requirements.
+        /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task SendMessageAsync(string message, bool isTTS = false);
+#nullable enable
+        public IModifyAction Modify(string name, RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
-        ///     Sends a message asynchronously out of a queue,
-        ///     The only difference is that it does not throw an exception if it occurs, 
-        ///     but returns it as a variable.
+        ///     Modifies the webhook.
         /// </summary>
-        /// <param name="message">
-        ///     A message that can be built via MessageBuilder.
+        /// <param name="name">
+        ///     Webhook name.
         /// </param>
+        /// <param name="image">
+        ///     Avatar that will use webhook.
+        ///     A null value will mean resetting the image for the webhook.
+        /// </param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     One of the arguments does not meet the requirements.
+        /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task<Exception> SendMessageAsyncSafely(IWebhookMessage message);
+#nullable enable
+        public IModifyAction Modify(string name, IWebhookImage image, RestSettings? restSettings = null);
+#nullable restore
 
         /// <summary>
-        ///     Sends a message asynchronously out of a queue,
-        ///     The only difference is that it does not throw an exception if it occurs, 
-        ///     but returns it as a variable.
+        ///     Modifies the webhook using pre-prepared data.
         /// </summary>
-        /// <param name="mesage">
-        ///     A message that can be build via MessageBuilder.
-        /// </param>
-        /// <param name="isTTS">
-        ///     Manages the voice over of the message to all clients
-        ///     who are in the corresponding channel.
-        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///     <paramref name="content"/> is null.
+        /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-        Task<Exception> SendMessageAsyncSafely(string mesage, bool isTTS = false);
+#nullable enable
+        public IModifyAction Modify(IModifyContent content, RestSettings? restSettings = null);
+#nullable restore
 
         #endregion
     }

@@ -1,13 +1,10 @@
-using DSharp4Webhook.Core.Enums;
+using DSharp4Webhook.Action.Rest;
 
 namespace DSharp4Webhook.Core
 {
     /// <summary>
     ///     Received information about webhook in a direct GET request.
     /// </summary>
-    /// <remarks>
-    ///     The implementation is located in <see cref="WebhookInfo"/>.
-    /// </remarks>
     public interface IWebhookInfo
     {
         /// <summary>
@@ -34,12 +31,15 @@ namespace DSharp4Webhook.Core
         ///     Avatar id for webhook.
         /// </summary>
 #nullable enable
-        string AvatarId { get; }
+        string? AvatarId { get; }
+#nullable restore
 
         /// <summary>
         ///     Gets the avatar url for webhook.
         /// </summary>
-        string AvatarUrl { get; }
+#nullable enable
+        string? AvatarUrl { get; }
+#nullable restore
 
         /// <summary>
         ///     Snowflake webhook id of the channel it interacts with.
@@ -65,5 +65,10 @@ namespace DSharp4Webhook.Core
         ///     Webhook token.
         /// </summary>
         string Token { get; }
+
+        /// <summary>
+        ///     Gets a webhook avatar.
+        /// </summary>
+        IAvatarAction GetAvatar();
     }
 }

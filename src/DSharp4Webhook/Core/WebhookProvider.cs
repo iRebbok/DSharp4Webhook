@@ -1,9 +1,10 @@
-using DSharp4Webhook.Logging;
+using DSharp4Webhook.Internal;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DSharp4Webhook.Core
@@ -16,32 +17,89 @@ namespace DSharp4Webhook.Core
         #region Static Properties
 
         /// <summary>
+        ///     Library github url.
+        /// </summary>
+        public static readonly string LibraryUrl = "https://github.com/iRebbok/DSharp4Webhook";
+
+        /// <summary>
+        ///     Library version.
+        /// </summary>
+        public static readonly string LibraryVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyVersionAttribute>().Version;
+
+        /// <summary>
         ///     Regular expression for parsing the webhook Url.
         /// </summary>
-        public static Regex WebhookUrlRegex { get; } = new Regex(@"^.*discordapp\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static readonly Regex WebhookUrlRegex = new Regex(@"^.*discord(?:app)?\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$",
+            RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         /// <summary>
         ///     Base url for generating a webhook url if it was created using a token and id.
         /// </summary>
-        public static string WebhookBaseUrl { get; } = "https://discordapp.com/api/webhooks/{0}/{1}";
+        public static readonly string WebhookBaseUrl = "https://discord.com/api/webhooks/{0}/{1}";
 
         /// <summary>
         ///     Base url for generating avatar urls.
         /// </summary>
-        public static string WebhookBaseAvatarUrl { get; } = "https://cdn.discordapp.com/avatars/{0}/{1}.{2}";
+        public static readonly string WebhookBaseAvatarUrl = "https://cdn.discordapp.com/avatars/{0}/{1}.{2}";
 
         /// <summary>
         ///     The maximum number of characters that can be sent as a message.
         /// </summary>
-        public static int MAX_CONTENT_LENGTH { get; } = 2000;
+        public static readonly int MAX_CONTENT_LENGTH = 2000;
         /// <summary>
         ///     Minimum limit on the number of characters in a nickname.
         /// </summary>
-        public static int MIX_NICKNAME_LENGHT { get; } = 1;
+        public static readonly int MIN_NICKNAME_LENGTH = 1;
         /// <summary>
         ///     Maximum limit on the number of characters in a nickname.
         /// </summary>
-        public static int MAX_NICKNAME_LENGTH { get; } = 80;
+        public static readonly int MAX_NICKNAME_LENGTH = 80;
+        /// <summary>
+        ///     Maximum limit on attachments in a message.
+        /// </summary>
+        public static readonly int MAX_ATTACHMENTS = 10;
+        /// <summary>
+        ///     Limit on the size of all attachments.
+        /// </summary>
+        public static readonly int MAX_ATTACHMENTS_SIZE = 8 * 1024 * 1024; // 8 MB currently
+        /// <summary>
+        ///     Maximum character limit in embed title.
+        /// </summary>
+        public static readonly int MAX_EMBED_TITLE_LENGTH = 256;
+        /// <summary>
+        ///     Maximum character limit in embed description.
+        /// </summary>
+        public static readonly int MAX_EMBED_DESCRIPTION_LENGTH = 2048;
+        /// <summary>
+        ///     Maximum limit on the number of footers in embed.
+        /// </summary>
+        public static readonly int MAX_EMBED_FIELDS_COUNT = 25;
+        /// <summary>
+        ///     Maximum character limit of name in embed field.
+        /// </summary>
+        public static readonly int MAX_EMBED_FIELD_NAME_LENGTH = 256;
+        /// <summary>
+        ///     Maximum character limit of value in embed field.
+        /// </summary>
+        public static readonly int MAX_EMBED_FIELD_VALUE_LENGTH = 1024;
+        /// <summary>
+        ///     Maximum character limit of text in embed footer.
+        /// </summary>
+        public static readonly int MAX_EMBED_FOOTER_TEXT_LENGTH = 2048;
+        /// <summary>
+        ///     Maximum character limit of name in embed author.
+        /// </summary>
+        public static readonly int MAX_EMBED_AUTHOR_NAME_LENGTH = 256;
+        /// <summary>
+        ///     The maximum number of characters in all such as
+        ///     title, description, field.name, field.value,
+        ///     footer.text and author.name.
+        /// </summary>
+        public static readonly int MAX_EMBED_DATA_LENGTH = 6000;
+        /// <summary>
+        ///     Maximum limit on embeds that can be attached to a message.
+        /// </summary>
+        public static readonly int MAX_EMBED_COUNT = 10;
 
         #endregion
 
@@ -52,6 +110,17 @@ namespace DSharp4Webhook.Core
         /// </summary>
         public string Id { get; }
 
+        private RestSettings _restSettings;
+        /// <summary>
+        ///     Rest settings which will use the following webhook when creating it.
+        /// </summary>
+        public RestSettings RestSettings { get => _restSettings; set => _restSettings = value ?? _restSettings; }
+
+        /// <summary>
+        ///     Allowed mentions to use when creating webhooks.
+        /// </summary>
+        public AllowedMention AllowedMention { get; set; }
+
         #endregion
 
         #region Fields
@@ -60,11 +129,6 @@ namespace DSharp4Webhook.Core
         ///     Stores all registered webhooks as Id-Webhook.
         /// </summary>
         private readonly Dictionary<ulong, IWebhook> _webhooks;
-
-        /// <summary>
-        ///     It is the main event provider for the provider.
-        /// </summary>
-        public event Action<LogContext> OnLog;
 
         #endregion
 
@@ -79,6 +143,7 @@ namespace DSharp4Webhook.Core
             Id = !string.IsNullOrEmpty(id) ? id : throw new ArgumentException("Unique identifier cannot be null or empty", nameof(id));
 
             _webhooks = new Dictionary<ulong, IWebhook>();
+            _restSettings = new RestSettings();
         }
 
         #region Static Methods
@@ -115,7 +180,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format.
         /// </exception>
-        public static IWebhook CreateSaticWebhook(string url)
+        public static IWebhook CreateStaticWebhook(string url)
         {
             return CreateWebhook(url, null);
         }
@@ -150,12 +215,14 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format.
         /// </exception>
-        private static IWebhook CreateWebhook(string url, WebhookProvider provider)
+#nullable enable
+        private static IWebhook CreateWebhook(string url, WebhookProvider? provider)
+#nullable restore
         {
             if (string.IsNullOrEmpty(url)) throw new ArgumentException("Url cannot be null or empty", nameof(url));
 
             Match match = WebhookUrlRegex.Match(url);
-            if (!match.Success) throw new InvalidOperationException("");
+            if (!match.Success) throw new InvalidOperationException("The url is not valid");
 
             Webhook webhook = new Webhook(provider, ulong.Parse(match.Groups[1].Value), match.Groups[2].Value, url);
             provider?._webhooks.Add(webhook.Id, webhook);
@@ -172,7 +239,9 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format or the webhook already exists.
         /// </exception>
-        private static IWebhook CreateWebhook(ulong id, string token, WebhookProvider provider)
+#nullable enable
+        private static IWebhook CreateWebhook(ulong id, string token, WebhookProvider? provider)
+#nullable restore
         {
             if (string.IsNullOrEmpty(token)) throw new ArgumentException("Token cannot be null or empty", nameof(token));
             if (provider?._webhooks.ContainsKey(id) ?? false) throw new InvalidOperationException($"Webhook id {id} is already in the collection");
@@ -352,17 +421,6 @@ namespace DSharp4Webhook.Core
         public IWebhook[] GetWebhooks()
         {
             return _webhooks.Select(x => x.Value).ToArray();
-        }
-
-        /// <summary>
-        ///     Sends logs to all subscribed channels.
-        /// </summary>
-        /// <remarks>
-        ///     The user does not need to send logs.
-        /// </remarks>
-        internal void Log(LogContext context)
-        {
-            OnLog?.Invoke(context);
         }
 
         public void Dispose()

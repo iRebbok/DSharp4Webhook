@@ -1,6 +1,8 @@
 using DSharp4Webhook.Core;
-using DSharp4Webhook.Core.Serialization;
+using DSharp4Webhook.Exception;
+using DSharp4Webhook.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DSharp4Webhook.Util
@@ -11,7 +13,7 @@ namespace DSharp4Webhook.Util
     public static class Checks
     {
         /// <summary>
-        ///     Ckecks the bounds and if they are exceeded or meet it causes an exception.
+        ///     Checks the bounds and if they are exceeded or meet it causes an exception.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     If the length exceed or meet their bounds.
@@ -19,6 +21,18 @@ namespace DSharp4Webhook.Util
         public static void CheckBounds(string paramName, string message, int safeLength, int length, params int[] length1)
         {
             if (CheckBoundsSafe(safeLength, length, length1))
+                throw new ArgumentOutOfRangeException(paramName, message);
+        }
+
+        /// <summary>
+        ///     Checks the bounds, and if they are belittled or meet, it causes an exception.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     If the length exceed or meet their bounds.
+        /// </exception>
+        public static void CheckBoundsUnderside(string paramName, string message, int safeLength, int length, params int[] length1)
+        {
+            if (CheckBoundsUndersideSafe(safeLength, length, length1))
                 throw new ArgumentOutOfRangeException(paramName, message);
         }
 
@@ -35,6 +49,11 @@ namespace DSharp4Webhook.Util
             if (length1 != null)
                 result += length1.Sum(a => (long)a);
             return result >= safeLength;
+        }
+
+        public static bool CheckBoundsUndersideSafe(int safeLength, int length, params int[] length1)
+        {
+            return !CheckBoundsSafe(safeLength, length, length1);
         }
 
         /// <summary>
@@ -95,6 +114,27 @@ namespace DSharp4Webhook.Util
         {
             if (context.Type != requireType)
                 throw new InvalidOperationException($"The current operation needs the {requireType} serialization type, not the {context.Type}");
+        }
+
+        /// <summary>
+        ///     Checking for attachments.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     The number of attachments exceeds the limit.
+        /// </exception>
+        /// <exception cref="SizeOutOfRangeException">
+        ///     The size of attachments exceeds the limit.
+        /// </exception>
+        public static void CheckForAttachments(IEnumerable<KeyValuePair<string, byte[]>> source)
+        {
+            if (source == null)
+                return;
+
+            if (source.Count() > WebhookProvider.MAX_ATTACHMENTS)
+                throw new ArgumentOutOfRangeException();
+
+            if (source.SizeOf() > WebhookProvider.MAX_ATTACHMENTS_SIZE)
+                throw new SizeOutOfRangeException();
         }
     }
 }
