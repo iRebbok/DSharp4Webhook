@@ -6,6 +6,7 @@ using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
@@ -39,6 +40,7 @@ namespace DSharp4Webhook.Rest.Mono
 
         public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
         {
+            Console.WriteLine($"POST: Content is null: {data.Content == null}");
             return await Raw("POST", url, POST_ALLOWED_STATUSES, restSettings, data);
         }
 
@@ -77,7 +79,8 @@ namespace DSharp4Webhook.Rest.Mono
                 request.CachePolicy = _cachePolicy;
                 request.Method = method;
                 // Calling 'GetRequestStream()' after setting the request type
-                PrepareRequest(request, data);
+                using var requestStream = request.GetRequestStream();
+                PrepareRequest(request, requestStream, data);
                 // Identify themselves
                 request.UserAgent = $"DSharp4Webhook ({WebhookProvider.LibraryUrl}, {WebhookProvider.LibraryVersion})";
                 // The content type is assigned in 'PrepareRequest'
@@ -96,12 +99,10 @@ namespace DSharp4Webhook.Rest.Mono
                     restResponse = new RestResponse(response, rateLimitInfo, currentAttimpts);
                     responses.Add(restResponse);
 
-                    response.Close();
-
                     // Processing the necessary status codes
                     ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
                 }
-                Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
+                Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content?.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content ?? string.Empty) : " No content")}", _webhook.Id));
 
                 // first of all we check the forceStop so that we don't go any further if
             } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.MaxAttempts > 0 ? ++currentAttimpts <= restSettings.MaxAttempts : true)));
@@ -115,8 +116,11 @@ namespace DSharp4Webhook.Rest.Mono
         /// <summary>
         ///     Prepares the request.
         /// </summary>
-        private void PrepareRequest(HttpWebRequest request, SerializeContext? data = null)
+        private void PrepareRequest(HttpWebRequest request, Stream requestStream, SerializeContext? data = null)
         {
+            Console.WriteLine($"PrepareRequest: Context is null: {!data.HasValue}");
+            Console.WriteLine($"Type: {data.Value.Type}");
+
             if (data == null) return;
             SerializeContext context = data.Value;
 
@@ -126,50 +130,12 @@ namespace DSharp4Webhook.Rest.Mono
                 {
                     request.ContentType = SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON);
                     // Writing a serialized context, no more
-                    using (var resuestStream = request.GetRequestStream())
-                        resuestStream.Write(context.Content, 0, context.Content.Length);
+                    requestStream.Write(context.Content, 0, context.Content.Length);
                     break;
                 }
                 case SerializeType.MULTIPART_FROM_DATA:
                 {
-                    string boundary = $"--------------------------{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                    request.ContentType = $"{SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA)} ;boundary={boundary}";
-                    // Inserted in the spaces between data
-                    byte[] boundarySerialized = Encoding.ASCII.GetBytes($"\r\n--{boundary}\r\n");
-                    // Inserted at the end of the data
-                    byte[] boundarySerializedClose = Encoding.ASCII.GetBytes($"\r\n--{boundary}--\r\n");
-
-                    using (var resuestStream = request.GetRequestStream())
-                    {
-                        if (context.Files != null && context.Files.Keys.Count != 0)
-                        {
-                            resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
-
-                            int index = 0;
-                            foreach (var filePair in context.Files)
-                            {
-                                index++;
-
-                                StreamUtil.Write(resuestStream, string.Format(fileHeaderTemplate, $"file{index}", filePair.Key), Encoding.ASCII);
-                                resuestStream.Write(filePair.Value, 0, filePair.Value.Length);
-
-                                // If this is not the last file
-                                // If you put it before, you risk breaking the body of the request
-                                if (index != context.Files.Keys.Count - 1)
-                                    resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
-
-                            }
-                        }
-
-                        if (context.Content != null)
-                        {
-                            resuestStream.Write(boundarySerialized, 0, boundarySerialized.Length);
-                            StreamUtil.Write(resuestStream, headerTemplate, Encoding.ASCII);
-                            resuestStream.Write(context.Content, 0, context.Content.Length);
-                        }
-
-                        resuestStream.Write(boundarySerializedClose, 0, boundarySerializedClose.Length);
-                    }
+                    MultipartHelper.PrepareMultipartFormDataRequest(request, requestStream, context);
                     break;
                 }
             }
