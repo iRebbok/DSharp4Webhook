@@ -6,32 +6,73 @@
 
 Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support.
 
-#### If you need Mono support in the Unity environment, then download the library not from NuGet, but from releases on GitHub, this is due to the fact that I can not make a release with the same version / version that does not have proper versioning. In the future I will solve this problem and place the package on NuGet.
+## Features
+- Send messages (include embeds)
+- Send files
+- RateLimit support
+- Allowed mentions support
+- RestProviders (one on `HttpClient`, the other on `WebRequest`)
+- Delete webhook
+- Modify webhook
+- Get information about webhook
+- Manipulating operations at the action level (action queue, callbacks)
 
-## TL;DR
-I needed a management library for discord webhooks with support for rate limit and other things, currently the library does not allow sending files and embeds.
+## Description
+Library allows you to fully interact with discord webhook including unity projects that were built with Mono on .NET Framework 4.7.1 (.NET 4.x profile) compatibility.
+
+## About the RestProviders
+**Note: You should always choose the default provider that comes with the library, a mono-compatible provider has a memory leak, read more on [`StackOverflow`](https://stackoverflow.com/a/34539083/13175172).**
+
+#### When should I use MonoProvder?
+Only if you see such an exception.
+```cs
+FileNotFoundException: Could not load file or assembly 'System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' or one of its dependencies.
+```
+This usually happens on unity projects that are compatible with .NET 4.x, it does not include `System.Net.Http`, only in this case you should use MonoProvider.
+
+#### How do I use MonoProvider?
+MonoProvider is delivered as a separate package with [*NuGet*](https://www.nuget.org/packages/DSharp4Webhook.Rest.Mono/), you will need to download it and call `DSharp4Webhook.Rest.Mono.MonoProvder.SetupAsDefault()` **before you create a webhook**.
 
 ## Quick start
-You need to create a WebhookProvider via [`WebhookProvider#CCTOR(string)`](https://github.com/iRebbok/DSharp4Webhook/blob/92c99e77064e0ce6e1eb2e4601562f4aa649034e/src/Core/WebhookProvider.cs#L71) for creating webhooks via [`WebhookProvider#CreateWebhook`](https://github.com/iRebbok/DSharp4Webhook/blob/92c99e77064e0ce6e1eb2e4601562f4aa649034e/src/Core/WebhookProvider.cs#L177) or you can create a webhook without a provider via the static method [`WebhookProvider#CreateSaticWebhook`](https://github.com/iRebbok/DSharp4Webhook/blob/92c99e77064e0ce6e1eb2e4601562f4aa649034e/src/Core/WebhookProvider.cs#L93).
-
-### Creating and using a webhook
 ```csharp
-WebhookProvider provider = new WebhookProvider("some.id");
-IWebhook webhook = provider.CreateWebhook("https://discordapp.com/api/webhooks/id/token");
-await webhook.SendMessageAsync("moosage");
-```
-The library also supports message queuing.
-This is a useful thing when you don't need to delay the current thread.
-
-### Inserting messages in a queue
-```csharp
-webhook.QueueMessage("my second moosage");
+// creating a webhook provider
+var provider = new WebhookProvider("your.id");
+// creating a webhook
+var webhook = provider.CreateWebhook("webhook url");
+// sending a message containing 'my content' and passing the callback,
+// callback is called after the action has been performed
+webhook.SendMessage("my content").Queue(() => Console.WriteLine("my message has been sent!"));
 ```
 
-### Permanent change to the nickname of the webhook for sending messages
+## FAQ
+
+#### How do I send a file?
+Files are sent via `MessageBuilder`, you just need to add its name and content to the file dictionary.
+Example:
 ```csharp
-webhook.WebhookInfo.Username = "weebhuk";
+// reading the file data in the current directory
+var fileContent = File.ReadAllBytes("myFile.txt");
+// getting a new message builder
+var messageBuilder = ConstructorProvider.GetMentionBuilder();
+// adding a file to the dictionary of files such as the file name and its content
+// yeah, you can change the file name
+messageBuilder.Files.Add("myFile.txt", fileContent);
+// building a message
+// note that you can't change the message content after building
+var message = messageBuilder.Build();
+// send a message
+webhook.SendMessage(message).Queue();
 ```
+
+#### How to handle constructors correctly?
+Each constructor has a `Reset()` method, this method resets the constructor to its default preset (on the message builder also resets allowed mentions, but not the permanent one that was built with it), I recommend using this method on every constructor instead of creating.
+
+#### That means permanently allowed mentions in the message builder?
+When creating a constructor, you can select allowed mentions, which are saved for the entire lifecycle of the constructor, its processing: when you reset the constructor to the default preset, it resets the allowed mentions too, and if they were not set during the new build, then a permanent allowed mention is used.
+Usually these are the default, which means `None` - no one will be mentioned.
+
+#### What are the allowed mentions by default?
+By default, all mentions are forbidden, and the webhook provider has the `AllowedMention` property, you can assign it and it will be used to create new webhooks, the property `AllowedMention` on webhooks is used to send messages that were not configured via message builder.
 
 ## Dependences
 - `Newtonsoft.Json`
