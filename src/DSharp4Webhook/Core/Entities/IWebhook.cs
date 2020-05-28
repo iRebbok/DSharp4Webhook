@@ -1,9 +1,11 @@
 using DSharp4Webhook.Action;
 using DSharp4Webhook.Action.Rest;
+using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Internal;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Rest.Manipulation;
 using System;
+using System.Collections.Generic;
 
 namespace DSharp4Webhook.Core
 {
@@ -93,6 +95,12 @@ namespace DSharp4Webhook.Core
         /// <param name="restSettings">
         ///     Settings for rest request.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///     The message is null.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     The message exceeds the allowed length on <see cref="WebhookProvider.MAX_CONTENT_LENGTH"/>.
+        /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
@@ -111,6 +119,44 @@ namespace DSharp4Webhook.Core
         /// </exception>
 #nullable enable
         public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null);
+#nullable restore
+
+        /// <summary>
+        ///     Send messages.
+        /// </summary>
+        /// <param name="embeds">
+        ///     List with embeds.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        ///     List is empty.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        ///     List with embeds is null.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     List contains more than is allowed on <see cref="WebhookProvider.MAX_EMBED_COUNT"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+#nullable enable
+        public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention? messageMention = null, RestSettings? restSettings = null);
+#nullable restore
+
+        /// <summary>
+        ///     Send messages.
+        /// </summary>
+        /// <param name="embed">
+        ///     One embed.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///     Embed is null.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        ///     When trying to interact with a nonexistent webhook.
+        /// </exception>
+#nullable enable
+        public IMessageAction SendMessage(IEmbed embed, IMessageMention? messageMention = null, RestSettings? restSettings = null);
 #nullable restore
 
         /// <summary>

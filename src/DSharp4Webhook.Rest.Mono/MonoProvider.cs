@@ -39,7 +39,6 @@ namespace DSharp4Webhook.Rest.Mono
 
         public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
         {
-            Console.WriteLine($"POST: Content is null: {data.Content == null}");
             return await Raw("POST", url, POST_ALLOWED_STATUSES, restSettings, data);
         }
 
@@ -50,7 +49,7 @@ namespace DSharp4Webhook.Rest.Mono
 
         public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
         {
-            Checks.CheckForArgument(data.Type != SerializeType.APPLICATION_JSON, nameof(data), "API do not support sending PATH as 'multipart/from-data'");
+            Checks.CheckForSerializeType(data, SerializeType.APPLICATION_JSON);
             return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, restSettings, data);
         }
 
@@ -109,17 +108,11 @@ namespace DSharp4Webhook.Rest.Mono
             return responses.ToArray();
         }
 
-        private const string fileHeaderTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n\r\n";
-        private const string headerTemplate = "Content-Disposition: form-data; name=\"payload_json\"\r\n\r\n";
-
         /// <summary>
         ///     Prepares the request.
         /// </summary>
         private void PrepareRequest(HttpWebRequest request, Stream requestStream, SerializeContext? data = null)
         {
-            Console.WriteLine($"PrepareRequest: Context is null: {!data.HasValue}");
-            Console.WriteLine($"Type: {data.Value.Type}");
-
             if (data == null) return;
             SerializeContext context = data.Value;
 

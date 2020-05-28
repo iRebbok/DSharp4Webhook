@@ -33,6 +33,9 @@ namespace DSharp4Webhook.Rest.Mono
             using var formDataStream = new MemoryStream();
             bool needsCLRF = false;
 
+            // We use indexing to be able to send multiple files
+            // If you serialize files with the same header name,
+            // you run the risk of getting only the first file in the output
             int index = -1;
             foreach (var pair in files)
             {

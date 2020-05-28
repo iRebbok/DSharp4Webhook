@@ -1,10 +1,13 @@
 using DSharp4Webhook.Action;
 using DSharp4Webhook.Action.Rest;
 using DSharp4Webhook.Core;
+using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Util;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DSharp4Webhook.Internal
 {
@@ -97,6 +100,12 @@ namespace DSharp4Webhook.Internal
 
         public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention messageMention = null, RestSettings restSettings = null)
         {
+            Checks.CheckForNull(message, nameof(message));
+
+            message = message.Trim();
+            Checks.CheckBounds(nameof(message), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
+                WebhookProvider.MAX_CONTENT_LENGTH, message.Length);
+
             messageMention ??= new MessageMention(_allowedMention);
             restSettings ??= _restSettings;
 
@@ -106,6 +115,26 @@ namespace DSharp4Webhook.Internal
         public IMessageAction SendMessage(IMessage message, RestSettings restSettings = null)
         {
             return new MessageAction(message, this, restSettings ?? _restSettings);
+        }
+
+        public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention messageMention = null, RestSettings restSettings = null)
+        {
+            Checks.CheckForNull(embeds, nameof(embeds));
+            var embedCount = embeds.Count();
+            Checks.CheckForArgument(embedCount == 0, nameof(embeds));
+            Checks.CheckBounds(nameof(embeds), null, WebhookProvider.MAX_EMBED_COUNT + 1, embedCount);
+
+            messageMention ??= new MessageMention(_allowedMention);
+            restSettings ??= _restSettings;
+
+            return new MessageAction(new Message(embeds, messageMention), this, restSettings);
+        }
+
+        public IMessageAction SendMessage(IEmbed embed, IMessageMention messageMention = null, RestSettings restSettings = null)
+        {
+            Checks.CheckForNull(embed, nameof(embed));
+            // Just passing it on
+            return SendMessage(new[] { embed }, messageMention, restSettings);
         }
 
         public IInfoAction GetInfo(RestSettings restSettings = null)

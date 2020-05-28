@@ -57,8 +57,17 @@ namespace DSharp4Webhook.Internal
         public Message(string message, IMessageMention messageMention, bool isTTS = false)
         {
             Checks.CheckForNull(messageMention, nameof(messageMention));
+
             _content = message;
             _isTTS = isTTS;
+            _mention = messageMention;
+        }
+
+        public Message(IEnumerable<IEmbed> embeds, IMessageMention messageMention)
+        {
+            Checks.CheckForNull(messageMention, nameof(messageMention));
+
+            _embeds = embeds.ToArray();
             _mention = messageMention;
         }
 
