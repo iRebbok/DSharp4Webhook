@@ -19,87 +19,112 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Library github url.
         /// </summary>
-        public static readonly string LibraryUrl = "https://github.com/iRebbok/DSharp4Webhook";
+        public static readonly string LibraryUrl;
 
         /// <summary>
         ///     Library version.
         /// </summary>
-        public static readonly string LibraryVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyVersionAttribute>().Version;
+        public static readonly string LibraryVersion;
 
         /// <summary>
         ///     Regular expression for parsing the webhook Url.
         /// </summary>
-        public static readonly Regex WebhookUrlRegex = new Regex(@"^.*discord(?:app)?\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$",
-            RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        public static readonly Regex WebhookUrlRegex;
 
         /// <summary>
         ///     Base url for generating a webhook url if it was created using a token and id.
         /// </summary>
-        public static readonly string WebhookBaseUrl = "https://discord.com/api/webhooks/{0}/{1}";
+        public static readonly string WebhookBaseUrl;
 
         /// <summary>
         ///     Base url for generating avatar urls.
         /// </summary>
-        public static readonly string WebhookBaseAvatarUrl = "https://cdn.discordapp.com/avatars/{0}/{1}.{2}";
+        public static readonly string WebhookBaseAvatarUrl;
 
         /// <summary>
         ///     The maximum number of characters that can be sent as a message.
         /// </summary>
-        public static readonly int MAX_CONTENT_LENGTH = 2000;
+        public static readonly int MAX_CONTENT_LENGTH;
         /// <summary>
         ///     Minimum limit on the number of characters in a nickname.
         /// </summary>
-        public static readonly int MIN_NICKNAME_LENGTH = 1;
+        public static readonly int MIN_NICKNAME_LENGTH;
         /// <summary>
         ///     Maximum limit on the number of characters in a nickname.
         /// </summary>
-        public static readonly int MAX_NICKNAME_LENGTH = 80;
+        public static readonly int MAX_NICKNAME_LENGTH;
         /// <summary>
         ///     Maximum limit on attachments in a message.
         /// </summary>
-        public static readonly int MAX_ATTACHMENTS = 10;
+        public static readonly int MAX_ATTACHMENTS;
         /// <summary>
         ///     Limit on the size of all attachments.
         /// </summary>
-        public static readonly int MAX_ATTACHMENTS_SIZE = 8 * 1024 * 1024; // 8 MB currently
+        public static readonly int MAX_ATTACHMENTS_SIZE;
         /// <summary>
         ///     Maximum character limit in embed title.
         /// </summary>
-        public static readonly int MAX_EMBED_TITLE_LENGTH = 256;
+        public static readonly int MAX_EMBED_TITLE_LENGTH;
         /// <summary>
         ///     Maximum character limit in embed description.
         /// </summary>
-        public static readonly int MAX_EMBED_DESCRIPTION_LENGTH = 2048;
+        public static readonly int MAX_EMBED_DESCRIPTION_LENGTH;
         /// <summary>
         ///     Maximum limit on the number of footers in embed.
         /// </summary>
-        public static readonly int MAX_EMBED_FIELDS_COUNT = 25;
+        public static readonly int MAX_EMBED_FIELDS_COUNT;
         /// <summary>
         ///     Maximum character limit of name in embed field.
         /// </summary>
-        public static readonly int MAX_EMBED_FIELD_NAME_LENGTH = 256;
+        public static readonly int MAX_EMBED_FIELD_NAME_LENGTH;
         /// <summary>
         ///     Maximum character limit of value in embed field.
         /// </summary>
-        public static readonly int MAX_EMBED_FIELD_VALUE_LENGTH = 1024;
+        public static readonly int MAX_EMBED_FIELD_VALUE_LENGTH;
         /// <summary>
         ///     Maximum character limit of text in embed footer.
         /// </summary>
-        public static readonly int MAX_EMBED_FOOTER_TEXT_LENGTH = 2048;
+        public static readonly int MAX_EMBED_FOOTER_TEXT_LENGTH;
         /// <summary>
         ///     Maximum character limit of name in embed author.
         /// </summary>
-        public static readonly int MAX_EMBED_AUTHOR_NAME_LENGTH = 256;
+        public static readonly int MAX_EMBED_AUTHOR_NAME_LENGTH;
         /// <summary>
         ///     The maximum number of characters in all such as
         ///     title, description, field.name, field.value,
         ///     footer.text and author.name.
         /// </summary>
-        public static readonly int MAX_EMBED_DATA_LENGTH = 6000;
+        public static readonly int MAX_EMBED_DATA_LENGTH;
         /// <summary>
         ///     Maximum limit on embeds that can be attached to a message.
         /// </summary>
-        public static readonly int MAX_EMBED_COUNT = 10;
+        public static readonly int MAX_EMBED_COUNT;
+
+        static WebhookProvider()
+        {
+            LibraryUrl = "https://github.com/iRebbok/DSharp4Webhook";
+            LibraryVersion = typeof(WebhookProvider).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
+            WebhookUrlRegex = new Regex(@"^.*discord(?:app)?\.com\/api\/webhooks\/([\d]+)\/([a-z0-9_-]+)$",
+            RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            WebhookBaseUrl = "https://discord.com/api/webhooks/{0}/{1}";
+            WebhookBaseAvatarUrl = "https://cdn.discordapp.com/avatars/{0}/{1}.{2}";
+
+            MAX_CONTENT_LENGTH = 2000;
+            MIN_NICKNAME_LENGTH = 1;
+            MAX_NICKNAME_LENGTH = 80;
+            MAX_ATTACHMENTS = 10;
+            MAX_ATTACHMENTS_SIZE = 8 * 1024 * 1024; // 8 MB currently
+            MAX_EMBED_TITLE_LENGTH = 256;
+            MAX_EMBED_DESCRIPTION_LENGTH = 2048;
+            MAX_EMBED_FIELDS_COUNT = 25;
+            MAX_EMBED_FIELD_NAME_LENGTH = 256;
+            MAX_EMBED_FIELD_VALUE_LENGTH = 1024;
+            MAX_EMBED_FOOTER_TEXT_LENGTH = 2048;
+            MAX_EMBED_AUTHOR_NAME_LENGTH = 256;
+            MAX_EMBED_DATA_LENGTH = 6000;
+            MAX_EMBED_COUNT = 10;
+        }
 
         #endregion
 
