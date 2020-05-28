@@ -92,14 +92,15 @@ namespace DSharp4Webhook.Internal
             _avatarUrl = builder.AvatarUrl;
             _isTTS = builder.IsTTS;
             _mention = builder.MessageMention;
-            _files = builder.Files == null ? null : new ReadOnlyDictionary<string, byte[]>(builder.Files);
-            _embeds = builder.Embeds.ToArray();
+            _files = builder._files == null ? null : new ReadOnlyDictionary<string, byte[]>(builder._files);
+            _embeds = builder._embeds == null ? null : builder._embeds.ToArray();
         }
 
         public SerializeContext Serialize()
         {
             if (_cache.HasValue)
                 return _cache.Value;
+
             return (_cache = new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)), _files?.ToDictionary(key => key.Key, value => value.Value))).Value;
         }
     }

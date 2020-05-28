@@ -21,9 +21,11 @@ namespace DSharp4Webhook.Core.Constructor
         private string _username;
         private string _avatarUrl;
         private bool _isTTS;
-        private List<IEmbed> _embeds;
         private IMessageMention _mention;
-        private Dictionary<string, byte[]> _files;
+
+        // Don't create extra objects after the build
+        internal List<IEmbed> _embeds;
+        internal Dictionary<string, byte[]> _files;
 
         #region Properties
 

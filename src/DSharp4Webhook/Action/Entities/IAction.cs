@@ -38,6 +38,21 @@ namespace DSharp4Webhook.Action
         public void Queue(Action<bool> callback);
 
         /// <summary>
+        ///     Everything is the same, just with result.
+        /// </summary>
+        public void Queue(Action<IResult, bool> callback);
+
+        /// <summary>
+        ///     Everything is the same, just without bool.
+        /// </summary>
+        public void Queue(Action<IResult> callback);
+
+        /// <summary>
+        ///     All the same, but without everything.
+        /// </summary>
+        public void Queue(System.Action callback);
+
+        /// <summary>
         ///     Executes synchronously, blocking the current thread.
         /// </summary>
         /// <returns>
@@ -71,6 +86,21 @@ namespace DSharp4Webhook.Action
         public Task ExecuteAsync(Action<bool> callback);
 
         /// <summary>
+        ///     Everything is the same, only the result is added.
+        /// </summary>
+        public Task ExecuteAsync(Action<IResult, bool> callback);
+
+        /// <summary>
+        ///     Everything is the same, just without bool.
+        /// </summary>
+        public Task ExecuteAsync(Action<IResult> callback);
+
+        /// <summary>
+        ///     All the same, but without everything.
+        /// </summary>
+        public Task ExecuteAsync(System.Action callback);
+
+        /// <summary>
         ///     Gets the result of the task or null.
         /// </summary>
         public IResult GetResult();
@@ -85,15 +115,5 @@ namespace DSharp4Webhook.Action
         ///     Result of the action.
         /// </summary>
         public TResult Result { get; }
-
-        /// <summary>
-        ///     Everything is the same, only the result is added.
-        /// </summary>
-        public void Queue(Action<TResult, bool> callback);
-
-        /// <summary>
-        ///     Everything is the same, only the result is added.
-        /// </summary>
-        public Task ExecuteAsync(Action<TResult, bool> callback);
     }
 }

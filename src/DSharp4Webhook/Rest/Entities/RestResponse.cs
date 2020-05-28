@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using System.Text;
 
@@ -11,7 +12,7 @@ namespace DSharp4Webhook.Rest
         public HttpStatusCode StatusCode { get; }
         public RateLimitInfo RateLimit { get; }
         public byte[] Data { get; }
-        public string Content { get => Encoding.UTF8.GetString(Data); }
+        public string Content { get => Data != null ? Encoding.UTF8.GetString(Data) : null; }
         public uint Attempts { get; }
 
         public RestResponse(HttpWebResponse webResponse, RateLimitInfo rateLimit, uint attempts)
@@ -20,10 +21,31 @@ namespace DSharp4Webhook.Rest
             RateLimit = rateLimit;
             Attempts = attempts;
 
-            using (var stream = webResponse.GetResponseStream())
+            Data = null;
+            Stream stream = null;
+            try
             {
-                Data = new byte[stream.Length];
-                stream.Read(Data, 0, Data.Length);
+                stream = webResponse.GetResponseStream();
+                if (stream.CanRead)
+                {
+                    using var memoryStream = new MemoryStream();
+                    var buffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        memoryStream.Write(buffer, 0, bytesRead);
+                    }
+                    Data = memoryStream.ToArray();
+                }
+            }
+            // When using using we will not be able to track the exception
+            catch (System.Exception)
+            {
+                // todo: logs
+            }
+            finally
+            {
+                stream?.Dispose();
             }
         }
 

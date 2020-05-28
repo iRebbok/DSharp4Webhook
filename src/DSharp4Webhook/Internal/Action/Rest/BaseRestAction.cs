@@ -31,7 +31,13 @@ namespace DSharp4Webhook.Internal
 
         public abstract Task<bool> ExecuteAsync();
 
-        public async Task ExecuteAsync(Action<TResult, bool> callback)
+        public async Task ExecuteAsync(Action<IResult> callback)
+        {
+            await ExecuteAsync();
+            callback?.Invoke(Result);
+        }
+
+        public async Task ExecuteAsync(Action<IResult, bool> callback)
         {
             bool result = await ExecuteAsync();
             callback?.Invoke(Result, result);
@@ -43,9 +49,10 @@ namespace DSharp4Webhook.Internal
             callback?.Invoke(result);
         }
 
-        public void Queue(Action<TResult, bool> callback)
+        public async Task ExecuteAsync(System.Action callback)
         {
-            Webhook.ActionManager.Queue(this, callback as Action<IResult, bool>);
+            await ExecuteAsync();
+            callback?.Invoke();
         }
 
         public void Queue()
@@ -54,6 +61,21 @@ namespace DSharp4Webhook.Internal
         }
 
         public void Queue(Action<bool> callback)
+        {
+            Webhook.ActionManager.Queue(this, callback);
+        }
+
+        public void Queue(Action<IResult, bool> callback)
+        {
+            Webhook.ActionManager.Queue(this, callback);
+        }
+
+        public void Queue(Action<IResult> callback)
+        {
+            Webhook.ActionManager.Queue(this, callback);
+        }
+
+        public void Queue(System.Action callback)
         {
             Webhook.ActionManager.Queue(this, callback);
         }

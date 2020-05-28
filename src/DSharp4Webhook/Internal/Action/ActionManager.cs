@@ -54,9 +54,13 @@ namespace DSharp4Webhook.Internal
                     catch { }
 
                     if (actionContext.FirstCallback != null)
-                        EventUtil.HandleSafely(false, actionContext.FirstCallback.Method, null, actionContext.Action?.GetResult(), successfulness);
+                        EventUtil.HandleSafely(false, actionContext.FirstCallback.Method, actionContext.FirstCallback.Target, actionContext.Action?.GetResult());
                     else if (actionContext.SecondCallback != null)
-                        EventUtil.HandleSafely(false, actionContext.SecondCallback.Method, null, successfulness);
+                        EventUtil.HandleSafely(false, actionContext.SecondCallback.Method, actionContext.SecondCallback.Target, actionContext.Action?.GetResult(), successfulness);
+                    else if (actionContext.ThirdCallback != null)
+                        EventUtil.HandleSafely(false, actionContext.ThirdCallback.Method, actionContext.ThirdCallback.Target, successfulness);
+                    else if (actionContext.FourthCallback != null)
+                        EventUtil.HandleSafely(false, actionContext.FourthCallback.Method, actionContext.FourthCallback.Target);
                     else
                         OnActionExecuted.InvokeSafely(false, new ActionContext(actionContext.Action, successfulness));
                 }
@@ -109,13 +113,25 @@ namespace DSharp4Webhook.Internal
             _actions.Enqueue(new QueueActionContext(action));
         }
 
-        public void Queue(IAction action, Action<IResult, bool> callback = null)
+        public void Queue(IAction action, Action<IResult> callback)
         {
             Checks.CheckForNull(action, nameof(action));
             _actions.Enqueue(new QueueActionContext(action, callback));
         }
 
-        public void Queue(IAction action, Action<bool> callback = null)
+        public void Queue(IAction action, Action<IResult, bool> callback)
+        {
+            Checks.CheckForNull(action, nameof(action));
+            _actions.Enqueue(new QueueActionContext(action, callback));
+        }
+
+        public void Queue(IAction action, Action<bool> callback)
+        {
+            Checks.CheckForNull(action, nameof(action));
+            _actions.Enqueue(new QueueActionContext(action, callback));
+        }
+
+        public void Queue(IAction action, System.Action callback)
         {
             Checks.CheckForNull(action, nameof(action));
             _actions.Enqueue(new QueueActionContext(action, callback));

@@ -80,7 +80,7 @@ namespace DSharp4Webhook.Serialization
         public SerializeContext(byte[]? content, Dictionary<string, byte[]>? files = null)
 #nullable restore
         {
-            Type = files == null ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FROM_DATA;
+            Type = files == null || (files?.Count ?? 0) < 1 ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FROM_DATA;
             Content = content;
             Files = files;
         }

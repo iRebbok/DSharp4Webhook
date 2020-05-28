@@ -47,13 +47,25 @@ namespace DSharp4Webhook.Action
         ///     Puts the action in the queue for execution
         ///     and calls the callback for the function execution.
         /// </summary>
-        public void Queue(IAction action, Action<bool> callback = null);
+        public void Queue(IAction action, Action<bool> callback);
 
         /// <summary>
         ///     Puts the action in the queue for execution
         ///     and calls the callback for the function execution.
         /// </summary>
-        public void Queue(IAction action, Action<IResult, bool> callback = null);
+        public void Queue(IAction action, Action<IResult, bool> callback);
+
+        /// <summary>
+        ///     Puts the action in the queue for execution
+        ///     and calls the callback for the function execution.
+        /// </summary>
+        public void Queue(IAction action, Action<IResult> callback);
+
+        /// <summary>
+        ///     Puts the action in the queue for execution
+        ///     and calls the callback for the function execution.
+        /// </summary>
+        public void Queue(IAction action, System.Action callback);
 
         /// <summary>
         ///     Sets <see cref="RateLimitInfo"/> as the latest.

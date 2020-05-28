@@ -3,6 +3,7 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Rest.Manipulation;
 using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,9 +18,12 @@ namespace DSharp4Webhook.Internal
             CheckExecution();
             var responses = await Webhook.RestProvider.GET(Webhook.GetWebhookUrl(), RestSettings);
             var lastResponse = responses[responses.Length - 1];
-            WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
-            webhookInfo._webhook = Webhook;
-            Result = new InfoResult(webhookInfo, responses);
+            if (lastResponse.Content != null)
+            {
+                WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
+                webhookInfo._webhook = Webhook;
+                Result = new InfoResult(webhookInfo, responses);
+            }
             SettingRateLimit();
             return BaseRestProvider.GET_ALLOWED_STATUSES.Contains(lastResponse.StatusCode);
         }
