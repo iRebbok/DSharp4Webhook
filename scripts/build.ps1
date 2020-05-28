@@ -56,6 +56,7 @@ Get-ChildItem -Path 'src\' -Directory -Recurse | Where-Object { $_.FullName.Ends
         Copy-Item -Path ($_.FullName + "\*") -Destination $OutputPath -Recurse -Force
         Compress-7Zip -ArchiveFileName ($FinalName + '.tar') -Path $_.FullName -OutputPath $DeployPath -Format 'Tar'
         Compress-7Zip -ArchiveFileName ($FinalName + '.tar.gz') -Path ($OutputPath + '.tar') -OutputPath $DeployPath -Format 'GZip' -CompressionLevel 'High'
-        Remove-Item ($DeployPath + '\*.tar') -Force -Recurse
     }
 }
+
+Remove-Item -Path $DeployPath -Include '*.tar' -Recurse -Force
