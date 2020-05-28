@@ -3,7 +3,6 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Rest.Manipulation;
 using Newtonsoft.Json;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
