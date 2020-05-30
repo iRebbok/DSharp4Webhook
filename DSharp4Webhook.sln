@@ -9,9 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharp4Webhook.Rest.Mono", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rest", "Rest", "{45BE34B6-220C-4961-A7AD-CD468941E110}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EditorConfig", "EditorConfig", "{C5DA1D7A-6467-45D8-A7D6-ECF7ACBDFF3B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{C5DA1D7A-6467-45D8-A7D6-ECF7ACBDFF3B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		DSharp4Webhook.targets = DSharp4Webhook.targets
 	EndProjectSection
 EndProject
 Global
