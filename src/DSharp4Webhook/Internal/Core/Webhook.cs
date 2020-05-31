@@ -36,7 +36,11 @@ namespace DSharp4Webhook.Internal
         public RestSettings RestSettings
         {
             get => _restSettings;
-            set => _restSettings = value ?? _restSettings;
+            set
+            {
+                Checks.CheckForNull(value, nameof(RestSettings));
+                _restSettings = value;
+            }
         }
         public AllowedMention AllowedMention
         {

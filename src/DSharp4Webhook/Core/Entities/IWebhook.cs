@@ -51,6 +51,9 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Rest settings that will be used when creating rest queries.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     Attempt to set a null value.
+        /// </exception>
         public RestSettings RestSettings { get; set; }
 
         /// <summary>
