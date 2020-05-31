@@ -53,13 +53,13 @@ namespace DSharp4Webhook.Internal
                     try { successfulness = await actionContext.Action?.ExecuteAsync(); }
                     catch { }
 
-                    if (actionContext.FirstCallback != null)
+                    if (!(actionContext.FirstCallback is null))
                         EventUtil.HandleSafely(false, actionContext.FirstCallback.Method, actionContext.FirstCallback.Target, actionContext.Action?.GetResult());
-                    else if (actionContext.SecondCallback != null)
+                    else if (!(actionContext.SecondCallback is null))
                         EventUtil.HandleSafely(false, actionContext.SecondCallback.Method, actionContext.SecondCallback.Target, actionContext.Action?.GetResult(), successfulness);
-                    else if (actionContext.ThirdCallback != null)
+                    else if (!(actionContext.ThirdCallback is null))
                         EventUtil.HandleSafely(false, actionContext.ThirdCallback.Method, actionContext.ThirdCallback.Target, successfulness);
-                    else if (actionContext.FourthCallback != null)
+                    else if (!(actionContext.FourthCallback is null))
                         EventUtil.HandleSafely(false, actionContext.FourthCallback.Method, actionContext.FourthCallback.Target);
                     else
                         OnActionExecuted.InvokeSafely(false, new ActionContext(actionContext.Action, successfulness));
@@ -98,7 +98,7 @@ namespace DSharp4Webhook.Internal
 
         public bool Start()
         {
-            if (_isntDisposed && (_worker == null || _worker.IsCompleted || _worker.IsFaulted))
+            if (_isntDisposed && (_worker is null || _worker.IsCompleted || _worker.IsFaulted))
             {
                 //todo: logs
                 _worker = Task.Run(Do);

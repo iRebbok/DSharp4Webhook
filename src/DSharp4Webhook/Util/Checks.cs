@@ -46,7 +46,7 @@ namespace DSharp4Webhook.Util
         public static bool CheckBoundsSafe(int safeLength, int length, params int[] length1)
         {
             long result = length;
-            if (length1 != null)
+            if (!(length1 is null))
                 result += length1.Sum(a => (long)a);
             return result >= safeLength;
         }
@@ -79,7 +79,7 @@ namespace DSharp4Webhook.Util
         /// </exception>
         public static void CheckForNull<T>(T instance, string paramName = null, string message = null)
         {
-            if (instance == null)
+            if (instance is null)
                 throw new ArgumentNullException(paramName ?? typeof(T).Name, message ?? $"The object {typeof(T).Name} can't be null");
         }
 
@@ -127,7 +127,7 @@ namespace DSharp4Webhook.Util
         /// </exception>
         public static void CheckForAttachments(IEnumerable<KeyValuePair<string, byte[]>> source)
         {
-            if (source == null)
+            if (source is null)
                 return;
 
             if (source.Count() > WebhookProvider.MAX_ATTACHMENTS)

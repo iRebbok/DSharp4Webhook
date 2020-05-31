@@ -14,7 +14,7 @@ namespace DSharp4Webhook.Util
         public static void InvokeSafely(this MulticastDelegate action, bool fromLog = false, params object[] args)
         {
             // Just return, this will allow you not to use null-conditional operator at each event
-            if (action == null)
+            if (action is null)
                 return;
 
             foreach (var handler in action.GetInvocationList())

@@ -57,7 +57,7 @@ namespace DSharp4Webhook.Rest.Mono
                 formDataStream.Write(pair.Value, 0, pair.Value.Length);
             }
 
-            if (content != null)
+            if (!(content is null))
             {
                 // Putting a header between the last file
                 formDataStream.Write(Encoding.GetBytes("\r\n"), 0, Encoding.GetByteCount("\r\n"));

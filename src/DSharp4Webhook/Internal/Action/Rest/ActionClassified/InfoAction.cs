@@ -17,7 +17,7 @@ namespace DSharp4Webhook.Internal
             CheckExecution();
             var responses = await Webhook.RestProvider.GET(Webhook.GetWebhookUrl(), RestSettings);
             var lastResponse = responses[responses.Length - 1];
-            if (lastResponse.Content != null)
+            if (!(lastResponse.Content is null))
             {
                 WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
                 webhookInfo._webhook = Webhook;

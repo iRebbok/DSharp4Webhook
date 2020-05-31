@@ -116,7 +116,7 @@ namespace DSharp4Webhook.Rest
                 case SerializeType.MULTIPART_FROM_DATA:
                 {
                     var multipartContent = new MultipartFormDataContent();
-                    if (data.Files != null && data.Files.Keys.Count != 0)
+                    if (!(data.Files is null) && data.Files.Keys.Count != 0)
                     {
                         int index = 0;
                         foreach (var filePair in data.Files)
@@ -126,7 +126,7 @@ namespace DSharp4Webhook.Rest
                         }
                     }
 
-                    if (data.Content != null)
+                    if (!(data.Content is null))
                         multipartContent.Add(new ByteArrayContent(data.Content), "payload_json");
 
                     requestMessage.Content = multipartContent;

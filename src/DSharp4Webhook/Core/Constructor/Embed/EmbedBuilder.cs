@@ -47,7 +47,7 @@ namespace DSharp4Webhook.Core.Constructor
             get => _title;
             set
             {
-                if (value != null)
+                if (!(value is null))
                 {
                     value = value.Trim();
                     Checks.CheckBounds(nameof(Title), $"Must be no more then {WebhookProvider.MAX_EMBED_TITLE_LENGTH} in length",
@@ -251,7 +251,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </summary>
         public EmbedBuilder TryAddField(IEmbedField field)
         {
-            if (field != null && GetFields().Count + 1 <= WebhookProvider.MAX_EMBED_FIELDS_COUNT)
+            if (!(field is null) && GetFields().Count + 1 <= WebhookProvider.MAX_EMBED_FIELDS_COUNT)
                 _fields.Add(field);
 
             return this;

@@ -12,7 +12,7 @@ namespace DSharp4Webhook.Rest
         public HttpStatusCode StatusCode { get; }
         public RateLimitInfo RateLimit { get; }
         public byte[] Data { get; }
-        public string Content { get => Data != null ? Encoding.UTF8.GetString(Data) : null; }
+        public string Content { get => !(Data is null) ? Encoding.UTF8.GetString(Data) : null; }
         public uint Attempts { get; }
 
         public RestResponse(HttpWebResponse webResponse, RateLimitInfo rateLimit, uint attempts)

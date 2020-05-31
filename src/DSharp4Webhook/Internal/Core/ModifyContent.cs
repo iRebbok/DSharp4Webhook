@@ -42,7 +42,7 @@ namespace DSharp4Webhook.Internal
         public SerializeContext Serialize()
         {
             var jobject = JObject.FromObject(this);
-            if (image != null && image != WebhookImage.Empty)
+            if (!(image is null) && image != WebhookImage.Empty)
                 jobject.Add("avatar", JToken.FromObject(image.ToUriScheme()));
 
             return new SerializeContext(Encoding.UTF8.GetBytes(jobject.ToString()));

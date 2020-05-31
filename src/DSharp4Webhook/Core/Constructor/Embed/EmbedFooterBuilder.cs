@@ -23,7 +23,7 @@ namespace DSharp4Webhook.Core.Constructor
             get => _text;
             set
             {
-                if (value != null)
+                if (!(value is null))
                 {
                     value = value.Trim();
                     Checks.CheckBounds(nameof(Text), $"Must be no more than {WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH} in length",
@@ -58,7 +58,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </exception>
         public IEmbedFooter Build()
         {
-            if (_text == null)
+            if (_text is null)
                 throw new InvalidOperationException("Text cannot be null");
 
             return new EmbedFooter(this);

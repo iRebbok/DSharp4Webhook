@@ -82,7 +82,7 @@ namespace DSharp4Webhook.Internal
 
         public void SettingRateLimit()
         {
-            if (Result != null && Result.LastResponse.HasValue)
+            if (!(Result is null) && Result.LastResponse.HasValue)
                 Webhook.ActionManager.SetRateLimit(Result.LastResponse.Value.RateLimit);
         }
 

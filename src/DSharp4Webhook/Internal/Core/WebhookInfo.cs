@@ -35,7 +35,7 @@ namespace DSharp4Webhook.Internal
         public ulong IdULong { get => ulong.Parse(id); }
         public string Name { get => name; }
         public string AvatarId { get => avatarId; }
-        public string AvatarUrl { get => avatarId == null ? null : string.Format(WebhookProvider.WebhookBaseAvatarUrl, id, avatarId, avatarId.StartsWith("a_") ? "gif" : "png"); }
+        public string AvatarUrl { get => avatarId is null ? null : string.Format(WebhookProvider.WebhookBaseAvatarUrl, id, avatarId, avatarId.StartsWith("a_") ? "gif" : "png"); }
         public string ChannelId { get => channelId; }
         public ulong ChannelIdUlong { get => ulong.Parse(channelId); }
         public string GuildId { get => guildId; }

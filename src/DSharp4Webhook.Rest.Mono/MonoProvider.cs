@@ -113,7 +113,7 @@ namespace DSharp4Webhook.Rest.Mono
         /// </summary>
         private void PrepareRequest(HttpWebRequest request, Stream requestStream, SerializeContext? data = null)
         {
-            if (data == null) return;
+            if (data is null) return;
             SerializeContext context = data.Value;
 
             switch (context.Type)

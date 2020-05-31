@@ -10,7 +10,7 @@ namespace DSharp4Webhook.Rest.Mono.Util
         /// </summary>
         public static void Write(Stream source, string content, Encoding encoding)
         {
-            if (encoding == null)
+            if (encoding is null)
                 encoding = Encoding.UTF8;
 
             byte[] buffer = encoding.GetBytes(content);

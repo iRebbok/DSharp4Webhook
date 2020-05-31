@@ -101,8 +101,8 @@ namespace DSharp4Webhook.Internal
             _avatarUrl = builder.AvatarUrl;
             _isTTS = builder.IsTTS;
             _mention = builder.MessageMention;
-            _files = builder._files == null ? null : new ReadOnlyDictionary<string, byte[]>(builder._files);
-            _embeds = builder._embeds == null ? null : builder._embeds.ToArray();
+            _files = builder._files is null ? null : new ReadOnlyDictionary<string, byte[]>(builder._files);
+            _embeds = builder._embeds is null ? null : builder._embeds.ToArray();
         }
 
         public SerializeContext Serialize()

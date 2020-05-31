@@ -23,7 +23,7 @@ namespace DSharp4Webhook.Core.Constructor
             get => _name;
             set
             {
-                if (value != null)
+                if (!(value is null))
                 {
                     value = value.Trim();
                     Checks.CheckBounds(nameof(Name), $"Must be no more than {WebhookProvider.MAX_EMBED_AUTHOR_NAME_LENGTH} in length",

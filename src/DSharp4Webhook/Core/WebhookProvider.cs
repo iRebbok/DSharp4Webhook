@@ -366,7 +366,7 @@ namespace DSharp4Webhook.Core
         /// </exception>
         public void AddWebhook(IWebhook webhook)
         {
-            if (webhook == null) throw new ArgumentNullException(nameof(webhook), "The webhook can't be null");
+            if (webhook is null) throw new ArgumentNullException(nameof(webhook), "The webhook can't be null");
             if (_webhooks.ContainsKey(webhook.Id)) throw new InvalidOperationException("The webhook is already contained in the collection");
 
             _webhooks.Add(webhook.Id, webhook);
@@ -383,7 +383,7 @@ namespace DSharp4Webhook.Core
         /// </returns>
         public bool TryAddWebhook(IWebhook webhook)
         {
-            bool allow = webhook != null && !_webhooks.ContainsKey(webhook.Id);
+            bool allow = !(webhook is null) && !_webhooks.ContainsKey(webhook.Id);
             if (allow)
                 _webhooks.Add(webhook.Id, webhook);
 
@@ -434,7 +434,7 @@ namespace DSharp4Webhook.Core
         ///     otherwise false.
         public bool TryRemoveWebhook(IWebhook webhook)
         {
-            return webhook != null && _webhooks.Remove(webhook.Id);
+            return !(webhook is null) && _webhooks.Remove(webhook.Id);
         }
 
         /// <summary>

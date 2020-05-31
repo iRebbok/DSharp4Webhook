@@ -18,7 +18,7 @@ namespace DSharp4Webhook.Rest
         {
             Checks.CheckForNull(type, nameof(type));
             return type.IsSubclassOf(typeof(BaseRestProvider)) &&
-                type.GetConstructor(new Type[] { typeof(IWebhook) }) != null;
+                !(type.GetConstructor(new Type[] { typeof(IWebhook) }) is null);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace DSharp4Webhook.Rest
         /// </remarks>
         public static Type GetProviderType()
         {
-            if (_provider == null)
+            if (_provider is null)
                 DefaultProvider.SetupAsDefault();
 
             return _provider;

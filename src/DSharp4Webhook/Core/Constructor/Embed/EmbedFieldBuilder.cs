@@ -21,7 +21,7 @@ namespace DSharp4Webhook.Core.Constructor
             get => _name;
             set
             {
-                if (value != null)
+                if (!(value is null))
                 {
                     value = value.Trim();
                     Checks.CheckBounds(nameof(Name), $"Must be no more than {WebhookProvider.MAX_EMBED_FIELD_NAME_LENGTH} in length",
@@ -41,7 +41,7 @@ namespace DSharp4Webhook.Core.Constructor
             get => _value;
             set
             {
-                if (value != null)
+                if (!(value is null))
                 {
                     value = value.Trim();
                     Checks.CheckBounds(nameof(Value), $"Must be no more than {WebhookProvider.MAX_EMBED_FIELD_VALUE_LENGTH} in length",
@@ -71,7 +71,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </remarks>
         public IEmbedField Build()
         {
-            if (_name == null || _value == null)
+            if (_name is null || _value is null)
                 throw new InvalidOperationException($"{nameof(Name)} or {nameof(Value)} has an invalid value");
 
             return new EmbedField(this);

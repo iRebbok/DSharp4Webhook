@@ -149,7 +149,7 @@ namespace DSharp4Webhook.Internal
 
         public IModifyAction Modify(string name, RestSettings restSettings = null)
         {
-            if (name != null)
+            if (!(name is null))
             {
                 name = name.Trim();
                 if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)
@@ -165,7 +165,7 @@ namespace DSharp4Webhook.Internal
 
         public IModifyAction Modify(string name, IWebhookImage image, RestSettings restSettings = null)
         {
-            if (name != null)
+            if (!(name is null))
             {
                 name = name.Trim();
                 if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)

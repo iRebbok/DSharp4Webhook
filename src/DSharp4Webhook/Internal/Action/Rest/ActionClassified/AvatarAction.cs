@@ -19,7 +19,7 @@ namespace DSharp4Webhook.Internal
             CheckExecution();
 
             string avatarUrl;
-            if (_webhookInfo == null)
+            if (_webhookInfo is null)
             {
                 var infoAction = Webhook.GetInfo();
                 await infoAction.ExecuteAsync();

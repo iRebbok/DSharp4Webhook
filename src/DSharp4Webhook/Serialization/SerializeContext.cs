@@ -58,14 +58,14 @@ namespace DSharp4Webhook.Serialization
             // Then reassign if necessary
             Files = null;
 
-            if (data != null)
+            if (!(data is null))
             {
                 Type = SerializeType.MULTIPART_FROM_DATA;
 #pragma warning disable CS8604 // Possible null reference argument.
                 Files = new Dictionary<string, byte[]> { [fileName] = data };
 #pragma warning restore CS8604 // Possible null reference argument.
             }
-            else if (content != null)
+            else if (!(content is null))
                 Type = SerializeType.APPLICATION_JSON;
             else
                 throw new InvalidOperationException("Data is not defined rightly");
@@ -80,7 +80,7 @@ namespace DSharp4Webhook.Serialization
         public SerializeContext(byte[]? content, Dictionary<string, byte[]>? files = null)
 #nullable restore
         {
-            Type = files == null || (files?.Count ?? 0) < 1 ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FROM_DATA;
+            Type = files is null || (files?.Count ?? 0) < 1 ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FROM_DATA;
             Content = content;
             Files = files;
         }
@@ -157,7 +157,7 @@ namespace DSharp4Webhook.Serialization
 
             fileName = string.IsNullOrWhiteSpace(fileName) ? Guid.NewGuid().ToString() : fileName;
 
-            if (Files == null)
+            if (Files is null)
             {
                 Files = new Dictionary<string, byte[]>();
                 // The format changes when a new file is added
