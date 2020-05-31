@@ -78,6 +78,7 @@ namespace DSharp4Webhook.Util
         ///     If the specified object is null.
         /// </exception>
         public static void CheckForNull<T>(T instance, string paramName = null, string message = null)
+            where T : class
         {
             if (instance is null)
                 throw new ArgumentNullException(paramName ?? typeof(T).Name, message ?? $"The object {typeof(T).Name} can't be null");
