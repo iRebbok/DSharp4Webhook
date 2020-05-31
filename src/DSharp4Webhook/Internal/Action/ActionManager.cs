@@ -43,7 +43,7 @@ namespace DSharp4Webhook.Internal
                 if (_actions.TryDequeue(out var actionContext))
                 {
                     // Skips completed actions
-                    if (actionContext.Action?.IsExecuted ?? false)
+                    if (actionContext.Action?.IsExecuted ?? true)
                         continue;
 
                     //todo: logs
