@@ -1,17 +1,17 @@
 using System;
 using System.Reflection;
 
-namespace DSharp4Webhook.Util
+namespace DSharp4Webhook.Util.Extensions
 {
     /// <summary>
     ///     Auxiliary tools for events.
     /// </summary>
-    public static class EventUtil
+    internal static class EventUtil
     {
         /// <summary>
         ///     Executes all delegate listeners safely.
         /// </summary>
-        public static void InvokeSafely(this MulticastDelegate action, bool fromLog = false, params object[] args)
+        internal static void InvokeSafely(this MulticastDelegate action, bool fromLog = false, params object[] args)
         {
             // Just return, this will allow you not to use null-conditional operator at each event
             if (action is null)
@@ -30,7 +30,7 @@ namespace DSharp4Webhook.Util
         ///     Instance of the delegate method object,
         ///     null is used in the case of a static method.
         /// </param>
-        public static void HandleSafely(bool fromLog, MethodInfo action, object instance, params object[] args)
+        internal static void HandleSafely(bool fromLog, MethodInfo action, object instance, params object[] args)
         {
             try
             {

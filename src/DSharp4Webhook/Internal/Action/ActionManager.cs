@@ -2,6 +2,7 @@ using DSharp4Webhook.Action;
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest;
 using DSharp4Webhook.Util;
+using DSharp4Webhook.Util.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
