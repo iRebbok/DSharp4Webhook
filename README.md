@@ -1,10 +1,10 @@
 # DSharp4Webhook
 [![GitHub CI/CD](https://github.com/iRebbok/DSharp4Webhook/workflows/GitHub%20CI/CD/badge.svg)](https://github.com/iRebbok/DSharp4Webhook/actions/)
-[![GitHub RepoSize](https://img.shields.io/github/repo-size/iRebbok/DSharp4Webhook)](https://github.com/iRebbok/DSharp4Webhook)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/github/v/release/iRebbok/DSharp4Webhook)](https://github.com/iRebbok/DSharp4Webhook/releases/latest)
-[![NuGet](https://img.shields.io/nuget/v/DSharp4Webhook)](https://www.nuget.org/packages/DSharp4Webhook/)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/DSharp4Webhook)](https://www.nuget.org/packages/DSharp4Webhook/)
+[![GitHub RepoSize](https://img.shields.io/github/repo-size/iRebbok/DSharp4Webhook?label=Size)](https://github.com/iRebbok/DSharp4Webhook)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?label=License)](https://opensource.org/licenses/MIT)
+[![Latest GitHub Version](https://img.shields.io/github/v/release/iRebbok/DSharp4Webhook?label=GitHub%20Version)](https://github.com/iRebbok/DSharp4Webhook/releases/latest)
+[![Latest NuGet Version](https://img.shields.io/nuget/v/DSharp4Webhook?label=NuGet%20Version)](https://www.nuget.org/packages/DSharp4Webhook/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/DSharp4Webhook?label=Downloads)](https://www.nuget.org/packages/DSharp4Webhook/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/292ecc83bf76c922501c/maintainability)](https://codeclimate.com/github/iRebbok/DSharp4Webhook/maintainability)
 
 Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support.
