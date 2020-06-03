@@ -60,7 +60,7 @@ namespace DSharp4Webhook.Serialization
 
             if (!(data is null))
             {
-                Type = SerializeType.MULTIPART_FROM_DATA;
+                Type = SerializeType.MULTIPART_FORM_DATA;
 #pragma warning disable CS8604 // Possible null reference argument.
                 Files = new Dictionary<string, byte[]> { [fileName] = data };
 #pragma warning restore CS8604 // Possible null reference argument.
@@ -80,7 +80,7 @@ namespace DSharp4Webhook.Serialization
         public SerializeContext(byte[]? content, Dictionary<string, byte[]>? files = null)
 #nullable restore
         {
-            Type = files is null || (files?.Count ?? 0) < 1 ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FROM_DATA;
+            Type = files is null || (files?.Count ?? 0) < 1 ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FORM_DATA;
             Content = content;
             Files = files;
         }
@@ -129,7 +129,7 @@ namespace DSharp4Webhook.Serialization
             Checks.CheckForNull(data, nameof(data));
             fileName = string.IsNullOrWhiteSpace(fileName) ? Guid.NewGuid().ToString() : fileName;
 
-            Type = SerializeType.MULTIPART_FROM_DATA;
+            Type = SerializeType.MULTIPART_FORM_DATA;
 #pragma warning disable CS8604 // Possible null reference argument.
             Files = new Dictionary<string, byte[]> { [fileName] = data };
 #pragma warning restore CS8604 // Possible null reference argument.
@@ -161,7 +161,7 @@ namespace DSharp4Webhook.Serialization
             {
                 Files = new Dictionary<string, byte[]>();
                 // The format changes when a new file is added
-                Type = SerializeType.MULTIPART_FROM_DATA;
+                Type = SerializeType.MULTIPART_FORM_DATA;
             }
             // Setting the value forcibly even if it exists
 #pragma warning disable CS8604 // Possible null reference argument.

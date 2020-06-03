@@ -7,7 +7,7 @@ namespace DSharp4Webhook.Serialization
     /// </summary>
     public enum SerializeType
     {
-        MULTIPART_FROM_DATA,
+        MULTIPART_FORM_DATA,
         APPLICATION_JSON
     }
 
@@ -22,7 +22,7 @@ namespace DSharp4Webhook.Serialization
             {
                 case SerializeType.APPLICATION_JSON:
                     return "application/json";
-                case SerializeType.MULTIPART_FROM_DATA:
+                case SerializeType.MULTIPART_FORM_DATA:
                     return "multipart/form-data";
             }
 

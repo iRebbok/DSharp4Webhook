@@ -125,7 +125,7 @@ namespace DSharp4Webhook.Rest.Mono
                     requestStream.Write(context.Content, 0, context.Content.Length);
                     break;
                 }
-                case SerializeType.MULTIPART_FROM_DATA:
+                case SerializeType.MULTIPART_FORM_DATA:
                 {
                     MultipartHelper.PrepareMultipartFormDataRequest(request, requestStream, context);
                     break;
