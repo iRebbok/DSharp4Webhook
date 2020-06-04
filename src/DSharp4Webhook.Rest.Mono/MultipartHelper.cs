@@ -17,10 +17,6 @@ namespace DSharp4Webhook.Rest.Mono
     /// </remarks>
     public static class MultipartHelper
     {
-        // DO NOT USE Encoding.UTF8
-        // This took a little over an hour to debug. If you use Encoding.UTF8 with StreamWriter, it adds the preamble (UTF8-BOM) which adds a '?' at the beginning of the data.
-        private static readonly Encoding Encoding = new UTF8Encoding();
-
         /// <summary>
         ///     Shortcut for a carriage return, line feed.
         /// </summary>
@@ -122,7 +118,12 @@ namespace DSharp4Webhook.Rest.Mono
         private static byte[] GetMultipartFormData(Dictionary<string, byte[]> files, byte[] content, string boundary)
         {
             using var data = new MemoryStream();
-            using var text = new StreamWriter(data, Encoding)
+            // DO NOT USE Encoding.UTF8
+            // This took a little over an hour to debug.
+            // If you use Encoding.UTF8 with StreamWriter,
+            // it adds the preamble (UTF8-BOM) which adds a '?' at the beginning of the data.
+            // StreamWriter uses 'UTF8Encoding' by default
+            using var text = new StreamWriter(data)
             {
                 AutoFlush = true,
                 NewLine = crlf
