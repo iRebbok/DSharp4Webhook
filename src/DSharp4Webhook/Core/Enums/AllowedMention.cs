@@ -15,7 +15,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Prohibits any mentions.
         /// </summary>
-        NONE = -1,
+        NONE = 0,
         /// <summary>
         ///     Allows roles to be mentioned.
         /// </summary>
