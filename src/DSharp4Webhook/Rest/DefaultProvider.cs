@@ -113,7 +113,7 @@ namespace DSharp4Webhook.Rest
                     break;
                 }
 
-                case SerializeType.MULTIPART_FROM_DATA:
+                case SerializeType.MULTIPART_FORM_DATA:
                 {
                     var multipartContent = new MultipartFormDataContent();
                     if (!(data.Files is null) && data.Files.Keys.Count != 0)
