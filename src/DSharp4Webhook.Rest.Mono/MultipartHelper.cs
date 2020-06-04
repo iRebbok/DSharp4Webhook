@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using DSharp4Webhook.Rest.Mono.Util;
 
 namespace DSharp4Webhook.Rest.Mono
 {
@@ -11,71 +12,137 @@ namespace DSharp4Webhook.Rest.Mono
     ///     Auxiliary class for working with the 'multipart/form-data' data stream.
     /// </summary>
     /// <remarks>
-    ///     Was stolen from a solution here ¯\_(ツ)_/¯
+    ///     Was stolen from a solution here, but much refactoring has been done ¯\_(ツ)_/¯
     ///     https://www.codeproject.com/questions/896600/how-can-upload-files-using-http-web-request-in-win
     /// </remarks>
     public static class MultipartHelper
     {
-        private static readonly Encoding Encoding = Encoding.UTF8;
-        private const string formDataFileTemplate = "--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\"\r\nContent-Type: {3}\r\n\r\n";
-        private const string formDataTemplate = "--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
+        // DO NOT USE Encoding.UTF8
+        // This took a little over an hour to debug.
+        // If you use Encoding.UTF8 with StreamWriter,
+        // it adds the preamble (UTF8-BOM) which adds a '?' at the beginning of the data.
+        private static readonly Encoding encoding = new UTF8Encoding();
+
+        /// <summary>
+        ///     Shortcut for a carriage return, line feed.
+        /// </summary>
+        private const string crlf = "\r\n";
+
+        /// <summary>
+        ///     Supertemplate (template of a template) of a file header.
+        ///     <para>
+        ///         Supertemplate -> template:
+        ///         0: boundary
+        ///     </para>
+        ///     <para>
+        ///         Template -> header:
+        ///         0: index
+        ///         1: file name
+        ///     </para>
+        /// </summary>
+        private const string fileHeaderSupertemplate = "--{0}" + crlf +
+                                                    "Content-Disposition: form-data; name=\"file{{0}}\"; filename=\"{{1}}\"" + crlf +
+                                                    "Content-Type: application/octet-stream" + crlf +
+                                                    crlf;
+
+        /// <summary>
+        ///     Template of a content header.
+        ///     <para>
+        ///         Template -> header:
+        ///         0: boundary
+        ///         1: content name
+        ///         2: content type (MIME)
+        ///     </para>
+        /// </summary>
+        private const string contentHeaderTemplate = "--{0}" + crlf +
+                                                "Content-Disposition: form-data; name=\"{1}\"" + crlf +
+                                                "Content-Type: {2}" + crlf +
+                                                crlf;
+
+        /// <summary>
+        ///     Template of the footer.
+        ///     <para>
+        ///         Template -> header:
+        ///         0: boundary
+        ///     </para>
+        /// </summary>
+        private const string footerTemplate = "--{0}--" + crlf;
 
         public static void PrepareMultipartFormDataRequest(HttpWebRequest request, Stream requestStream, SerializeContext context)
         {
-            string formDataBoundary = string.Format("----------{0:N}", Guid.NewGuid());
-            request.ContentType = "multipart/form-data; boundary=" + formDataBoundary;
-            var content = GetMultipartFormData(context.Files, context.Content, formDataBoundary);
+            string boundary = Guid.NewGuid().ToString();
+            request.ContentType = "multipart/form-data; boundary=" + boundary;
+
+            var content = GetMultipartFormData(context.Files, context.Content, boundary);
             requestStream.Write(content, 0, content.Length);
+        }
+
+        private static void WriteParameter(Stream data, TextWriter text, string header, byte[] content)
+        {
+            // Begin with header.
+            text.Write(header);
+
+            // Insert content.
+            data.Write(content, 0, content.Length);
+
+            // Finish with 2 newlines.
+            // Delimits this parameter from the next parameter OR the content OR the footer.
+            text.Write(crlf + crlf);
+        }
+
+        private static void WriteFiles(Stream data, TextWriter text, string boundary, Dictionary<string, byte[]> files)
+        {
+            // Bake boundary into header template.
+            string headerTemplate = string.Format(fileHeaderSupertemplate, boundary);
+            int index = 0;
+
+            foreach ((string fileName, byte[] fileContent) in files)
+            {
+                string header = string.Format(headerTemplate, index, fileName);
+                WriteParameter(data, text, header, fileContent);
+
+                index++;
+            }
+        }
+
+        // HACK: this assumes the content is JSON. Currently, SerializeContext does not have the content type (aside from the useless SerializeType). Until the content type is
+        // provided, it is assumed to be JSON.
+        private static void WriteContent(Stream data, TextWriter text, string boundary, byte[] content)
+        {
+            string header = string.Format(contentHeaderTemplate, boundary, "payload_json", "application/json");
+
+            WriteParameter(data, text, header, content);
+        }
+
+        private static void WriteFooter(TextWriter text, string boundary)
+        {
+            // Add the end of the request.
+            // Last parameter already CRLFs the start of this.
+            text.Write(footerTemplate, boundary);
         }
 
         private static byte[] GetMultipartFormData(Dictionary<string, byte[]> files, byte[] content, string boundary)
         {
-            using var formDataStream = new MemoryStream();
-            bool needsCLRF = false;
-
-            // We use indexing to be able to send multiple files
-            // If you serialize files with the same header name,
-            // you run the risk of getting only the first file in the output
-            int index = -1;
-            foreach (var pair in files)
+            using var data = new MemoryStream();
+            using var text = new StreamWriter(data, encoding)
             {
-                index++;
+                AutoFlush = true,
+                NewLine = crlf
+            };
 
-                // Thanks to feedback from commenters, add a CRLF to allow multiple parameters to be added.
-                // Skip it on the first parameter, add it to subsequent parameters.
-                if (needsCLRF)
-                    formDataStream.Write(Encoding.GetBytes("\r\n"), 0, Encoding.GetByteCount("\r\n"));
-
-                needsCLRF = true;
-
-                // Add just the first part of this param, since we will write the file data directly to the Stream
-                string header = string.Format(formDataFileTemplate,
-                    boundary, $"file{index}", pair.Key, "application/octet-stream");
-                formDataStream.Write(Encoding.GetBytes(header), 0, Encoding.GetByteCount(header));
-
-                // Write the file data directly to the Stream, rather than serializing it to a string.
-                formDataStream.Write(pair.Value, 0, pair.Value.Length);
+            if (files.Count > 0)
+            {
+                WriteFiles(data, text, boundary, files);
             }
 
             if (!(content is null))
             {
-                // Putting a header between the last file
-                formDataStream.Write(Encoding.GetBytes("\r\n"), 0, Encoding.GetByteCount("\r\n"));
-
-                // Add just the first part of this param, since we will write the file data directly to the Stream
-                string header = string.Format(formDataTemplate,
-                    boundary, $"payload_json", "application/json");
-                formDataStream.Write(Encoding.GetBytes(header), 0, Encoding.GetByteCount(header));
-
-                // Writing content to the stream
-                formDataStream.Write(content, 0, content.Length);
+                WriteContent(data, text, boundary, content);
             }
 
-            // Add the end of the request.  Start with a newline
-            string footer = "\r\n--" + boundary + "--\r\n";
-            formDataStream.Write(Encoding.GetBytes(footer), 0, Encoding.GetByteCount(footer));
+            WriteFooter(text, boundary);
 
-            return formDataStream.ToArray();
+            return data.ToArray();
         }
     }
 }
