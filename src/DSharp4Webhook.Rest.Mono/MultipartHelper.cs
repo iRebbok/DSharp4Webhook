@@ -81,9 +81,9 @@ namespace DSharp4Webhook.Rest.Mono
             // Insert content.
             data.Write(content, 0, content.Length);
 
-            // Finish with newline.
+            // Finish with 2 newlines.
             // Delimits this parameter from the next parameter OR the content OR the footer.
-            text.WriteLine();
+            text.Write(crlf + crlf);
         }
 
         private static void WriteFiles(Stream data, TextWriter text, string boundary, Dictionary<string, byte[]> files)
