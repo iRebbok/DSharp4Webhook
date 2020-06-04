@@ -17,7 +17,9 @@ namespace DSharp4Webhook.Rest.Mono
     /// </remarks>
     public static class MultipartHelper
     {
-        private static readonly Encoding Encoding = Encoding.UTF8;
+        // DO NOT USE Encoding.UTF8
+        // This took a little over an hour to debug. If you use Encoding.UTF8 with StreamWriter, it adds the preamble (UTF8-BOM) which adds a '?' at the beginning of the data.
+        private static readonly Encoding Encoding = new UTF8Encoding();
 
         /// <summary>
         ///     Shortcut for a carriage return, line feed.
