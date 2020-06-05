@@ -12,12 +12,18 @@ namespace DSharp4Webhook.Core
 
         /// <summary>
         ///     Users allowed to be mentioned.
+        ///     Can be null when building with a null value.
         /// </summary>
-        public string[] Users { get; }
+#nullable enable
+        public string[]? Users { get; }
+#nullable restore
 
         /// <summary>
         ///     Roles allowed to be mentioned.
+        ///     Can be null when building with a null value.
         /// </summary>
-        public string[] Roles { get; }
+#nullable enable
+        public string[]? Roles { get; }
+#nullable restore
     }
 }

@@ -54,10 +54,14 @@ namespace DSharp4Webhook.Internal
         }
 
         [JsonProperty("users")]
-        public string[] Users { get => _users; }
+#nullable enable
+        public string[]? Users { get => _users; }
+#nullable restore
 
         [JsonProperty("roles")]
-        public string[] Roles { get => _roles; }
+#nullable enable
+        public string[]? Roles { get => _roles; }
+#nullable restore
 
         public MessageMention()
         {
