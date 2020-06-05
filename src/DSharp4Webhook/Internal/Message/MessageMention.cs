@@ -11,9 +11,9 @@ namespace DSharp4Webhook.Internal
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     internal sealed class MessageMention : IMessageMention
     {
-        private AllowedMention _allowedMention;
-        private string[] _users;
-        private string[] _roles;
+        private readonly AllowedMention _allowedMention;
+        private readonly string[] _users;
+        private readonly string[] _roles;
 
         public AllowedMention AllowedMention { get => _allowedMention; }
 
@@ -62,8 +62,6 @@ namespace DSharp4Webhook.Internal
         public MessageMention()
         {
             _allowedMention = AllowedMention.NONE;
-            _users = Array.Empty<string>();
-            _roles = Array.Empty<string>();
         }
 
         public MessageMention(AllowedMention mention) : this()
@@ -76,8 +74,8 @@ namespace DSharp4Webhook.Internal
             Checks.CheckForNull(builder, nameof(builder));
 
             _allowedMention = builder.AllowedMention;
-            _users = builder.Users?.ToArray();
-            _roles = builder.Roles?.ToArray();
+            _users = builder._users?.ToArray();
+            _roles = builder._roles.ToArray();
         }
     }
 }
