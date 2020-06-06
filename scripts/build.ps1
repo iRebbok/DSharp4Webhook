@@ -41,9 +41,6 @@ Invoke-Expression $Expression
 ProcessFailed "Build failed"
 Write-Output "Build is successful"
 
-# Temporary solution while waiting for PR acceptance
-Import-Module -Name '.\scripts\7Zip4Powershell\7Zip4Powershell.psd1'
-
 # Packing everything in a deploy folder
 ProcessDirectory $DeployPath
 Get-ChildItem -Path 'src\' -Directory -Recurse | Where-Object { $_.FullName.EndsWith("bin\Release") } | ForEach-Object {
