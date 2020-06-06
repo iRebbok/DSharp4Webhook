@@ -31,7 +31,7 @@ $DeployPath = Join-Path -Path (Get-Location) -ChildPath "deploy"
 Invoke-Expression 'dotnet restore'
 ProcessFailed "Restoring failed"
 
-$Expression = 'dotnet pack -c Release'
+$Expression = 'dotnet pack -c release'
 
 if ($VersionPrefix.Length -ne 0) { $Expression += ' /p:VersionPrefix=$VersionPrefix' }
 
@@ -40,6 +40,11 @@ Invoke-Expression $Expression
 # $? does not work properly with the Invoke-Expression
 ProcessFailed "Build failed"
 Write-Output "Build is successful"
+
+if (-not (Get-Command -Name 'Compress-7Zip')) {
+    Write-Output 'Missing 7Zip4Powershell, installing...'
+    Install-Module  -Name '7Zip4Powershell'
+}
 
 # Packing everything in a deploy folder
 ProcessDirectory $DeployPath
