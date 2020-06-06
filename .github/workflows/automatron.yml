@@ -14,8 +14,8 @@ jobs:
         tagRegex: "(\\d+\\.\\d+\\.\\d+)"
 
     - name: DSharp4Webhook Build
-      shell: pwsh
-      run: pwsh ./scripts/build.ps1 ${env:GIT_TAG_NAME}
+      shell: pwsh -File {0}
+      run: ./scripts/build.ps1 ${env:GIT_TAG_NAME}
 
   deploy:
     runs-on: self-hosted

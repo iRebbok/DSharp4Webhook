@@ -3,16 +3,6 @@ param (
     [string]$VersionPrefix = ""
 )
 
-# Processing the error if there is one
-function ProcessFailed {
-    param ($Message)
-
-    if ($LASTEXITCODE -ne 0) {
-        Write-Output $Message
-        Exit $LASTEXITCODE
-    }
-}
-
 function ProcessDirectory {
     param ($Path)
 
@@ -29,21 +19,16 @@ Set-Location -Path "$PSScriptRoot\..\"
 $DeployPath = Join-Path -Path (Get-Location) -ChildPath "deploy"
 
 Invoke-Expression 'dotnet restore'
-ProcessFailed "Restoring failed"
 
 $Expression = 'dotnet pack -c release'
 
 if ($VersionPrefix.Length -ne 0) { $Expression += ' /p:VersionPrefix=$VersionPrefix' }
 
 Invoke-Expression $Expression
-# This is how we handle errors
-# $? does not work properly with the Invoke-Expression
-ProcessFailed "Build failed"
-Write-Output "Build is successful"
 
-if (-not (Get-Command -Name 'Compress-7Zip')) {
+if (-not (Get-Command 'Compress-7Zip' -ErrorAction Ignore)) {
     Write-Output 'Missing 7Zip4Powershell, installing...'
-    Install-Module  -Name '7Zip4Powershell'
+    Install-Package -Name '7Zip4Powershell' -MinimumVersion '1.11.0' -Scope CurrentUser -Force > $null
 }
 
 # Packing everything in a deploy folder
