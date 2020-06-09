@@ -56,7 +56,7 @@ Example:
 // reading the file data in the current directory
 var fileContent = File.ReadAllBytes("myFile.txt");
 // getting a new message builder
-var messageBuilder = ConstructorProvider.GetMentionBuilder();
+var messageBuilder = ConstructorProvider.GetMessageBuilder();
 // adding a file to the dictionary of files such as the file name and its content
 // yeah, you can change the file name
 messageBuilder.Files.Add("myFile.txt", fileContent);
