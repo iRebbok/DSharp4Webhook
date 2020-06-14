@@ -10,6 +10,9 @@ namespace DSharp4Webhook.Internal
     {
         #region Fields
 
+        // Disable compiler warning because these fields are assigned by Newtonsoft.Json
+        // and will never be used by the user
+#pragma warning disable CS0649
         [JsonProperty(PropertyName = "type")]
         [JsonConverter(typeof(StringEnumConverter))]
         private WebhookType type;
@@ -25,6 +28,7 @@ namespace DSharp4Webhook.Internal
         private string guildId;
         [JsonProperty(PropertyName = "token")]
         private string token;
+#pragma warning restore CS0649
 
         #endregion
 
