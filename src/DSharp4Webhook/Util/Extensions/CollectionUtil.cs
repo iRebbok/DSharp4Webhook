@@ -5,7 +5,7 @@ namespace DSharp4Webhook.Util.Extensions
 {
     internal static class CollectionUtil
     {
-        public static ReadOnlyCollection<T>? ToReadOnlyCollection<T>(this IList<T>? array)
+        internal static ReadOnlyCollection<T>? ToReadOnlyCollection<T>(this IList<T>? array)
         {
             if (array is null)
                 return null;

@@ -16,7 +16,6 @@
     <Optimize>True</Optimize>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DebugType>Portable</DebugType>
-    <WarningsAsErrors>true</WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
