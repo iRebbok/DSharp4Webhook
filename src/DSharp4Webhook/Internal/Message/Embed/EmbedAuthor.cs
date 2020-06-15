@@ -8,7 +8,6 @@ namespace DSharp4Webhook.Internal.Embed
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     internal sealed class EmbedAuthor : IEmbedAuthor
     {
-#nullable enable
         private readonly string? _name;
         private readonly string? _iconUrl;
         private readonly string? _proxyIconUrl;
@@ -47,6 +46,5 @@ namespace DSharp4Webhook.Internal.Embed
         {
             get => _url;
         }
-#nullable restore
     }
 }

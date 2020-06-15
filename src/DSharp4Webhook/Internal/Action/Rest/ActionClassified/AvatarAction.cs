@@ -7,9 +7,9 @@ namespace DSharp4Webhook.Internal
 {
     internal sealed class AvatarAction : BaseRestAction<IAvatarResult>, IAvatarAction
     {
-        private IWebhookInfo _webhookInfo;
+        private IWebhookInfo? _webhookInfo;
 
-        public AvatarAction(IWebhook webhook, RestSettings restSettings, IWebhookInfo webhookInfo = null) : base(webhook, restSettings)
+        public AvatarAction(IWebhook webhook, RestSettings restSettings, IWebhookInfo? webhookInfo = null) : base(webhook, restSettings)
         {
             _webhookInfo = webhookInfo;
         }
@@ -18,7 +18,7 @@ namespace DSharp4Webhook.Internal
         {
             CheckExecution();
 
-            string avatarUrl;
+            string? avatarUrl;
             if (_webhookInfo is null)
             {
                 var infoAction = Webhook.GetInfo();
@@ -28,11 +28,14 @@ namespace DSharp4Webhook.Internal
 
             avatarUrl = _webhookInfo.AvatarUrl;
 
+            if (string.IsNullOrEmpty(avatarUrl))
+                return false;
+
             if (!string.IsNullOrEmpty(avatarUrl))
             {
-                var responses = await Webhook.RestProvider.GET(avatarUrl, RestSettings);
+                var responses = await Webhook.RestProvider.GET(avatarUrl!, RestSettings);
                 var lastResponse = responses[responses.Length - 1];
-                Result = new AvatarResult(new WebhookImage(lastResponse.Data), responses);
+                Result = new AvatarResult(new WebhookImage(lastResponse.Data!), responses);
                 return true;
             }
             return false;

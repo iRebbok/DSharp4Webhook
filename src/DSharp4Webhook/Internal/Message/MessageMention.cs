@@ -1,9 +1,11 @@
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Util;
+using DSharp4Webhook.Util.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace DSharp4Webhook.Internal
@@ -12,13 +14,17 @@ namespace DSharp4Webhook.Internal
     internal sealed class MessageMention : IMessageMention
     {
         private readonly AllowedMention _allowedMention;
-        private readonly string[] _users;
-        private readonly string[] _roles;
+        private readonly ReadOnlyCollection<string>? _users;
+        private readonly ReadOnlyCollection<string>? _roles;
 
         public AllowedMention AllowedMention { get => _allowedMention; }
 
         [JsonProperty(PropertyName = "parse")]
-        public List<string> allowedMention
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE1006 // Naming Styles
+        private List<string> __allowedMention
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE0051 // Remove unused private members
         {
             get
             {
@@ -27,9 +33,9 @@ namespace DSharp4Webhook.Internal
                 // We use our own processing because the user can allow mutual exclusion
                 // See https://discord.com/developers/docs/resources/channel#allowed-mentions-object-allowed-mentions-reference
 
-                if (AllowedMention.HasFlag(AllowedMention.USERS) && _users.Length == 0)
+                if (AllowedMention.HasFlag(AllowedMention.USERS) && _users?.Count == 0)
                     allowedResult = AllowedMention.USERS;
-                if (AllowedMention.HasFlag(AllowedMention.ROLES) && _roles.Length == 0)
+                if (AllowedMention.HasFlag(AllowedMention.ROLES) && _roles?.Count == 0)
                 {
                     if (allowedResult != AllowedMention.NONE)
                         allowedResult |= AllowedMention.ROLES;
@@ -54,14 +60,10 @@ namespace DSharp4Webhook.Internal
         }
 
         [JsonProperty("users")]
-#nullable enable
-        public string[]? Users { get => _users; }
-#nullable restore
+        public ReadOnlyCollection<string>? Users { get => _users; }
 
         [JsonProperty("roles")]
-#nullable enable
-        public string[]? Roles { get => _roles; }
-#nullable restore
+        public ReadOnlyCollection<string>? Roles { get => _roles; }
 
         public MessageMention()
         {
@@ -78,8 +80,8 @@ namespace DSharp4Webhook.Internal
             Checks.CheckForNull(builder, nameof(builder));
 
             _allowedMention = builder.AllowedMention;
-            _users = builder._users?.ToArray();
-            _roles = builder._roles.ToArray();
+            _users = builder._users?.ToArray().ToReadOnlyCollection();
+            _roles = builder._roles?.ToArray().ToReadOnlyCollection();
         }
     }
 }

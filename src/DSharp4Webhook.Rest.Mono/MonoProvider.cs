@@ -103,7 +103,9 @@ namespace DSharp4Webhook.Rest.Mono
                 Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Post request completed:{(restResponse.Content?.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content ?? string.Empty) : " No content")}", _webhook.Id));
 
                 // first of all we check the forceStop so that we don't go any further if
+#pragma warning disable IDE0075 // Simplify conditional expression
             } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.MaxAttempts > 0 ? ++currentAttimpts <= restSettings.MaxAttempts : true)));
+#pragma warning restore IDE0075 // Simplify conditional expression
 
             return responses.ToArray();
         }
@@ -111,7 +113,7 @@ namespace DSharp4Webhook.Rest.Mono
         /// <summary>
         ///     Prepares the request.
         /// </summary>
-        private void PrepareRequest(HttpWebRequest request, Stream requestStream, SerializeContext? data = null)
+        private static void PrepareRequest(HttpWebRequest request, Stream requestStream, SerializeContext? data = null)
         {
             if (data is null) return;
             SerializeContext context = data.Value;
@@ -122,7 +124,7 @@ namespace DSharp4Webhook.Rest.Mono
                 {
                     request.ContentType = SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON);
                     // Writing a serialized context, no more
-                    requestStream.Write(context.Content, 0, context.Content.Length);
+                    requestStream.Write(context.Content.ToArray(), 0, context.Content!.Count);
                     break;
                 }
                 case SerializeType.MULTIPART_FORM_DATA:

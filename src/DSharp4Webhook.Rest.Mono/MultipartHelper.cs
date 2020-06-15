@@ -1,10 +1,12 @@
+using DSharp4Webhook.Rest.Mono.Util;
 using DSharp4Webhook.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
-using DSharp4Webhook.Rest.Mono.Util;
 
 namespace DSharp4Webhook.Rest.Mono
 {
@@ -73,7 +75,7 @@ namespace DSharp4Webhook.Rest.Mono
             string boundary = Guid.NewGuid().ToString();
             request.ContentType = "multipart/form-data; boundary=" + boundary;
 
-            var content = GetMultipartFormData(context.Files, context.Content, boundary);
+            var content = GetMultipartFormData(context.Files!, context.Content.ToArray(), boundary);
             requestStream.Write(content, 0, content.Length);
         }
 
@@ -90,16 +92,16 @@ namespace DSharp4Webhook.Rest.Mono
             text.Write(crlf + crlf);
         }
 
-        private static void WriteFiles(Stream data, TextWriter text, string boundary, Dictionary<string, byte[]> files)
+        private static void WriteFiles(Stream data, TextWriter text, string boundary, IDictionary<string, ReadOnlyCollection<byte>> files)
         {
             // Bake boundary into header template.
             string headerTemplate = string.Format(fileHeaderSupertemplate, boundary);
             int index = 0;
 
-            foreach ((string fileName, byte[] fileContent) in files)
+            foreach ((string fileName, var fileContent) in files)
             {
                 string header = string.Format(headerTemplate, index, fileName);
-                WriteParameter(data, text, header, fileContent);
+                WriteParameter(data, text, header, fileContent.ToArray());
 
                 index++;
             }
@@ -121,7 +123,7 @@ namespace DSharp4Webhook.Rest.Mono
             text.Write(footerTemplate, boundary);
         }
 
-        private static byte[] GetMultipartFormData(Dictionary<string, byte[]> files, byte[] content, string boundary)
+        private static byte[] GetMultipartFormData(IDictionary<string, ReadOnlyCollection<byte>> files, byte[] content, string boundary)
         {
             using var data = new MemoryStream();
             using var text = new StreamWriter(data, encoding)

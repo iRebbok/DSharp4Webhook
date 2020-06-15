@@ -1,9 +1,7 @@
 using DSharp4Webhook.Core;
-using DSharp4Webhook.Logging;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -47,11 +45,9 @@ namespace DSharp4Webhook.Rest
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
 
-            using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url))
-            {
-                PrepareContent(requestMessage, data);
-                return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, restSettings);
-            }
+            using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url);
+            PrepareContent(requestMessage, data);
+            return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, restSettings);
         }
 
         public override async Task<RestResponse[]> DELETE(string url, RestSettings restSettings)
@@ -65,11 +61,9 @@ namespace DSharp4Webhook.Rest
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             Checks.CheckForSerializeType(data, SerializeType.APPLICATION_JSON);
 
-            using (HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url))
-            {
-                PrepareContent(requestMessage, data);
-                return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, restSettings);
-            }
+            using HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url);
+            PrepareContent(requestMessage, data);
+            return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, restSettings);
         }
 
         private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, RestSettings restSettings)
@@ -95,9 +89,11 @@ namespace DSharp4Webhook.Rest
 
                 // Processing the necessary status codes
                 ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
-                Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
+                //Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
 
+#pragma warning disable IDE0075 // Simplify conditional expression
             } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.MaxAttempts > 0 ? ++currentAttimpts <= restSettings.MaxAttempts : true)));
+#pragma warning restore IDE0075 // Simplify conditional expression
 
             return responses.ToArray();
         }
@@ -108,7 +104,7 @@ namespace DSharp4Webhook.Rest
             {
                 case SerializeType.APPLICATION_JSON:
                 {
-                    requestMessage.Content = new ByteArrayContent(data.Content);
+                    requestMessage.Content = new ByteArrayContent(data.Content.ToArray());
                     requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON));
                     break;
                 }
@@ -122,12 +118,12 @@ namespace DSharp4Webhook.Rest
                         foreach (var filePair in data.Files)
                         {
                             index++;
-                            multipartContent.Add(new ByteArrayContent(filePair.Value), $"file{index}", filePair.Key);
+                            multipartContent.Add(new ByteArrayContent(filePair.Value.ToArray()), $"file{index}", filePair.Key);
                         }
                     }
 
                     if (!(data.Content is null))
-                        multipartContent.Add(new ByteArrayContent(data.Content), "payload_json");
+                        multipartContent.Add(new ByteArrayContent(data.Content.ToArray()), "payload_json");
 
                     requestMessage.Content = multipartContent;
                     // it doesn't seem to be necessary, it works automatically

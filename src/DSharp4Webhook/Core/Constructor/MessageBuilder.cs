@@ -4,6 +4,7 @@ using DSharp4Webhook.Internal;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace DSharp4Webhook.Core.Constructor
@@ -18,14 +19,14 @@ namespace DSharp4Webhook.Core.Constructor
         // by resetting them we can violate the expected functionality
         private readonly IMessageMention _initialMention;
 
-        private string _username;
-        private string _avatarUrl;
+        private string? _username;
+        private string? _avatarUrl;
         private bool _isTTS;
-        private IMessageMention _mention;
+        private IMessageMention? _mention;
 
         // Don't create extra objects after the build
-        internal List<IEmbed> _embeds;
-        internal Dictionary<string, byte[]> _files;
+        internal List<IEmbed>? _embeds;
+        internal Dictionary<string, ReadOnlyCollection<byte>>? _files;
 
         #region Properties
 
@@ -51,7 +52,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <summary>
         ///     Username of the webhook that will be used for this message.
         /// </summary>
-        public string Username
+        public string? Username
         {
             get => _username;
             set
@@ -73,7 +74,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <summary>
         ///     An image that will use webhook on this message.
         /// </summary>
-        public string AvatarUrl
+        public string? AvatarUrl
         {
             get => _avatarUrl;
             set => _avatarUrl = value;
@@ -95,9 +96,9 @@ namespace DSharp4Webhook.Core.Constructor
         ///         The key is the file name, and the value is content.
         ///     </para>
         /// </summary>
-        public Dictionary<string, byte[]> Files
+        public Dictionary<string, ReadOnlyCollection<byte>> Files
         {
-            get => _files ??= new Dictionary<string, byte[]>();
+            get => _files ??= new Dictionary<string, ReadOnlyCollection<byte>>();
         }
 
         #endregion
@@ -159,9 +160,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <returns>
         ///     The current MessageBuilder.
         /// </returns>
-#nullable enable
         public MessageBuilder Append(string? text)
-#nullable restore
         {
             // If we put null, it will still be null in the text
             Checks.CheckBounds(nameof(text), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
@@ -178,9 +177,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <returns>
         ///     The current MessageBuilder.
         /// </returns>
-#nullable enable
         public MessageBuilder TryAppend(string? text)
-#nullable restore
         {
             if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_CONTENT_LENGTH, text?.Length ?? 4, _builder.Length))
                 _builder.Append(text ?? "null");
@@ -224,9 +221,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <returns>
         ///     The current MessageBuilder.
         /// </returns>
-#nullable enable
         public MessageBuilder AppendLine(string? text)
-#nullable restore
         {
             // If we put null, it will still be null in the text, a line break is also added
             Checks.CheckBounds(nameof(text), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
@@ -243,9 +238,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <returns>
         ///     The current MessageBuilder.
         /// </returns>
-#nullable enable
         public MessageBuilder TryAppendLine(string? text)
-#nullable restore
         {
             if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_CONTENT_LENGTH, text?.Length ?? 4 + 1, _builder.Length))
                 _builder.AppendLine(text ?? "null");
@@ -284,7 +277,7 @@ namespace DSharp4Webhook.Core.Constructor
             Checks.CheckForNull(embed, nameof(embed));
             if (Embeds.Count + 1 > WebhookProvider.MAX_EMBED_COUNT)
                 throw new ArgumentOutOfRangeException();
-            _embeds.Add(embed);
+            _embeds!.Add(embed);
 
             return this;
         }
@@ -295,7 +288,7 @@ namespace DSharp4Webhook.Core.Constructor
         public MessageBuilder TryAddEmbed(IEmbed embed)
         {
             if (!(embed is null) && Embeds.Count + 1 <= WebhookProvider.MAX_EMBED_COUNT)
-                _embeds.Add(embed);
+                _embeds!.Add(embed);
 
             return this;
         }

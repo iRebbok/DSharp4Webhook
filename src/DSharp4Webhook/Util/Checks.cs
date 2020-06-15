@@ -3,6 +3,7 @@ using DSharp4Webhook.Exception;
 using DSharp4Webhook.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace DSharp4Webhook.Util
@@ -18,7 +19,7 @@ namespace DSharp4Webhook.Util
         /// <exception cref="ArgumentOutOfRangeException">
         ///     If the length exceed or meet their bounds.
         /// </exception>
-        public static void CheckBounds(string paramName, string message, int safeLength, int length, params int[] length1)
+        public static void CheckBounds(string? paramName, string? message, int safeLength, int length, params int[] length1)
         {
             if (CheckBoundsSafe(safeLength, length, length1))
                 throw new ArgumentOutOfRangeException(paramName, message);
@@ -30,7 +31,7 @@ namespace DSharp4Webhook.Util
         /// <exception cref="ArgumentOutOfRangeException">
         ///     If the length exceed or meet their bounds.
         /// </exception>
-        public static void CheckBoundsUnderside(string paramName, string message, int safeLength, int length, params int[] length1)
+        public static void CheckBoundsUnderside(string? paramName, string? message, int safeLength, int length, params int[] length1)
         {
             if (CheckBoundsUndersideSafe(safeLength, length, length1))
                 throw new ArgumentOutOfRangeException(paramName, message);
@@ -77,7 +78,7 @@ namespace DSharp4Webhook.Util
         /// <exception cref="ArgumentNullException">
         ///     If the specified object is null.
         /// </exception>
-        public static void CheckForNull<T>(T instance, string paramName = null, string message = null)
+        public static void CheckForNull<T>(T instance, string? paramName = null, string? message = null)
             where T : class
         {
             if (instance is null)
@@ -93,7 +94,7 @@ namespace DSharp4Webhook.Util
         /// <exception cref="ArgumentException">
         ///     If boolean is true.
         /// </exception>
-        public static void CheckForArgument(bool boolean, string paramName = null, string message = null)
+        public static void CheckForArgument(bool boolean, string? paramName = null, string? message = null)
         {
             if (boolean)
                 throw new ArgumentException(message, paramName);
@@ -126,7 +127,7 @@ namespace DSharp4Webhook.Util
         /// <exception cref="SizeOutOfRangeException">
         ///     The size of attachments exceeds the limit.
         /// </exception>
-        public static void CheckForAttachments(IEnumerable<KeyValuePair<string, byte[]>> source)
+        public static void CheckForAttachments(IDictionary<string, ReadOnlyCollection<byte>> source)
         {
             if (source is null)
                 return;

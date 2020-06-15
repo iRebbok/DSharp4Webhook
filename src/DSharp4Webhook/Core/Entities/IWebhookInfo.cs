@@ -30,16 +30,12 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Avatar id for webhook.
         /// </summary>
-#nullable enable
         string? AvatarId { get; }
-#nullable restore
 
         /// <summary>
         ///     Gets the avatar url for webhook.
         /// </summary>
-#nullable enable
         string? AvatarUrl { get; }
-#nullable restore
 
         /// <summary>
         ///     Snowflake webhook id of the channel it interacts with.

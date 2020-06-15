@@ -1,7 +1,7 @@
 using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Serialization;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace DSharp4Webhook.Core
 {
@@ -16,16 +16,12 @@ namespace DSharp4Webhook.Core
         /// <exception cref="ArgumentOutOfRangeException">
         ///     When you try to set <see cref="string.Empty"/> or a value greater than 80 characters.
         /// </exception>
-#nullable enable
         public string? Username { get; }
-#nullable restore
 
         /// <summary>
         ///     Avatar that will be displayed in webhook with the message.
         /// </summary>
-#nullable enable
         public string? AvatarUrl { get; }
-#nullable restore
 
         /// <summary>
         ///     The content of the message.
@@ -33,9 +29,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="ArgumentOutOfRangeException">
         ///     When you try to set a value greater than 2000 characters.
         /// </exception>
-#nullable enable
         public string? Content { get; }
-#nullable restore
 
         /// <summary>
         ///     Whether the TTS determines this message or not.
@@ -45,9 +39,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Message embeds.
         /// </summary>
-#nullable enable
-        public IEmbed[]? Embeds { get; }
-#nullable restore
+        public ReadOnlyCollection<IEmbed>? Embeds { get; }
 
         /// <summary>
         ///     Allowed mentions for a message.
@@ -57,8 +49,6 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Attachments to the message.
         /// </summary>
-#nullable enable
-        public IReadOnlyDictionary<string, byte[]>? Files { get; }
-#nullable restore
+        public ReadOnlyDictionary<string, ReadOnlyCollection<byte>>? Files { get; }
     }
 }

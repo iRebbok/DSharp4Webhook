@@ -22,8 +22,8 @@ namespace DSharp4Webhook.Rest.Mono.Util
         /// </summary>
         public static string Read(Stream source)
         {
-            using (StreamReader reader = new StreamReader(source))
-                return reader.ReadToEnd();
+            using StreamReader reader = new StreamReader(source);
+            return reader.ReadToEnd();
         }
     }
 }

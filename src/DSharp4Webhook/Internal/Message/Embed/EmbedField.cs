@@ -16,8 +16,8 @@ namespace DSharp4Webhook.Internal.Embed
         {
             Checks.CheckForNull(builder, nameof(builder));
 
-            _name = builder.Name;
-            _value = builder.Value;
+            _name = builder.Name!;
+            _value = builder.Value!;
             _inline = builder.Inline;
         }
 

@@ -8,7 +8,6 @@ namespace DSharp4Webhook.Core.Constructor
     {
         private uint? _height;
         private uint? _width;
-#nullable enable
         private string? _url;
 
         #region Properties
@@ -18,7 +17,6 @@ namespace DSharp4Webhook.Core.Constructor
             get => _url;
             set => _url = value;
         }
-#nullable restore
 
         public uint? Height
         {

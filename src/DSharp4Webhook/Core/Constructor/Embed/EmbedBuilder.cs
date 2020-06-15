@@ -13,7 +13,6 @@ namespace DSharp4Webhook.Core.Constructor
     {
         private readonly StringBuilder _builder;
 
-#nullable enable
         private string? _title;
         private EmbedType? _type;
         private string? _url;
@@ -25,7 +24,7 @@ namespace DSharp4Webhook.Core.Constructor
         private IEmbedVideo? _video;
         private IEmbedProvider? _provider;
         private IEmbedAuthor? _author;
-        private List<IEmbedField>? _fields;
+        internal List<IEmbedField>? _fields;
 
         /// <summary>
         ///     Gets a new builder.
@@ -124,7 +123,6 @@ namespace DSharp4Webhook.Core.Constructor
 
         #endregion
 
-#nullable restore
 
         #region Methods
 
@@ -147,9 +145,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <summary>
         ///     Adds text to the current description.
         /// </summary>
-#nullable enable
         public EmbedBuilder Append(string? text)
-#nullable restore
         {
             // If we put null, it will still be null in the description
             Checks.CheckBounds(nameof(text), $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
@@ -163,9 +159,7 @@ namespace DSharp4Webhook.Core.Constructor
         ///     Tries to add text, 
         ///     without causing an exception when the bounds are exceeded.
         /// </summary>
-#nullable enable
         public EmbedBuilder TryAppend(string? text)
-#nullable restore
         {
             if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH, text?.Length ?? 4, _builder.Length))
                 _builder.Append(text ?? "null");
@@ -200,9 +194,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// <summary>
         ///     Adds text to the current description in a new line.
         /// </summary>
-#nullable enable
         public EmbedBuilder AppendLine(string? text)
-#nullable restore
         {
             // If we put null, it will still be null in the description, a line break is also added
             Checks.CheckBounds(nameof(text), $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
@@ -216,9 +208,7 @@ namespace DSharp4Webhook.Core.Constructor
         ///     Tries to add text to the current description in a new line,
         ///     without causing an exception when the bounds are exceeded.
         /// </summary>
-#nullable enable
         public EmbedBuilder TryAppendLine(string? text)
-#nullable restore
         {
             if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH + 1, text?.Length ?? 4 + 1, _builder.Length))
                 _builder.AppendLine(text ?? "null");
@@ -241,7 +231,7 @@ namespace DSharp4Webhook.Core.Constructor
             // Just safely get it instead
             if (GetFields().Count + 1 > WebhookProvider.MAX_EMBED_FIELDS_COUNT)
                 throw new ArgumentOutOfRangeException();
-            _fields.Add(field);
+            _fields!.Add(field);
 
             return this;
         }
@@ -252,7 +242,7 @@ namespace DSharp4Webhook.Core.Constructor
         public EmbedBuilder TryAddField(IEmbedField field)
         {
             if (!(field is null) && GetFields().Count + 1 <= WebhookProvider.MAX_EMBED_FIELDS_COUNT)
-                _fields.Add(field);
+                _fields!.Add(field);
 
             return this;
         }

@@ -7,33 +7,33 @@ namespace DSharp4Webhook.Core.Constructor
 {
     public sealed class EmbedFooterBuilder : IBuilder
     {
-        private string _text;
-#nullable enable
+        private string? _text;
         private string? _iconUrl;
         private string? _proxyIconUrl;
-#nullable restore
 
         #region Properties
 
+        /// <exception cref="ArgumentNullException">
+        ///     Attempt to assign a null value.
+        /// </exception>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Exceeds the allowed length.
         /// </exception>
-        public string Text
+        public string? Text
         {
             get => _text;
             set
             {
-                if (!(value is null))
-                {
-                    value = value.Trim();
-                    Checks.CheckBounds(nameof(Text), $"Must be no more than {WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH} in length",
-                        WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH + 1, value.Length);
-                    _text = value;
-                }
+                if (value is null)
+                    throw new ArgumentNullException("Value cannot be null", nameof(Text));
+
+                value = value.Trim();
+                Checks.CheckBounds(nameof(Text), $"Must be no more than {WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH} in length",
+                    WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH + 1, value.Length);
+                _text = value;
             }
         }
 
-#nullable enable
         public string? IconUrl
         {
             get => _iconUrl;
@@ -45,7 +45,6 @@ namespace DSharp4Webhook.Core.Constructor
             get => _proxyIconUrl;
             set => _proxyIconUrl = value;
         }
-#nullable restore
 
         #endregion
 

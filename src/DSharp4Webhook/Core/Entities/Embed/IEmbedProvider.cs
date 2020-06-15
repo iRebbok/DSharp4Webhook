@@ -10,8 +10,6 @@ namespace DSharp4Webhook.Core.Embed
         /// <summary>
         ///     Name of provider.
         /// </summary>
-#nullable enable
         public string? Name { get; }
-#nullable restore
     }
 }

@@ -13,7 +13,9 @@ namespace DSharp4Webhook.Internal
         public bool IsExecuted { get; protected set; }
         public RestSettings RestSettings { get; }
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         protected BaseRestAction(IWebhook webhook, RestSettings restSettings)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             Webhook = webhook;
             RestSettings = restSettings;

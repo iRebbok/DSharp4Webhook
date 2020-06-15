@@ -23,7 +23,7 @@ namespace DSharp4Webhook.Internal
             CheckExecution();
             var responses = await Webhook.RestProvider.PATCH(Webhook.GetWebhookUrl(), Context, RestSettings);
             var lastResponse = responses[responses.Length - 1];
-            WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content);
+            WebhookInfo webhookInfo = JsonConvert.DeserializeObject<WebhookInfo>(lastResponse.Content!);
             webhookInfo._webhook = Webhook;
             Result = new ModifyResult(webhookInfo, responses);
             SettingRateLimit();

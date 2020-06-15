@@ -9,7 +9,9 @@ namespace DSharp4Webhook.Rest
     ///     https://github.com/discord-net/Discord.Net/blob/ed869bd78b8ae152805b449b759714839b429ce5/src/Discord.Net.Rest/Net/RateLimitInfo.cs
     ///     with some modifications.
     /// </remarks>
-    public struct RateLimitInfo
+#pragma warning disable CA1815 // Override equals and operator equals on value types
+    public readonly struct RateLimitInfo
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         /// <summary>
         ///     RateLimit is global.
@@ -18,35 +20,28 @@ namespace DSharp4Webhook.Rest
         /// <summary>
         ///    Total number of requests that can be made before entering the RateLimit.
         /// </summary>
-#nullable enable
         public int? Limit { get; }
         /// <summary>
         ///     How many requests can be made before entering the RateLimit.
         /// </summary>
-#nullable enable
         public int? Remaining { get; }
         /// <summary>
         ///     How long to wait before the Rate Limit expires.
         /// </summary>
-#nullable enable
         public uint? RetryAfter { get; }
         /// <summary>
         ///     Date when the Rate Limit is reset.
         /// </summary>
-#nullable enable
         public DateTimeOffset? Reset { get; }
         /// <summary>
         ///     How long wait before can repeat the request.
         /// </summary>
-#nullable enable
         public TimeSpan? ResetAfter { get; }
         /// <summary>
         ///     Date sent by Discord servers.
         ///     This helps find time lags.
         /// </summary>
-#nullable enable
         public DateTimeOffset? Date { get; }
-
         /// <summary>
         ///     How long wait before sending a request.
         /// </summary>
@@ -63,12 +58,10 @@ namespace DSharp4Webhook.Rest
                 return TimeSpan.Zero;
             }
         }
-
         /// <summary>
         ///     Are we in the RateLimit.
         /// </summary>
         public bool IsRatelimited { get => MustWait != TimeSpan.Zero; }
-
         /// <summary>
         ///     Lag between the request Date and the current time.
         /// </summary>

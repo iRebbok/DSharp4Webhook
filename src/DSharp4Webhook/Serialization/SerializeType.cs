@@ -18,15 +18,12 @@ namespace DSharp4Webhook.Serialization
         /// </exception>
         public static string Convert(SerializeType type)
         {
-            switch (type)
+            return type switch
             {
-                case SerializeType.APPLICATION_JSON:
-                    return "application/json";
-                case SerializeType.MULTIPART_FORM_DATA:
-                    return "multipart/form-data";
-            }
-
-            throw new InvalidOperationException("This type was not implemented");
+                SerializeType.APPLICATION_JSON => "application/json",
+                SerializeType.MULTIPART_FORM_DATA => "multipart/form-data",
+                _ => throw new InvalidOperationException("This type was not implemented"),
+            };
         }
     }
 }

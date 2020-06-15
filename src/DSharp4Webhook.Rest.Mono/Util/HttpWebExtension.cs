@@ -12,7 +12,9 @@ namespace DSharp4Webhook.Rest.Mono.Util
         {
             try
             {
+#pragma warning disable CS8603 // Possible null reference return.
                 return req.GetResponse() as HttpWebResponse;
+#pragma warning restore CS8603 // Possible null reference return.
             }
             catch (WebException we)
             {

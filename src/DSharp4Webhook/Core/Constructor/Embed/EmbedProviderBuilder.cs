@@ -5,7 +5,6 @@ namespace DSharp4Webhook.Core.Constructor
 {
     public sealed class EmbedProviderBuilder : IBuilder
     {
-#nullable enable
         private string? _name;
         private string? _url;
 
@@ -20,7 +19,6 @@ namespace DSharp4Webhook.Core.Constructor
             get => _url;
             set => _url = value;
         }
-#nullable restore
 
         public static EmbedProviderBuilder New() => new EmbedProviderBuilder();
 

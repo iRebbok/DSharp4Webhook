@@ -1,6 +1,8 @@
 namespace DSharp4Webhook.Action
 {
-    public struct ActionContext
+#pragma warning disable CA1815 // Override equals and operator equals on value types
+    public readonly struct ActionContext
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         /// <summary>
         ///     Executed action.

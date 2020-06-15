@@ -1,39 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <PropertyGroup>
-        <RootNamespace>DSharp4Webhook</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>DSharp4Webhook</RootNamespace>
+  </PropertyGroup>
 
-	<PropertyGroup>
-        <LangVersion>8.0</LangVersion>
-        <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
-        <WarningsAsErrors>true</WarningsAsErrors>
-    </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-	    <Optimize>True</Optimize>
-        <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <DebugType>Portable</DebugType>
-        <WarningsAsErrors>true</WarningsAsErrors>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Optimize>True</Optimize>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DebugType>Portable</DebugType>
+    <WarningsAsErrors>true</WarningsAsErrors>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<Authors>iRebbok</Authors>
-        <RepositoryType>Git</RepositoryType>
-        <RepositoryUrl>git://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/iRebbok/DSharp4Webhook</PackageProjectUrl>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Copyright>Copyright 2020</Copyright>
-        <PackageTags>discord;discordapp</PackageTags>
-        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-	</PropertyGroup>
+  <PropertyGroup>
+    <Authors>iRebbok</Authors>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>git://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/iRebbok/DSharp4Webhook</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright 2020</Copyright>
+    <PackageTags>discord;discordapp</PackageTags>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(VersionPrefix)' == ''">
-        <VersionPrefix>0.0.0</VersionPrefix>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(VersionPrefix)' != ''">
-        <Version>$(VersionPrefix)</Version>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(VersionPrefix)' == ''">
+    <VersionPrefix>0.0.0</VersionPrefix>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(VersionPrefix)' != ''">
+    <Version>$(VersionPrefix)</Version>
+  </PropertyGroup>
 
 </Project>

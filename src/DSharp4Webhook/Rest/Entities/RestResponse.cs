@@ -7,12 +7,16 @@ namespace DSharp4Webhook.Rest
     /// <summary>
     ///     Structure of the server response containing the required data.
     /// </summary>
-    public struct RestResponse
+#pragma warning disable CA1815 // Override equals and operator equals on value types
+    public readonly struct RestResponse
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         public HttpStatusCode StatusCode { get; }
         public RateLimitInfo RateLimit { get; }
-        public byte[] Data { get; }
-        public string Content { get => !(Data is null) ? Encoding.UTF8.GetString(Data) : null; }
+#pragma warning disable CA1819 // Properties should not return arrays
+        public byte[]? Data { get; }
+#pragma warning restore CA1819 // Properties should not return arrays
+        public string? Content { get => !(Data is null) ? Encoding.UTF8.GetString(Data) : null; }
         public uint Attempts { get; }
 
         public RestResponse(HttpWebResponse webResponse, RateLimitInfo rateLimit, uint attempts)
@@ -22,7 +26,7 @@ namespace DSharp4Webhook.Rest
             Attempts = attempts;
 
             Data = null;
-            Stream stream = null;
+            Stream? stream = null;
             try
             {
                 stream = webResponse.GetResponseStream();
@@ -38,11 +42,7 @@ namespace DSharp4Webhook.Rest
                     Data = memoryStream.ToArray();
                 }
             }
-            // When using using we will not be able to track the exception
-            catch (System.Exception)
-            {
-                // todo: logs
-            }
+            catch (System.Exception) { throw; }
             finally
             {
                 stream?.Dispose();

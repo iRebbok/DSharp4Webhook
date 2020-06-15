@@ -23,9 +23,7 @@ namespace DSharp4Webhook.Core
         ///     Webhook provider.
         ///     Is null for webhooks created without a provider.
         /// </summary>
-#nullable enable
         public WebhookProvider? Provider { get; }
-#nullable restore
 
         /// <summary>
         ///     Provider for REST requests.
@@ -107,9 +105,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-#nullable enable
         public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null);
-#nullable restore
 
         /// <summary>
         ///     Send messages.
@@ -120,9 +116,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     When trying to interact with a nonexistent webhook.
         /// </exception>
-#nullable enable
         public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null);
-#nullable restore
 
         /// <summary>
         ///     Send messages.
@@ -139,12 +133,8 @@ namespace DSharp4Webhook.Core
         /// <exception cref="ArgumentOutOfRangeException">
         ///     List contains more than is allowed on <see cref="WebhookProvider.MAX_EMBED_COUNT"/>.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-#nullable enable
+        /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
         public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention? messageMention = null, RestSettings? restSettings = null);
-#nullable restore
 
         /// <summary>
         ///     Send messages.
@@ -155,33 +145,21 @@ namespace DSharp4Webhook.Core
         /// <exception cref="ArgumentNullException">
         ///     Embed is null.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-#nullable enable
+        /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
         public IMessageAction SendMessage(IEmbed embed, IMessageMention? messageMention = null, RestSettings? restSettings = null);
-#nullable restore
 
         /// <summary>
         ///     Retrieves information about webhook.
         /// </summary>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-#nullable enable
+        /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
         public IInfoAction GetInfo(RestSettings? restSettings = null);
-#nullable restore
 
         /// <summary>
         ///     Deletes the webhook.
         ///     Destroys webhook at the level of the discord.
         /// </summary>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-#nullable enable
+        /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
         public IDeleteAction Delete(RestSettings? restSettings = null);
-#nullable restore
 
         /// <summary>
         ///     Modifies the webhook.
@@ -192,35 +170,27 @@ namespace DSharp4Webhook.Core
         /// <param name="name">
         ///     Webhook name.
         /// </param>
+        /// <exception cref="ArgumentException">
+        ///     Attempt to use a null or 'clyde' value.
+        /// </exception>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     One of the arguments does not meet the requirements.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-#nullable enable
+        /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
         public IModifyAction Modify(string name, RestSettings? restSettings = null);
-#nullable restore
 
         /// <summary>
         ///     Modifies the webhook.
         /// </summary>
-        /// <param name="name">
-        ///     Webhook name.
-        /// </param>
+        /// <param name="name"><inheritdoc cref="Modify(string, RestSettings?)"/></param>
         /// <param name="image">
         ///     Avatar that will use webhook.
-        ///     A null value will mean resetting the image for the webhook.
+        ///     A null value will reset the image to the default value for the web hook.
         /// </param>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     One of the arguments does not meet the requirements.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-#nullable enable
-        public IModifyAction Modify(string name, IWebhookImage image, RestSettings? restSettings = null);
-#nullable restore
+        /// <exception cref="ArgumentException"><inheritdoc cref="Modify(string, RestSettings?)"/></exception>
+        /// <exception cref="ArgumentOutOfRangeException"><inheritdoc cref="Modify(string, RestSettings?)"/></exception>
+        /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
+        public IModifyAction Modify(string name, IWebhookImage? image, RestSettings? restSettings = null);
 
         /// <summary>
         ///     Modifies the webhook using pre-prepared data.
@@ -228,12 +198,8 @@ namespace DSharp4Webhook.Core
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="content"/> is null.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     When trying to interact with a nonexistent webhook.
-        /// </exception>
-#nullable enable
+        /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
         public IModifyAction Modify(IModifyContent content, RestSettings? restSettings = null);
-#nullable restore
 
         #endregion
     }

@@ -1,7 +1,10 @@
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Util;
+using DSharp4Webhook.Util.Extensions;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace DSharp4Webhook.Internal
 {
@@ -12,17 +15,17 @@ namespace DSharp4Webhook.Internal
         /// </summary>
         public static WebhookImage Empty { get; } = new WebhookImage();
 
-        public byte[] Data { get => _data; }
+        public ReadOnlyCollection<byte>? Data { get => _data; }
 
-        private byte[] _data;
-        private string _uriCached;
+        private ReadOnlyCollection<byte>? _data;
+        private string? _uriCached;
 
         private WebhookImage() { }
 
         public WebhookImage(byte[] data)
         {
             Checks.CheckForNull(data, nameof(data));
-            _data = data;
+            _data = data.ToReadOnlyCollection()!;
         }
 
         public WebhookImage(FileInfo file)
@@ -30,9 +33,9 @@ namespace DSharp4Webhook.Internal
             Checks.CheckForNull(file, nameof(file));
             Checks.CheckForArgument(!file.Exists, nameof(file));
             using var stream = file.OpenRead();
-            _data = new byte[stream.Length];
-            stream.Read(_data, 0, _data.Length);
-
+            var temp = new byte[stream.Length];
+            stream.Read(temp, 0, temp.Length);
+            _data = temp.ToReadOnlyCollection()!;
         }
 
         public WebhookImage(Stream stream)
@@ -40,22 +43,23 @@ namespace DSharp4Webhook.Internal
             Checks.CheckForNull(stream, nameof(stream));
             Checks.CheckForArgument(!stream.CanSeek || !stream.CanRead, nameof(stream));
 
-            _data = new byte[stream.Length - stream.Position];
-            stream.Read(_data, 0, _data.Length);
+            var temp = new byte[stream.Length - stream.Position];
+            stream.Read(temp, 0, temp.Length);
+            _data = temp.ToReadOnlyCollection()!;
         }
 
         public void Save(string path)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(path), nameof(path));
-            File.WriteAllBytes(path, _data);
+            File.WriteAllBytes(path, _data.ToArray());
         }
 
         public string ToUriScheme()
         {
             if (!string.IsNullOrEmpty(_uriCached))
-                return _uriCached;
+                return _uriCached!;
 
-            return _uriCached = $"data:image/png;base64,{Convert.ToBase64String(_data)}";
+            return _uriCached = $"data:image/png;base64,{Convert.ToBase64String(_data.ToArray())}";
         }
     }
 }

@@ -1,19 +1,21 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DSharp4Webhook.Util
 {
-    public static class DictionaryUtil
+    internal static class DictionaryUtil
     {
         /// <summary>
         ///     Returns the size of these values.
         /// </summary>
-        public static long SizeOf<T>(this IEnumerable<KeyValuePair<T, byte[]>> source)
+        internal static long SizeOf(this IDictionary<string, ReadOnlyCollection<byte>> source)
         {
             Checks.CheckForNull(source);
 
             long result = 0L;
             foreach (var pair in source)
-                result += pair.Value.LongLength;
+                result += pair.Value.LongCount();
             return result;
         }
     }

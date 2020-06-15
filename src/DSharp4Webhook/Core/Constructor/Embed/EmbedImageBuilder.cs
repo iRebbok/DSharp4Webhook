@@ -7,7 +7,6 @@ namespace DSharp4Webhook.Core.Constructor
     {
         private uint? _height;
         private uint? _width;
-#nullable enable
         private string? _url;
         private string? _proxyUrl;
 
@@ -24,7 +23,6 @@ namespace DSharp4Webhook.Core.Constructor
             get => _proxyUrl;
             set => _proxyUrl = value;
         }
-#nullable restore
 
         public uint? Height
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 
 namespace DSharp4Webhook.Core
 {
@@ -7,7 +8,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Image data.
         /// </summary>
-        public byte[] Data { get; }
+        public ReadOnlyCollection<byte>? Data { get; }
 
         /// <summary>
         ///     Converts data to the uri format for transmitting images.

@@ -1,11 +1,12 @@
 using DSharp4Webhook.Internal;
 using DSharp4Webhook.Util;
+using System;
 
 namespace DSharp4Webhook.Core.Constructor
 {
     public sealed class ModifyContentBuilder : IBuilder
     {
-        private string _name;
+        private string? _name;
         private IWebhookImage _image;
 
         #region Properties
@@ -13,11 +14,20 @@ namespace DSharp4Webhook.Core.Constructor
         /// <summary>
         ///     Webhook name.
         /// </summary>
-        public string Name
+        /// <exception cref="ArgumentNullException">
+        ///     Attempt to assign a null value.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Exceeding the length limits.
+        /// </exception>
+        public string? Name
         {
             get => _name;
             set
             {
+                if (value is null)
+                    throw new ArgumentNullException("Value cannot be null", nameof(Name));
+
                 value = value.Trim();
                 Checks.CheckBounds(nameof(Name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", WebhookProvider.MAX_NICKNAME_LENGTH + 1, value.Length);
                 Checks.CheckBoundsUnderside(nameof(Name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.",

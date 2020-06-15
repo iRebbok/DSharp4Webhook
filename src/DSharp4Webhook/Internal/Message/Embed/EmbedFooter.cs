@@ -9,16 +9,14 @@ namespace DSharp4Webhook.Internal.Embed
     internal sealed class EmbedFooter : IEmbedFooter
     {
         private readonly string _text;
-#nullable enable
         private readonly string? _iconUrl;
         private readonly string? _proxyIconUrl;
-#nullable restore
 
         public EmbedFooter(EmbedFooterBuilder builder)
         {
             Checks.CheckForNull(builder, nameof(builder));
 
-            _text = builder.Text;
+            _text = builder.Text!;
             _iconUrl = builder.IconUrl;
             _proxyIconUrl = builder.ProxyIconUrl;
         }
@@ -29,7 +27,6 @@ namespace DSharp4Webhook.Internal.Embed
             get => _text;
         }
 
-#nullable enable
         [JsonProperty(PropertyName = "icon_url")]
         public string? IconUrl
         {
@@ -41,6 +38,5 @@ namespace DSharp4Webhook.Internal.Embed
         {
             get => _proxyIconUrl;
         }
-#nullable restore
     }
 }

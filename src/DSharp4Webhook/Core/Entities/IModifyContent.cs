@@ -10,15 +10,11 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Webhook name.
         /// </summary>
-#nullable enable
-        public string? Name { get; }
-#nullable restore
+        public string Name { get; }
 
         /// <summary>
         ///     Webhook image.
         /// </summary>
-#nullable enable
         public IWebhookImage? Image { get; }
-#nullable restore
     }
 }

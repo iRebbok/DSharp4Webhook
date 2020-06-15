@@ -100,7 +100,9 @@ namespace DSharp4Webhook.Core
         /// </summary>
         public static readonly int MAX_EMBED_COUNT;
 
+#pragma warning disable CA1810 // Initialize reference type static fields inline
         static WebhookProvider()
+#pragma warning restore CA1810 // Initialize reference type static fields inline
         {
             LibraryUrl = "https://github.com/iRebbok/DSharp4Webhook";
             LibraryVersion = typeof(WebhookProvider).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
@@ -240,9 +242,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format.
         /// </exception>
-#nullable enable
         private static IWebhook CreateWebhook(string url, WebhookProvider? provider)
-#nullable restore
         {
             if (string.IsNullOrEmpty(url)) throw new ArgumentException("Url cannot be null or empty", nameof(url));
 
@@ -264,9 +264,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format or the webhook already exists.
         /// </exception>
-#nullable enable
         private static IWebhook CreateWebhook(ulong id, string token, WebhookProvider? provider)
-#nullable restore
         {
             if (string.IsNullOrEmpty(token)) throw new ArgumentException("Token cannot be null or empty", nameof(token));
             if (provider?._webhooks.ContainsKey(id) ?? false) throw new InvalidOperationException($"Webhook id {id} is already in the collection");
@@ -385,7 +383,7 @@ namespace DSharp4Webhook.Core
         {
             bool allow = !(webhook is null) && !_webhooks.ContainsKey(webhook.Id);
             if (allow)
-                _webhooks.Add(webhook.Id, webhook);
+                _webhooks.Add(webhook!.Id, webhook);
 
             return allow;
         }

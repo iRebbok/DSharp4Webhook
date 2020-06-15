@@ -1,4 +1,5 @@
 using DSharp4Webhook.Rest;
+using System.Collections.ObjectModel;
 
 namespace DSharp4Webhook.Action
 {
@@ -15,6 +16,6 @@ namespace DSharp4Webhook.Action
         /// <summary>
         ///     All responses to rest queries.
         /// </summary>
-        public RestResponse[] Responses { get; }
+        public ReadOnlyCollection<RestResponse>? Responses { get; }
     }
 }

@@ -3,7 +3,9 @@ namespace DSharp4Webhook.Logging
     /// <remarks>
     ///     It is the main object for delivering logs to the client.
     /// </remarks>
-    public struct LogContext
+#pragma warning disable CA1815 // Override equals and operator equals on value types
+    public readonly struct LogContext
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         /// <summary>
         ///     The sensitivity of the log.
@@ -23,7 +25,6 @@ namespace DSharp4Webhook.Logging
         /// <summary>
         ///     Exception that triggered this log.
         /// </summary>
-#nullable enable
         public System.Exception? Exception { get; }
 
         public LogContext(LogSensitivity sensitivity, string message, ulong? webhookId = null, System.Exception? exception = null)

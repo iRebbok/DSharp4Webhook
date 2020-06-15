@@ -2,8 +2,10 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Util;
+using DSharp4Webhook.Util.Extensions;
 using Newtonsoft.Json;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace DSharp4Webhook.Internal.Embed
@@ -16,7 +18,6 @@ namespace DSharp4Webhook.Internal.Embed
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     internal sealed class Embed : IEmbed
     {
-#nullable enable
         private readonly string? _title;
         private readonly EmbedType? _type;
         private readonly string? _description;
@@ -29,7 +30,7 @@ namespace DSharp4Webhook.Internal.Embed
         private readonly IEmbedVideo? _video;
         private readonly IEmbedProvider? _provider;
         private readonly IEmbedAuthor? _author;
-        private readonly IEmbedField[]? _fields;
+        private readonly ReadOnlyCollection<IEmbedField>? _fields;
 
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Embed exceeds its limit.
@@ -56,7 +57,7 @@ namespace DSharp4Webhook.Internal.Embed
             _video = builder.Video;
             _provider = builder.Provider;
             _author = builder.Author;
-            _fields = builder.GetFields().ToArray();
+            _fields = builder._fields?.ToArray().ToReadOnlyCollection();
         }
 
         #region Properties
@@ -72,7 +73,11 @@ namespace DSharp4Webhook.Internal.Embed
         ///     because the type name starts with a capital letter.
         /// </remarks>
         [JsonProperty(PropertyName = "type")]
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE1006 // Naming Styles
         private string? _Type => Type?.ToString().ToLowerInvariant();
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE0051 // Remove unused private members
 
         public EmbedType? Type
         {
@@ -143,12 +148,11 @@ namespace DSharp4Webhook.Internal.Embed
         }
 
         [JsonProperty(PropertyName = "fields")]
-        public IEmbedField[]? Fileds
+        public ReadOnlyCollection<IEmbedField>? Fileds
         {
             get => _fields;
         }
 
         #endregion
-#nullable restore
     }
 }

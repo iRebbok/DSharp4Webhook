@@ -12,7 +12,7 @@ namespace DSharp4Webhook.Rest
     /// </remarks>
     public static class RestProviderLoader
     {
-        private static Type _provider;
+        private static Type? _provider;
 
         private static bool IsCorrectProvider(Type type)
         {
@@ -35,7 +35,7 @@ namespace DSharp4Webhook.Rest
         ///     If you access code that does not have the necessary dependencies with it,
         ///     an exception is thrown, so on unity projects that were compiled using the .NET Framework profile.
         /// </remarks>
-        public static Type GetProviderType()
+        public static Type? GetProviderType()
         {
             if (_provider is null)
                 DefaultProvider.SetupAsDefault();
@@ -75,7 +75,9 @@ namespace DSharp4Webhook.Rest
             Checks.CheckForNull(webhook, nameof(webhook));
 
             var providerType = GetProviderType();
+#pragma warning disable CS8603 // Possible null reference return.
             return Activator.CreateInstance(providerType, webhook) as BaseRestProvider;
+#pragma warning restore CS8603 // Possible null reference return.
         }
     }
 }

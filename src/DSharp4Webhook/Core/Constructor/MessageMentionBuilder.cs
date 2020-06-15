@@ -8,8 +8,8 @@ namespace DSharp4Webhook.Core.Constructor
     public sealed class MessageMentionBuilder : IBuilder
     {
         private AllowedMention _allowedMention;
-        internal HashSet<string> _users;
-        internal HashSet<string> _roles;
+        internal HashSet<string>? _users;
+        internal HashSet<string>? _roles;
 
         #region Propeties
 

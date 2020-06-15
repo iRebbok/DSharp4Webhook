@@ -7,7 +7,6 @@ namespace DSharp4Webhook.Core.Constructor
 {
     public sealed class EmbedAuthorBuilder : IBuilder
     {
-#nullable enable
         private string? _name;
         private string? _url;
         private string? _iconUrl;
@@ -71,6 +70,5 @@ namespace DSharp4Webhook.Core.Constructor
             _iconUrl = null;
             _proxyIconUrl = null;
         }
-#nullable restore
     }
 }

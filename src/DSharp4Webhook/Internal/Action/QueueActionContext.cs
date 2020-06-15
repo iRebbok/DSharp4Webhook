@@ -9,10 +9,10 @@ namespace DSharp4Webhook.Internal
     internal struct QueueActionContext
     {
         public IAction Action { get; }
-        public Action<IResult> FirstCallback { get; }
-        public Action<IResult, bool> SecondCallback { get; }
-        public Action<bool> ThirdCallback { get; }
-        public System.Action FourthCallback { get; }
+        public Action<IResult>? FirstCallback { get; }
+        public Action<IResult, bool>? SecondCallback { get; }
+        public Action<bool>? ThirdCallback { get; }
+        public System.Action? FourthCallback { get; }
 
         public QueueActionContext(IAction action)
         {

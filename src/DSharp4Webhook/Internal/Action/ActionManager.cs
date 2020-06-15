@@ -25,7 +25,9 @@ namespace DSharp4Webhook.Internal
         private readonly IWebhook _webhook;
         private readonly ConcurrentQueue<QueueActionContext> _actions;
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public ActionManager(IWebhook webhook)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             _webhook = webhook;
 
@@ -51,13 +53,13 @@ namespace DSharp4Webhook.Internal
                     await FollowRateLimit(_limitInfo);
                     bool successfulness = false;
 
-                    try { successfulness = await actionContext.Action?.ExecuteAsync(); }
+                    try { successfulness = await actionContext.Action?.ExecuteAsync()!; }
                     catch { }
 
                     if (!(actionContext.FirstCallback is null))
-                        EventUtil.HandleSafely(false, actionContext.FirstCallback.Method, actionContext.FirstCallback.Target, actionContext.Action?.GetResult());
+                        EventUtil.HandleSafely(false, actionContext.FirstCallback.Method, actionContext.FirstCallback.Target, actionContext.Action?.GetResult()!);
                     else if (!(actionContext.SecondCallback is null))
-                        EventUtil.HandleSafely(false, actionContext.SecondCallback.Method, actionContext.SecondCallback.Target, actionContext.Action?.GetResult(), successfulness);
+                        EventUtil.HandleSafely(false, actionContext.SecondCallback.Method, actionContext.SecondCallback.Target, actionContext.Action?.GetResult()!, successfulness);
                     else if (!(actionContext.ThirdCallback is null))
                         EventUtil.HandleSafely(false, actionContext.ThirdCallback.Method, actionContext.ThirdCallback.Target, successfulness);
                     else if (!(actionContext.FourthCallback is null))

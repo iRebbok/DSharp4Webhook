@@ -15,7 +15,7 @@ namespace DSharp4Webhook.Internal
     internal sealed class ModifyContent : IModifyContent
     {
         public string Name => name;
-        public IWebhookImage Image => image;
+        public IWebhookImage? Image => image;
 
         [JsonProperty]
         public string name;
@@ -23,9 +23,11 @@ namespace DSharp4Webhook.Internal
         /// <summary>
         ///     Image that is used for serialization.
         /// </summary>
-        public IWebhookImage image;
+        public IWebhookImage? image;
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public ModifyContent()
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             // Immediately use an empty image
             image = WebhookImage.Empty;
@@ -35,7 +37,7 @@ namespace DSharp4Webhook.Internal
         {
             Checks.CheckForNull(builder, nameof(builder));
 
-            name = builder.Name;
+            name = builder.Name!;
             image = builder.Image;
         }
 

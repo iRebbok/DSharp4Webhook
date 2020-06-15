@@ -5,8 +5,6 @@ namespace DSharp4Webhook.Core.Embed.Subtypes
         /// <summary>
         ///     Source url.
         /// </summary>
-#nullable enable
         public string? Url { get; }
-#nullable restore
     }
 }

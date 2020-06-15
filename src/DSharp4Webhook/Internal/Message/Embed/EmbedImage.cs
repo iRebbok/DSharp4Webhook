@@ -8,7 +8,6 @@ namespace DSharp4Webhook.Internal.Embed
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     internal sealed class EmbedImage : IEmbedImage
     {
-#nullable enable
         private readonly uint? _height;
         private readonly uint? _width;
         private readonly string? _url;
@@ -35,7 +34,6 @@ namespace DSharp4Webhook.Internal.Embed
         {
             get => _proxyUrl;
         }
-#nullable restore
 
         [JsonProperty(PropertyName = "height")]
         public uint? Height

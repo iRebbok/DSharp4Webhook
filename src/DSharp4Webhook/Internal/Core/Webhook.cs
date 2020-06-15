@@ -17,7 +17,7 @@ namespace DSharp4Webhook.Internal
 
         public BaseRestProvider RestProvider { get => _restProvider; }
         public IActionManager ActionManager { get => _actionManager; }
-        public WebhookProvider Provider { get => _provider; }
+        public WebhookProvider? Provider { get => _provider; }
         public WebhookStatus Status
         {
             get => _status;
@@ -54,7 +54,7 @@ namespace DSharp4Webhook.Internal
 
         #region Fields
 
-        private readonly WebhookProvider _provider;
+        private readonly WebhookProvider? _provider;
         private readonly BaseRestProvider _restProvider;
         private readonly ActionManager _actionManager;
 
@@ -71,7 +71,7 @@ namespace DSharp4Webhook.Internal
         /// <exception cref="ArgumentException">
         ///     If the url or token is null or empty.
         /// </exception>
-        public Webhook(WebhookProvider provider, ulong id, string token, string url)
+        public Webhook(WebhookProvider? provider, ulong id, string token, string url)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(token), nameof(token), "The token can't be empty or null");
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url), "The url can't be empty or null");
@@ -102,7 +102,7 @@ namespace DSharp4Webhook.Internal
             return _url;
         }
 
-        public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention messageMention = null, RestSettings restSettings = null)
+        public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null)
         {
             Checks.CheckForNull(message, nameof(message));
 
@@ -116,12 +116,12 @@ namespace DSharp4Webhook.Internal
             return new MessageAction(new Message(message, messageMention, isTTS), this, restSettings);
         }
 
-        public IMessageAction SendMessage(IMessage message, RestSettings restSettings = null)
+        public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null)
         {
             return new MessageAction(message, this, restSettings ?? _restSettings);
         }
 
-        public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention messageMention = null, RestSettings restSettings = null)
+        public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention? messageMention = null, RestSettings? restSettings = null)
         {
             Checks.CheckForNull(embeds, nameof(embeds));
             var embedCount = embeds.Count();
@@ -134,47 +134,52 @@ namespace DSharp4Webhook.Internal
             return new MessageAction(new Message(embeds, messageMention), this, restSettings);
         }
 
-        public IMessageAction SendMessage(IEmbed embed, IMessageMention messageMention = null, RestSettings restSettings = null)
+        public IMessageAction SendMessage(IEmbed embed, IMessageMention? messageMention = null, RestSettings? restSettings = null)
         {
             Checks.CheckForNull(embed, nameof(embed));
             // Just passing it on
             return SendMessage(new[] { embed }, messageMention, restSettings);
         }
 
-        public IInfoAction GetInfo(RestSettings restSettings = null)
+        public IInfoAction GetInfo(RestSettings? restSettings = null)
         {
             return new InfoAction(this, restSettings ?? _restSettings);
         }
 
-        public IDeleteAction Delete(RestSettings restSettings = null)
+        public IDeleteAction Delete(RestSettings? restSettings = null)
         {
             return new DeleteAction(this, restSettings ?? _restSettings);
         }
 
-        public IModifyAction Modify(string name, RestSettings restSettings = null)
+        public IModifyAction Modify(string name, RestSettings? restSettings = null)
         {
-            if (!(name is null))
-            {
-                name = name.Trim();
-                if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)
-                    throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
-            }
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+            // todo: do not hardcode
+            else if (name.Equals("clyde", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Webhook name cannot be 'clyde'", nameof(name));
 
-            var data = new ModifyContent
-            {
-                name = name
-            };
+            name = name.Trim();
+            Checks.CheckBounds(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", name.Length,
+                WebhookProvider.MAX_NICKNAME_LENGTH + 1);
+            Checks.CheckBoundsUnderside(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", name.Length,
+                WebhookProvider.MAX_NICKNAME_LENGTH + 1);
+
+            var data = new ModifyContent { name = name };
             return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
         }
 
-        public IModifyAction Modify(string name, IWebhookImage image, RestSettings restSettings = null)
+        public IModifyAction Modify(string name, IWebhookImage? image, RestSettings? restSettings = null)
         {
-            if (!(name is null))
-            {
-                name = name.Trim();
-                if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)
-                    throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
-            }
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+            // todo: do not hardcode
+            else if (name.Equals("clyde", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Webhook name cannot be 'clyde'", nameof(name));
+
+            name = name.Trim();
+            if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)
+                throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
 
             var data = new ModifyContent
             {
@@ -184,7 +189,7 @@ namespace DSharp4Webhook.Internal
             return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
         }
 
-        public IModifyAction Modify(IModifyContent content, RestSettings restSettings = null)
+        public IModifyAction Modify(IModifyContent content, RestSettings? restSettings = null)
         {
             Checks.CheckForNull(content, nameof(content));
             return new ModifyAction(content.Serialize(), this, restSettings ?? _restSettings);
