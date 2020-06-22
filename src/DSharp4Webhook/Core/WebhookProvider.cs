@@ -233,9 +233,9 @@ namespace DSharp4Webhook.Core
             return CreateWebhook(id, token, null);
         }
 
-        /// <remarks>
+        /// <summary>
         ///     Wrapper for creating webhooks.
-        /// </remarks>
+        /// </summary>
         /// <exception cref="ArgumentException">
         ///     If the url is empty or null.
         /// </exception>
@@ -255,9 +255,9 @@ namespace DSharp4Webhook.Core
             return webhook;
         }
 
-        /// <remarks>
+        /// <summary>
         ///     Wrapper for creating webhooks.
-        /// </remarks>
+        /// </summary>
         /// <exception cref="ArgumentException">
         ///     If the url is empty or null.
         /// </exception>
