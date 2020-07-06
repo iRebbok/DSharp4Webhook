@@ -6,7 +6,7 @@ using Newtonsoft.Json.Converters;
 namespace DSharp4Webhook.Internal
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemRequired = Required.Default)]
-    internal sealed class WebhookInfo : IWebhookInfo
+    internal struct WebhookInfo : IWebhookInfo
     {
         #region Fields
 

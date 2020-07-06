@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace DSharp4Webhook.Internal
 {
-    internal sealed class WebhookImage : IWebhookImage
+    internal struct WebhookImage : IWebhookImage, IEquatable<IWebhookImage>
     {
         /// <summary>
         ///     An empty image that will not modify the webhook.
@@ -17,15 +17,14 @@ namespace DSharp4Webhook.Internal
 
         public ReadOnlyCollection<byte>? Data { get => _data; }
 
-        private ReadOnlyCollection<byte>? _data;
+        private readonly ReadOnlyCollection<byte>? _data;
         private string? _uriCached;
-
-        private WebhookImage() { }
 
         public WebhookImage(byte[] data)
         {
             Checks.CheckForNull(data, nameof(data));
             _data = data.ToReadOnlyCollection()!;
+            _uriCached = null;
         }
 
         public WebhookImage(FileInfo file)
@@ -36,6 +35,7 @@ namespace DSharp4Webhook.Internal
             var temp = new byte[stream.Length];
             stream.Read(temp, 0, temp.Length);
             _data = temp.ToReadOnlyCollection()!;
+            _uriCached = null;
         }
 
         public WebhookImage(Stream stream)
@@ -46,6 +46,7 @@ namespace DSharp4Webhook.Internal
             var temp = new byte[stream.Length - stream.Position];
             stream.Read(temp, 0, temp.Length);
             _data = temp.ToReadOnlyCollection()!;
+            _uriCached = null;
         }
 
         public void Save(string path)
@@ -60,6 +61,11 @@ namespace DSharp4Webhook.Internal
                 return _uriCached!;
 
             return _uriCached = $"data:image/png;base64,{Convert.ToBase64String(_data.ToArray())}";
+        }
+
+        public bool Equals(IWebhookImage other)
+        {
+            return !(other is null) && Data == other.Data;
         }
     }
 }

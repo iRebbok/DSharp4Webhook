@@ -11,8 +11,9 @@ using System.Linq;
 namespace DSharp4Webhook.Internal
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    internal sealed class MessageMention : IMessageMention
+    internal struct MessageMention : IMessageMention
     {
+        // The default here will be AllowedMention.NONE, because the default emun value is 0
         private readonly AllowedMention _allowedMention;
         private readonly ReadOnlyCollection<string>? _users;
         private readonly ReadOnlyCollection<string>? _roles;
@@ -22,7 +23,9 @@ namespace DSharp4Webhook.Internal
         [JsonProperty(PropertyName = "parse")]
 #pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable RCS1213 // Remove unused member declaration.
         private List<string> __allowedMention
+#pragma warning restore RCS1213 // Remove unused member declaration.
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore IDE0051 // Remove unused private members
         {
@@ -33,16 +36,16 @@ namespace DSharp4Webhook.Internal
                 // We use our own processing because the user can allow mutual exclusion
                 // See https://discord.com/developers/docs/resources/channel#allowed-mentions-object-allowed-mentions-reference
 
-                if (AllowedMention.HasFlag(AllowedMention.USERS) && _users?.Count == 0)
+                if ((AllowedMention & AllowedMention.USERS) != 0 && _users?.Count == 0)
                     allowedResult = AllowedMention.USERS;
-                if (AllowedMention.HasFlag(AllowedMention.ROLES) && _roles?.Count == 0)
+                if ((AllowedMention & AllowedMention.ROLES) != 0 && _roles?.Count == 0)
                 {
                     if (allowedResult != AllowedMention.NONE)
                         allowedResult |= AllowedMention.ROLES;
                     else
                         allowedResult = AllowedMention.ROLES;
                 }
-                if (AllowedMention.HasFlag(AllowedMention.EVERYONE))
+                if ((AllowedMention & AllowedMention.EVERYONE) != 0)
                 {
                     if (allowedResult != AllowedMention.NONE)
                         allowedResult |= AllowedMention.EVERYONE;
@@ -64,11 +67,6 @@ namespace DSharp4Webhook.Internal
 
         [JsonProperty("roles")]
         public ReadOnlyCollection<string>? Roles { get => _roles; }
-
-        public MessageMention()
-        {
-            _allowedMention = AllowedMention.NONE;
-        }
 
         public MessageMention(AllowedMention mention) : this()
         {

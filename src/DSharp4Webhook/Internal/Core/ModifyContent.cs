@@ -12,7 +12,7 @@ namespace DSharp4Webhook.Internal
     ///     To serialize data for webhook modification.
     /// </remarks>
     [JsonObject(ItemNullValueHandling = NullValueHandling.Include, MemberSerialization = MemberSerialization.OptIn)]
-    internal sealed class ModifyContent : IModifyContent
+    internal struct ModifyContent : IModifyContent
     {
         public string Name => name;
         public IWebhookImage? Image => image;
@@ -25,14 +25,6 @@ namespace DSharp4Webhook.Internal
         /// </summary>
         public IWebhookImage? image;
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        public ModifyContent()
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        {
-            // Immediately use an empty image
-            image = WebhookImage.Empty;
-        }
-
         public ModifyContent(ModifyContentBuilder builder)
         {
             Checks.CheckForNull(builder, nameof(builder));
@@ -44,7 +36,7 @@ namespace DSharp4Webhook.Internal
         public SerializeContext Serialize()
         {
             var jobject = JObject.FromObject(this);
-            if (!(image is null) && image != WebhookImage.Empty)
+            if (!(image is null) && !WebhookImage.Empty.Equals(image))
                 jobject.Add("avatar", JToken.FromObject(image.ToUriScheme()));
 
             return new SerializeContext(Encoding.UTF8.GetBytes(jobject.ToString()));

@@ -14,7 +14,7 @@ using System.Text;
 namespace DSharp4Webhook.Internal
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    internal sealed class Message : IMessage
+    internal struct Message : IMessage
     {
         private readonly string? _content;
         private readonly string? _username;
@@ -50,11 +50,6 @@ namespace DSharp4Webhook.Internal
 
         #endregion
 
-        public Message()
-        {
-            _mention = ConstructorProvider.GetDefaultMessageMention();
-        }
-
         public Message(string message, IMessageMention messageMention, bool isTTS = false)
         {
             Checks.CheckForNull(messageMention, nameof(messageMention));
@@ -62,6 +57,12 @@ namespace DSharp4Webhook.Internal
             _content = message;
             _isTTS = isTTS;
             _mention = messageMention;
+
+            _username = null;
+            _avatarUrl = null;
+            _embeds = null;
+            _files = null;
+            _cache = null;
         }
 
         public Message(IEnumerable<IEmbed> embeds, IMessageMention messageMention)
@@ -70,6 +71,14 @@ namespace DSharp4Webhook.Internal
 
             _embeds = embeds.ToArray().ToReadOnlyCollection();
             _mention = messageMention;
+
+            _content = null;
+            _username = null;
+            _isTTS = false;
+            _username = null;
+            _avatarUrl = null;
+            _files = null;
+            _cache = null;
         }
 
         public Message(IMessage source)
@@ -85,11 +94,10 @@ namespace DSharp4Webhook.Internal
             _mention = source.Mention;
             _files = source.Files;
             _embeds = source.Embeds;
+
+            _cache = null;
         }
 
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     Message exceeds its limit.
-        /// </exception>
         public Message(MessageBuilder builder)
         {
             Checks.CheckForAttachments(builder.Files);
@@ -105,14 +113,13 @@ namespace DSharp4Webhook.Internal
             _mention = builder.MessageMention;
             _files = builder._files is null ? null : new ReadOnlyDictionary<string, ReadOnlyCollection<byte>>(builder._files);
             _embeds = builder._embeds.ToReadOnlyCollection();
+
+            _cache = null;
         }
 
         public SerializeContext Serialize()
         {
-            if (_cache.HasValue)
-                return _cache.Value;
-
-            return (_cache = new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)), _files)).Value;
+            return _cache ?? (_cache = new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)), _files)).Value;
         }
     }
 }

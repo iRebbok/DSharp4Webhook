@@ -220,7 +220,7 @@ namespace DSharp4Webhook.Core
         ///     Webhook id.
         /// </param>
         /// <param name="token">
-        ///     Token webjuice for authorization.
+        ///     Webhook token.
         /// </param>
         /// <exception cref="ArgumentException">
         ///     If the token is empty or null.
@@ -303,7 +303,7 @@ namespace DSharp4Webhook.Core
         ///     Webhook id.
         /// </param>
         /// <param name="token">
-        ///     Token webjuice for authorization.
+        ///     Webhook token.
         /// </param>
         /// <exception cref="ArgumentException">
         ///     If the token is empty or null.
