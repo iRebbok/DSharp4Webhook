@@ -111,7 +111,7 @@ namespace DSharp4Webhook.Internal
             _avatarUrl = builder.AvatarUrl;
             _isTTS = builder.IsTTS;
             _mention = builder.MessageMention;                                                               // Create a new object bypassing readonly objects that simply don't allow writing
-            _files = builder._files is null ? null : new ReadOnlyDictionary<string, ReadOnlyCollection<byte>>(builder._files.ToDictionary(k => k.Key, v => v.Value));
+            _files = builder._files is null ? null : new ReadOnlyDictionary<string, ReadOnlyCollection<byte>>(new Dictionary<string, ReadOnlyCollection<byte>>(builder._files));
             _embeds = builder._embeds.ToReadOnlyCollection();
 
             _cache = null;
