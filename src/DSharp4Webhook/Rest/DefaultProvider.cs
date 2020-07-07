@@ -66,7 +66,7 @@ namespace DSharp4Webhook.Rest
             return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, restSettings);
         }
 
-        private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, HttpStatusCode[] allowedStatuses, RestSettings restSettings)
+        private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, IReadOnlyCollection<HttpStatusCode> allowedStatuses, RestSettings restSettings)
         {
             Checks.CheckForNull(restSettings, nameof(restSettings));
             Checks.CheckWebhookStatus(_webhook.Status);

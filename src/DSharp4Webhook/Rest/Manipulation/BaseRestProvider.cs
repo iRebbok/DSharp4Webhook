@@ -41,7 +41,7 @@ namespace DSharp4Webhook.Rest.Manipulation
         /// <param name="allowedStatuses">
         ///     Allowed statuses that are considered successful requests.
         /// </param>
-        protected void ProcessStatusCode(HttpStatusCode statusCode, ref bool forceStop, HttpStatusCode[] allowedStatuses)
+        protected void ProcessStatusCode(HttpStatusCode statusCode, ref bool forceStop, IReadOnlyCollection<HttpStatusCode> allowedStatuses)
         {
             Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
 

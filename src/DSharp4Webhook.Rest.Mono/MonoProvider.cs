@@ -53,7 +53,7 @@ namespace DSharp4Webhook.Rest.Mono
             return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, restSettings, data);
         }
 
-        private async Task<RestResponse[]> Raw(string method, string url, HttpStatusCode[] allowedStatuses, RestSettings restSettings, SerializeContext? data = null)
+        private async Task<RestResponse[]> Raw(string method, string url, IReadOnlyCollection<HttpStatusCode> allowedStatuses, RestSettings restSettings, SerializeContext? data = null)
         {
             Checks.CheckWebhookStatus(_webhook.Status);
             Checks.CheckForArgument(string.IsNullOrEmpty(method), nameof(method));
