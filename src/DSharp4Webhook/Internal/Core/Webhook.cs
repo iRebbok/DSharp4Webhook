@@ -165,7 +165,7 @@ namespace DSharp4Webhook.Internal
             Checks.CheckBoundsUnderside(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", name.Length,
                 WebhookProvider.MAX_NICKNAME_LENGTH + 1);
 
-            var data = new ModifyContent { name = name };
+            var data = new ModifyContent(name, WebhookImage.Empty, false);
             return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
         }
 
@@ -181,11 +181,7 @@ namespace DSharp4Webhook.Internal
             if (name.Length <= WebhookProvider.MIN_NICKNAME_LENGTH || name.Length >= WebhookProvider.MIN_NICKNAME_LENGTH)
                 throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
 
-            var data = new ModifyContent
-            {
-                name = name,
-                image = image
-            };
+            var data = new ModifyContent(name, image, false);
             return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
         }
 

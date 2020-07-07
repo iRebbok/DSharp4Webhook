@@ -10,7 +10,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Webhook name.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
 
         /// <summary>
         ///     Webhook image.

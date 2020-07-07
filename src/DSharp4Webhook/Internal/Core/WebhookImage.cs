@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace DSharp4Webhook.Internal
 {
-    internal struct WebhookImage : IWebhookImage, IEquatable<IWebhookImage>
+    internal struct WebhookImage : IWebhookImage, IEquatable<IWebhookImage?>
     {
         /// <summary>
         ///     An empty image that will not modify the webhook.
@@ -63,7 +63,7 @@ namespace DSharp4Webhook.Internal
             return _uriCached = $"data:image/png;base64,{Convert.ToBase64String(_data.ToArray())}";
         }
 
-        public bool Equals(IWebhookImage other)
+        public bool Equals(IWebhookImage? other)
         {
             return !(other is null) && Data == other.Data;
         }
