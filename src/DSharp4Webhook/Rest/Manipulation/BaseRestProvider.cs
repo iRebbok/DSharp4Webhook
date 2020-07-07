@@ -2,6 +2,8 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Logging;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
+using DSharp4Webhook.Util.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -11,10 +13,10 @@ namespace DSharp4Webhook.Rest.Manipulation
     public abstract class BaseRestProvider
     {
         // When we send a file, we get the status code 200 with detailed information in response, also when 'wait=true' as a query parameter
-        public static readonly HttpStatusCode[] POST_ALLOWED_STATUSES = new HttpStatusCode[2] { HttpStatusCode.NoContent, HttpStatusCode.OK };
-        public static readonly HttpStatusCode[] GET_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
-        public static readonly HttpStatusCode[] DELETE_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent };
-        public static readonly HttpStatusCode[] PATCH_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK };
+        public static readonly IReadOnlyCollection<HttpStatusCode> POST_ALLOWED_STATUSES = new HttpStatusCode[2] { HttpStatusCode.NoContent, HttpStatusCode.OK }.ToReadOnlyCollection()!;
+        public static readonly IReadOnlyCollection<HttpStatusCode> GET_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK }.ToReadOnlyCollection()!;
+        public static readonly IReadOnlyCollection<HttpStatusCode> DELETE_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.NoContent }.ToReadOnlyCollection()!;
+        public static readonly IReadOnlyCollection<HttpStatusCode> PATCH_ALLOWED_STATUSES = new HttpStatusCode[1] { HttpStatusCode.OK }.ToReadOnlyCollection()!;
 
         protected readonly IWebhook _webhook;
 
