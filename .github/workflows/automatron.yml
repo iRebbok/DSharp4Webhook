@@ -1,34 +1,80 @@
 name: GitHub CI/CD
-on: push
+on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: windows-latest
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1.5.0
 
-    - name: Tag getter
-      uses: olegtarasov/get-tag@v2
-      with:
-        tagRegex: "(\\d+\\.\\d+\\.\\d+)"
+    - name: Git Checkout
+      uses: actions/checkout@v2
 
     - name: DSharp4Webhook Build
       shell: pwsh -File {0}
-      run: ./scripts/build.ps1 ${env:GIT_TAG_NAME}
+      run: ./scripts/build.ps1
+
+    - name: Upload DSharp4Webhook.Rest.Mono-net471
+      uses: actions/upload-artifact@v2
+      with:
+        name: DSharp4Webhook.Rest.Mono-net471
+        path: deploy/DSharp4Webhook.Rest.Mono-net471
+
+    - name: Upload DSharp4Webhook-net471
+      uses: actions/upload-artifact@v2
+      with:
+        name: DSharp4Webhook-net471
+        path: deploy/DSharp4Webhook-net471
+
+    - name: Upload DSharp4Webhook-netstandard2.0
+      uses: actions/upload-artifact@v2
+      with:
+        name: DSharp4Webhook-netstandard2.0
+        path: deploy/DSharp4Webhook-netstandard2.0
 
   deploy:
-    runs-on: self-hosted
+    runs-on: windows-latest
     needs: build
     steps:
+
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1.5.0
+      if: startsWith(github.ref, 'refs/tags/')
+
+    - name: Git Checkout
+      uses: actions/checkout@v2
+      if: startsWith(github.ref, 'refs/tags/')
+
+    - name: Generate NuGet package
+      if: startsWith(github.ref, 'refs/tags/')
+      run: dotnet pack -c release
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        path: deploy
+
+    - name: Pack in tar.gz
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        if (-not (Get-Command 'Compress-7Zip' -ErrorAction Ignore)) {
+            Install-Package -Name '7Zip4Powershell' -MinimumVersion '1.11.0' -Scope CurrentUser -Force > $null
+        }
+        Get-ChildItem -Path 'deploy\' -Directory -Recurse | ForEach-Object {
+            Compress-7Zip -ArchiveFileName ($_.FullName + '.tar') -Path $_.FullName -Format 'Tar'
+            Compress-7Zip -ArchiveFileName ($_.FullName + '.tar.gz') -Path ($_.FullName + '.tar') -Format 'GZip' -CompressionLevel 'High'
+        }
+        Remove-Item -Path 'deploy\' -Include '*.tar' -Recurse -Force
 
     # Making a release if it is a tag
     - name: GitHub Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: |
-          deploy/*.tar.gz
+        files: deploy/*.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
