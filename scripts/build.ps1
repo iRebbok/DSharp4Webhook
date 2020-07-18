@@ -25,5 +25,3 @@ Get-ChildItem -Path 'src\' -Directory -Recurse | Where-Object { $_.FullName.Ends
         Copy-Item -Path ($_.FullName + "\*") -Destination $OutputPath -Recurse -Force
     }
 }
-
-Remove-Item -Path $DeployPath -Include '*.tar' -Recurse -Force

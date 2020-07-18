@@ -53,6 +53,18 @@ jobs:
       with:
         path: deploy
 
+    - name: Pack in tar.gz
+      run: |
+        if (-not (Get-Command 'Compress-7Zip' -ErrorAction Ignore)) {
+            Write-Output 'Missing 7Zip4Powershell, installing...'
+            Install-Package -Name '7Zip4Powershell' -MinimumVersion '1.11.0' -Scope CurrentUser -Force > $null
+        }
+        Get-ChildItem -Path 'deploy\' -Directory -Recurse | ForEach-Object {
+            Compress-7Zip -ArchiveFileName ($_.FullName + '.tar') -Path $_.FullName -Format 'Tar'
+            Compress-7Zip -ArchiveFileName ($_.FullName + '.tar.gz') -Path ($_.FullName + '.tar') -Format 'GZip' -CompressionLevel 'High'
+        }
+        Remove-Item -Path 'deploy\' -Include '*.tar' -Recurse -Force
+
     - run: ls -R
 
     # Making a release if it is a tag
