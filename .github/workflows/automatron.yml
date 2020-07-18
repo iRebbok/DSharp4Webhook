@@ -20,19 +20,19 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: DSharp4Webhook.Rest.Mono-net471
-        path: deploy/DSharp4Webhook.Rest.Mono-net471.tar.gz
+        path: deploy/DSharp4Webhook.Rest.Mono-net471
 
     - name: Upload DSharp4Webhook-net471
       uses: actions/upload-artifact@v2
       with:
         name: DSharp4Webhook-net471
-        path: deploy/DSharp4Webhook-net471.tar.gz
+        path: deploy/DSharp4Webhook-net471
 
     - name: Upload DSharp4Webhook-netstandard2.0
       uses: actions/upload-artifact@v2
       with:
         name: DSharp4Webhook-netstandard2.0
-        path: deploy/DSharp4Webhook-netstandard2.0.tar.gz
+        path: deploy/DSharp4Webhook-netstandard2.0
 
   deploy:
     runs-on: windows-latest
@@ -45,7 +45,7 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
 
-    - name: Generate NuGet file
+    - name: Generate NuGet package
       run: dotnet pack
 
     - name: Download artifacts
