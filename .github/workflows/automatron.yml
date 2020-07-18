@@ -41,22 +41,26 @@ jobs:
 
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.5.0
+      if: startsWith(github.ref, 'refs/tags/')
 
     - name: Git Checkout
       uses: actions/checkout@v2
+      if: startsWith(github.ref, 'refs/tags/')
 
     - name: Generate NuGet package
-      run: dotnet pack
+      if: startsWith(github.ref, 'refs/tags/')
+      run: dotnet pack -c release
 
     - name: Download artifacts
       uses: actions/download-artifact@v2
+      if: startsWith(github.ref, 'refs/tags/')
       with:
         path: deploy
 
     - name: Pack in tar.gz
+      if: startsWith(github.ref, 'refs/tags/')
       run: |
         if (-not (Get-Command 'Compress-7Zip' -ErrorAction Ignore)) {
-            Write-Output 'Missing 7Zip4Powershell, installing...'
             Install-Package -Name '7Zip4Powershell' -MinimumVersion '1.11.0' -Scope CurrentUser -Force > $null
         }
         Get-ChildItem -Path 'deploy\' -Directory -Recurse | ForEach-Object {
@@ -64,8 +68,6 @@ jobs:
             Compress-7Zip -ArchiveFileName ($_.FullName + '.tar.gz') -Path ($_.FullName + '.tar') -Format 'GZip' -CompressionLevel 'High'
         }
         Remove-Item -Path 'deploy\' -Include '*.tar' -Recurse -Force
-
-    - run: ls -R
 
     # Making a release if it is a tag
     - name: GitHub Release
