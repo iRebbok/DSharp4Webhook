@@ -1,17 +1,8 @@
-# Processing incoming arguments
-param (
-    [string]$VersionPrefix = ""
-)
-
 function ProcessDirectory {
     param ($Path)
 
     if (-not (Test-Path $Path -PathType Container)) { New-Item -Path $Path -ItemType Container }
 }
-
-Write-Output @"
-VersionPrefix=$($VersionPrefix.Length -eq 0 ? "None" : $VersionPrefix)
-"@
 
 # Attach to the project folder
 Set-Location -Path "$PSScriptRoot\..\"
@@ -20,11 +11,7 @@ $DeployPath = Join-Path -Path (Get-Location) -ChildPath "deploy"
 
 Invoke-Expression 'dotnet restore'
 
-$Expression = 'dotnet pack -c release'
-
-if ($VersionPrefix.Length -ne 0) { $Expression += ' /p:VersionPrefix=$VersionPrefix' }
-
-Invoke-Expression $Expression
+Invoke-Expression 'dotnet pack -c release'
 
 if (-not (Get-Command 'Compress-7Zip' -ErrorAction Ignore)) {
     Write-Output 'Missing 7Zip4Powershell, installing...'
