@@ -19,16 +19,19 @@ jobs:
     - name: Upload DSharp4Webhook.Rest.Mono-net471
       uses: actions/upload-artifact@v2
       with:
+        name: DSharp4Webhook.Rest.Mono-net471
         path: deploy/DSharp4Webhook.Rest.Mono-net471.tar.gz
 
     - name: Upload DSharp4Webhook-net471
       uses: actions/upload-artifact@v2
       with:
+        name: DSharp4Webhook-net471
         path: deploy/DSharp4Webhook-net471.tar.gz
 
-    - name: Upload DSharp4Webhook-netstandard2.0.tar.gz
+    - name: Upload DSharp4Webhook-netstandard2.0
       uses: actions/upload-artifact@v2
       with:
+        name: DSharp4Webhook-netstandard2.0
         path: deploy/DSharp4Webhook-netstandard2.0.tar.gz
 
   deploy:
