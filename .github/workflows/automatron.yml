@@ -16,9 +16,20 @@ jobs:
       shell: pwsh -File {0}
       run: ./scripts/build.ps1
 
-    - uses: actions/upload-artifact@v2
+    - name: Upload DSharp4Webhook.Rest.Mono-net471
+      uses: actions/upload-artifact@v2
       with:
-        path: deploy/*.tar.gz
+        path: deploy/DSharp4Webhook.Rest.Mono-net471.tar.gz
+
+    - name: Upload DSharp4Webhook-net471
+      uses: actions/upload-artifact@v2
+      with:
+        path: deploy/DSharp4Webhook-net471.tar.gz
+
+    - name: Upload DSharp4Webhook-netstandard2.0.tar.gz
+      uses: actions/upload-artifact@v2
+      with:
+        path: deploy/DSharp4Webhook-netstandard2.0.tar.gz
 
   deploy:
     runs-on: windows-latest
@@ -34,9 +45,12 @@ jobs:
     - name: Generate NuGet file
       run: dotnet pack
 
-    - uses: actions/download-artifact@v2
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
       with:
         path: deploy
+
+    - run: ls -R
 
     # Making a release if it is a tag
     - name: GitHub Release
