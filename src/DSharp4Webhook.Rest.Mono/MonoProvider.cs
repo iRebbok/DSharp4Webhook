@@ -34,23 +34,23 @@ namespace DSharp4Webhook.Rest.Mono
 
         public override async Task<RestResponse[]> GET(string url, RestSettings restSettings)
         {
-            return await Raw("GET", url, GET_ALLOWED_STATUSES, restSettings);
+            return await Raw("GET", url, GET_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
         public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
         {
-            return await Raw("POST", url, POST_ALLOWED_STATUSES, restSettings, data);
+            return await Raw("POST", url, POST_ALLOWED_STATUSES, restSettings, data).ConfigureAwait(false);
         }
 
         public override async Task<RestResponse[]> DELETE(string url, RestSettings restSettings)
         {
-            return await Raw("DELETE", url, DELETE_ALLOWED_STATUSES, restSettings);
+            return await Raw("DELETE", url, DELETE_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
         public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
         {
             Checks.CheckForSerializeType(data, SerializeType.APPLICATION_JSON);
-            return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, restSettings, data);
+            return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, restSettings, data).ConfigureAwait(false);
         }
 
         private async Task<RestResponse[]> Raw(string method, string url, IReadOnlyCollection<HttpStatusCode> allowedStatuses, RestSettings restSettings, SerializeContext? data = null)
@@ -70,8 +70,7 @@ namespace DSharp4Webhook.Rest.Mono
             do
             {
                 if (responses.Count != 0)
-                    await _webhook.ActionManager.FollowRateLimit(responses.Last().RateLimit);
-
+                    await _webhook.ActionManager.FollowRateLimit(responses.Last().RateLimit).ConfigureAwait(false);
 
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.CachePolicy = _cachePolicy;
@@ -133,6 +132,12 @@ namespace DSharp4Webhook.Rest.Mono
                     break;
                 }
             }
+        }
+
+        public override void Dispose()
+        {
+            // nothing to dispose
+            GC.SuppressFinalize(this);
         }
     }
 }

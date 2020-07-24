@@ -95,6 +95,8 @@ namespace DSharp4Webhook.Internal
         public void Dispose()
         {
             _actionManager.Dispose();
+            _restProvider.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public string GetWebhookUrl()

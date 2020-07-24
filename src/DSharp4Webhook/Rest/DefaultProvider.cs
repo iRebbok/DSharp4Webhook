@@ -2,6 +2,7 @@ using DSharp4Webhook.Core;
 using DSharp4Webhook.Rest.Manipulation;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -38,7 +39,7 @@ namespace DSharp4Webhook.Rest
         public override async Task<RestResponse[]> GET(string url, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, restSettings);
+            return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
         public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
@@ -47,13 +48,13 @@ namespace DSharp4Webhook.Rest
 
             using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url);
             PrepareContent(requestMessage, data);
-            return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, restSettings);
+            return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
         public override async Task<RestResponse[]> DELETE(string url, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            return await Raw(_httpClient.DeleteAsync(url), DELETE_ALLOWED_STATUSES, restSettings);
+            return await Raw(_httpClient.DeleteAsync(url), DELETE_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
         public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
@@ -63,7 +64,7 @@ namespace DSharp4Webhook.Rest
 
             using HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url);
             PrepareContent(requestMessage, data);
-            return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, restSettings);
+            return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
         private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, IReadOnlyCollection<HttpStatusCode> allowedStatuses, RestSettings restSettings)
@@ -80,11 +81,11 @@ namespace DSharp4Webhook.Rest
             do
             {
                 if (responses.Count != 0)
-                    await _webhook.ActionManager.FollowRateLimit(responses.Last().RateLimit);
+                    await _webhook.ActionManager.FollowRateLimit(responses.Last().RateLimit).ConfigureAwait(false);
 
-                HttpResponseMessage response = await func;
+                HttpResponseMessage response = await func.ConfigureAwait(false);
                 RateLimitInfo rateLimitInfo = new RateLimitInfo(response.Headers.ToDictionary(h => h.Key, h => h.Value.FirstOrDefault()));
-                RestResponse restResponse = new RestResponse(response.StatusCode, rateLimitInfo, await response.Content.ReadAsByteArrayAsync(), currentAttimpts);
+                RestResponse restResponse = new RestResponse(response.StatusCode, rateLimitInfo, await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false), currentAttimpts);
                 responses.Add(restResponse);
 
                 // Processing the necessary status codes
@@ -131,6 +132,12 @@ namespace DSharp4Webhook.Rest
                     break;
                 }
             }
+        }
+
+        public override void Dispose()
+        {
+            _httpClient.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

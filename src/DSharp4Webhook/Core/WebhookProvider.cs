@@ -452,6 +452,8 @@ namespace DSharp4Webhook.Core
             foreach (var webhook in _webhooks.Values)
                 webhook.Dispose();
             _webhooks.Clear();
+
+            GC.SuppressFinalize(this);
         }
 
         #endregion

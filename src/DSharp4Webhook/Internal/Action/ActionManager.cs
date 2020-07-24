@@ -50,7 +50,7 @@ namespace DSharp4Webhook.Internal
                         continue;
 
                     //todo: logs
-                    await FollowRateLimit(_limitInfo);
+                    await FollowRateLimit(_limitInfo).ConfigureAwait(false);
                     bool successfulness = false;
 
                     try { successfulness = await actionContext.Action?.ExecuteAsync()!; }
@@ -68,7 +68,7 @@ namespace DSharp4Webhook.Internal
                         OnActionExecuted.InvokeSafely(false, new ActionContext(actionContext.Action, successfulness));
                 }
                 else
-                    await Task.Delay(150);
+                    await Task.Delay(150).ConfigureAwait(false);
             }
         }
 
@@ -78,6 +78,8 @@ namespace DSharp4Webhook.Internal
 
             // just take out the values until they run out
             while (_actions.TryDequeue(out _)) { }
+
+            GC.SuppressFinalize(this);
         }
 
         public void SetRateLimit(RateLimitInfo rateLimit)
@@ -94,7 +96,7 @@ namespace DSharp4Webhook.Internal
                 if (mustWait != TimeSpan.Zero)
                 {
                     //todo: logs
-                    await Task.Delay(mustWait);
+                    await Task.Delay(mustWait).ConfigureAwait(false);
                 }
             }
         }

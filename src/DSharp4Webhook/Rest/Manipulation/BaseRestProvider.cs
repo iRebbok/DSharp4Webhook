@@ -3,6 +3,7 @@ using DSharp4Webhook.Logging;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using DSharp4Webhook.Util.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DSharp4Webhook.Rest.Manipulation
 {
-    public abstract class BaseRestProvider
+    public abstract class BaseRestProvider : IDisposable
     {
         // When we send a file, we get the status code 200 with detailed information in response, also when 'wait=true' as a query parameter
         public static readonly IReadOnlyCollection<HttpStatusCode> POST_ALLOWED_STATUSES = new HttpStatusCode[2] { HttpStatusCode.NoContent, HttpStatusCode.OK }.ToReadOnlyCollection()!;
@@ -68,7 +69,7 @@ namespace DSharp4Webhook.Rest.Manipulation
                 if (_webhook.Status != WebhookStatus.EXISTING)
                 {
                     _webhook.Status = WebhookStatus.EXISTING;
-                    Log(new LogContext(LogSensitivity.INFO, $"Webhook confirmed its status", _webhook.Id));
+                    Log(new LogContext(LogSensitivity.INFO, "Webhook confirmed its status", _webhook.Id));
                 }
             }
         }
@@ -77,5 +78,7 @@ namespace DSharp4Webhook.Rest.Manipulation
         {
             //todo: webhook logs
         }
+
+        public abstract void Dispose();
     }
 }
