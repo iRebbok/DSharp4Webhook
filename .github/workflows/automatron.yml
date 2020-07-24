@@ -36,29 +36,25 @@ jobs:
 
   deploy:
     runs-on: windows-latest
+    if: startsWith(github.ref, 'refs/tags/')
     needs: build
     steps:
 
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.5.0
-      if: startsWith(github.ref, 'refs/tags/')
 
     - name: Git Checkout
       uses: actions/checkout@v2
-      if: startsWith(github.ref, 'refs/tags/')
 
     - name: Generate NuGet package
-      if: startsWith(github.ref, 'refs/tags/')
       run: dotnet pack -c release
 
     - name: Download artifacts
       uses: actions/download-artifact@v2
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         path: deploy
 
     - name: Pack in tar.gz
-      if: startsWith(github.ref, 'refs/tags/')
       run: |
         if (-not (Get-Command 'Compress-7Zip' -ErrorAction Ignore)) {
             Install-Package -Name '7Zip4Powershell' -MinimumVersion '1.11.0' -Scope CurrentUser -Force > $null
@@ -72,7 +68,6 @@ jobs:
     # Making a release if it is a tag
     - name: GitHub Release
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         files: deploy/*.tar.gz
       env:
@@ -80,5 +75,4 @@ jobs:
 
     # Push NuGet if it is a tag
     - name: NuGet Push
-      if: startsWith(github.ref, 'refs/tags/')
       run: Get-ChildItem -Path "src\" -File -Recurse | Where-Object Name -Match ".+\.nupkg" | % {dotnet nuget push $_.FullName -s nuget.org -k ${{secrets.NUGET_API_KEY}}}
