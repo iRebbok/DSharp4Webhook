@@ -21,7 +21,7 @@
   <PropertyGroup>
     <Authors>iRebbok</Authors>
     <RepositoryType>Git</RepositoryType>
-    <RepositoryUrl>git://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
+    <RepositoryUrl>https://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
     <PackageProjectUrl>https://github.com/iRebbok/DSharp4Webhook</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright 2020</Copyright>
