@@ -11,10 +11,5 @@
   <ItemGroup>
     <ProjectReference Include="..\DSharp4Webhook\DSharp4Webhook.csproj" PrivateAssets="All" Private="false" />
   </ItemGroup>
-
-  <!-- We just delete the “extra” file, since it's a separate module and comes without anything -->
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Delete Condition="Exists('$(OutputPath)\Newtonsoft.Json.dll')" Files="$(OutputPath)\Newtonsoft.Json.dll" />
-  </Target>
   
 </Project>

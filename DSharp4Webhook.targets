@@ -2,14 +2,12 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <RootNamespace>DSharp4Webhook</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <LangVersion>8.0</LangVersion>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);CS1573;CS1591;RCS1139</NoWarn>
-    <WarningsAsErrors>true</WarningsAsErrors>
     <Nullable>enable</Nullable>
+
+    <RepositoryUrl>https://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
     <Version>2.0.1</Version>
   </PropertyGroup>
 
@@ -21,11 +19,10 @@
   <PropertyGroup>
     <Authors>iRebbok</Authors>
     <RepositoryType>Git</RepositoryType>
-    <RepositoryUrl>https://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
     <PackageProjectUrl>https://github.com/iRebbok/DSharp4Webhook</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright 2020</Copyright>
-    <PackageTags>discord;discordapp</PackageTags>
+    <Copyright>Copyright 2020 - $([System.DateTime]::Now.ToString(`yyyy`))</Copyright>
+    <PackageTags>discord;discord-webhook</PackageTags>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
