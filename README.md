@@ -7,7 +7,7 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/DSharp4Webhook?label=Downloads)](https://www.nuget.org/packages/DSharp4Webhook/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/292ecc83bf76c922501c/maintainability)](https://codeclimate.com/github/iRebbok/DSharp4Webhook/maintainability)
 
-Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support.
+An unofficial library for interacting with Discord Webhook aimed at use in the Unity environment
 
 ## Features
 - Send messages (include embeds)

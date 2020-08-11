@@ -4,12 +4,12 @@
 
   <PropertyGroup>
     <AssemblyName>DSharp4Webhook.Rest.Mono</AssemblyName>
-    <Description>REST module DSharp4Webhook that provides RESTProvider for execution in the Mono environment</Description>
+    <Description>DSharp4Webhook REST module that provides a RESTProvider to execute in the oldest Unity environment</Description>
     <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DSharp4Webhook\DSharp4Webhook.csproj" PrivateAssets="All" Private="false" />
   </ItemGroup>
-  
+
 </Project>
