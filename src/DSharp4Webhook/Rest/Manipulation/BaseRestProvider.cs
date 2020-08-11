@@ -50,16 +50,16 @@ namespace DSharp4Webhook.Rest.Manipulation
             {
                 case HttpStatusCode.NotFound:
                     _webhook.Status = WebhookStatus.NOT_EXISTING;
-                    Log(new LogContext(LogSensitivity.ERROR, "A REST request returned 404, the webhack does not exist, and we are deleting it...", _webhook.Id));
+                    Log(new LogEntry(LogSensitivity.ERROR, "A REST request returned 404, the webhack does not exist, and we are deleting it...", _webhook.Id));
                     forceStop = true;
                     _webhook.Dispose();
                     break;
                 case HttpStatusCode.BadRequest:
-                    Log(new LogContext(LogSensitivity.ERROR, "A REST request returnet 400, something went wrong...", _webhook.Id));
+                    Log(new LogEntry(LogSensitivity.ERROR, "A REST request returnet 400, something went wrong...", _webhook.Id));
                     forceStop = true;
                     break;
                 case HttpStatusCode.RequestEntityTooLarge:
-                    Log(new LogContext(LogSensitivity.WARN, "A REST request returned 413, you sent too much data", _webhook.Id));
+                    Log(new LogEntry(LogSensitivity.WARN, "A REST request returned 413, you sent too much data", _webhook.Id));
                     forceStop = true;
                     break;
             }
@@ -69,12 +69,12 @@ namespace DSharp4Webhook.Rest.Manipulation
                 if (_webhook.Status != WebhookStatus.EXISTING)
                 {
                     _webhook.Status = WebhookStatus.EXISTING;
-                    Log(new LogContext(LogSensitivity.INFO, "Webhook confirmed its status", _webhook.Id));
+                    Log(new LogEntry(LogSensitivity.INFO, "Webhook confirmed its status", _webhook.Id));
                 }
             }
         }
 
-        protected void Log(LogContext context)
+        protected void Log(LogEntry context)
         {
             //todo: webhook logs
         }

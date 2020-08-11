@@ -7,6 +7,7 @@ namespace DSharp4Webhook.Serialization
     /// </summary>
     public enum SerializeType
     {
+        NULL = 0,
         MULTIPART_FORM_DATA,
         APPLICATION_JSON
     }

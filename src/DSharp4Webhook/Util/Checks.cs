@@ -1,9 +1,6 @@
 using DSharp4Webhook.Core;
-using DSharp4Webhook.Exception;
 using DSharp4Webhook.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace DSharp4Webhook.Util
@@ -118,25 +115,15 @@ namespace DSharp4Webhook.Util
                 throw new InvalidOperationException($"The current operation needs the {requireType} serialization type, not the {context.Type}");
         }
 
+        /// <inheritdoc cref="CheckForOversizeSafe(long)" />
+        public static bool CheckForOversizeSafe(this byte[] arr) => CheckForOversizeSafe(arr.LongLength);
+
         /// <summary>
-        ///     Checking for attachments.
+        ///     Checks for oversize.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     The number of attachments exceeds the limit.
-        /// </exception>
-        /// <exception cref="SizeOutOfRangeException">
-        ///     The size of attachments exceeds the limit.
-        /// </exception>
-        public static void CheckForAttachments(IDictionary<string, ReadOnlyCollection<byte>> source)
-        {
-            if (source is null)
-                return;
-
-            if (source.Count() > WebhookProvider.MAX_ATTACHMENTS)
-                throw new ArgumentOutOfRangeException();
-
-            if (source.SizeOf() > WebhookProvider.MAX_ATTACHMENTS_SIZE)
-                throw new SizeOutOfRangeException();
-        }
+        /// <returns>
+        ///     false if doesn't exceed the size; otherwise true.
+        /// </returns>
+        public static bool CheckForOversizeSafe(long length) => length >= WebhookProvider.MAX_ATTACHMENTS_SIZE;
     }
 }

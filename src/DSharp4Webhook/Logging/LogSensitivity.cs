@@ -1,4 +1,4 @@
-﻿namespace DSharp4Webhook.Logging
+namespace DSharp4Webhook.Logging
 {
     /// <summary>
     ///     The sensitivity of the log.
@@ -20,10 +20,6 @@
         /// <summary>
         ///     Very detailed logging information.
         /// </summary>
-        DEBUG = 3,
-        /// <summary>
-        ///     Information about the library is most often needed for developers.
-        /// </summary>
-        VERBOSE = 4
+        DEBUG = 3
     }
 }

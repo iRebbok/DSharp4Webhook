@@ -1,4 +1,4 @@
-using DSharp4Webhook.Action.Rest;
+using DSharp4Webhook.Actions.Rest;
 using DSharp4Webhook.Core;
 using DSharp4Webhook.Internal;
 using System.IO;

@@ -1,15 +1,16 @@
+using DSharp4Webhook.Util;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace DSharp4Webhook.Util
+namespace DSharp4Webhook.Internal
 {
-    internal static class DictionaryUtil
+    public static class DictionaryUtil
     {
         /// <summary>
         ///     Returns the size of these values.
         /// </summary>
-        internal static long SizeOf(this IDictionary<string, ReadOnlyCollection<byte>> source)
+        public static long SizeOf(this IDictionary<string, ReadOnlyCollection<byte>> source)
         {
             Checks.CheckForNull(source);
 

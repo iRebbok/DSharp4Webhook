@@ -1,9 +1,4 @@
-using DSharp4Webhook.Util;
-using DSharp4Webhook.Util.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace DSharp4Webhook.Serialization
 {
@@ -16,70 +11,48 @@ namespace DSharp4Webhook.Serialization
     ///         'multipart/form-data' - when we send files, then <see cref="Content"/> in 'payload_json', and it can be null,
     ///             <see cref="Content"/> it can be null if we only send the file.
     /// </remarks>
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-    public struct SerializeContext
-#pragma warning restore CA1815 // Override equals and operator equals on value types
+    public readonly struct SerializeContext : IDisposable
     {
         /// <summary>
         ///     Type of serializing context.
         /// </summary>
-        public SerializeType Type { get; private set; }
+        public SerializeType Type { get; }
         /// <summary>
         ///     Source data.
         /// </summary>
         /// <remarks>
         ///     Data to send, is the main one if used 'application/json'.
         /// </remarks>
-        public ReadOnlyCollection<byte>? Content { get; }
+        public byte[]? Content { get; }
         /// <summary>
         ///     Files: name-content
         /// </summary>
-        public Dictionary<string, ReadOnlyCollection<byte>>? Files { get; private set; }
+        public FileEntry[]? Files { get; }
+
         /// <summary>
         ///     Automatic format that is selected based on arguments.
         /// </summary>
         /// <param name="content">
         ///     Message content.
         /// </param>
-        /// <param name="data">
-        ///     File contents.
-        /// </param>
-        /// <param name="fileName">
-        ///     Name of the file to send, if null then new guid.
+        /// <param name="fileEntry">
+        ///     One file entry.
         /// </param>
         /// <exception cref="InvalidOperationException">
         ///     If the serialization type could not be determined/the data defining it is null.
         /// </exception>
-        public SerializeContext(byte[]? content, byte[]? data, string? fileName = null)
+        public SerializeContext(byte[]? content, FileEntry? fileEntry)
         {
-            fileName = string.IsNullOrWhiteSpace(fileName) ? Guid.NewGuid().ToString() : fileName;
-
-            // Then reassign if necessary
+            Type = SerializeType.APPLICATION_JSON;
+            Content = content;
             Files = null;
 
-            if (!(data is null))
+            if (!(fileEntry is null))
             {
+                Files = new FileEntry[1];
+                Files[0] = fileEntry.Value;
                 Type = SerializeType.MULTIPART_FORM_DATA;
-#pragma warning disable CS8604 // Possible null reference argument.
-                Files = new Dictionary<string, ReadOnlyCollection<byte>> { [fileName] = new ReadOnlyCollection<byte>(data) };
-#pragma warning restore CS8604 // Possible null reference argument.
             }
-            else if (!(content is null))
-                Type = SerializeType.APPLICATION_JSON;
-            else
-                throw new InvalidOperationException("Data is not defined rightly");
-
-            Content = content.ToReadOnlyCollection();
-        }
-
-        /// <summary>
-        ///     Creates an object with already serialized data.
-        /// </summary>
-        public SerializeContext(byte[]? content, IDictionary<string, ReadOnlyCollection<byte>>? files = null)
-        {
-            Type = files is null || (files?.Count ?? 0) < 1 ? SerializeType.APPLICATION_JSON : SerializeType.MULTIPART_FORM_DATA;
-            Content = content.ToReadOnlyCollection();
-            Files = files.ToDictionary(k => k.Key, v => v.Value);
         }
 
         /// <summary>
@@ -96,95 +69,20 @@ namespace DSharp4Webhook.Serialization
         /// </remarks>
         public SerializeContext(byte[] content)
         {
-            Checks.CheckForNull(content, nameof(content));
-
             Type = SerializeType.APPLICATION_JSON;
-            Content = content.ToReadOnlyCollection();
-
+            Content = content;
             Files = null;
         }
 
-        /// <summary>
-        ///     Creates a type based on 'multipart/form-data'.
-        /// </summary>
-        /// <param name="data">
-        ///     File data to send.
-        /// </param>
-        /// <param name="fileName">
-        ///     Name of the file to send, if null then new guid.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     The file content is null.
-        /// </exception>
-        /// <remarks>
-        ///     The file content cannot be null.
-        /// </remarks>
-        public SerializeContext(byte[] data, string? fileName = null)
+        public bool IsValid() => Type != SerializeType.NULL && !(Content is null || Files is null);
+
+        public void Dispose()
         {
-            Checks.CheckForNull(data, nameof(data));
-            fileName = string.IsNullOrWhiteSpace(fileName) ? Guid.NewGuid().ToString() : fileName;
-
-            Type = SerializeType.MULTIPART_FORM_DATA;
-#pragma warning disable CS8604 // Possible null reference argument.
-            Files = new Dictionary<string, ReadOnlyCollection<byte>> { [fileName] = new ReadOnlyCollection<byte>(data) };
-#pragma warning restore CS8604 // Possible null reference argument.
-
-            Content = null;
-        }
-
-        /// <summary>
-        ///     Adds a file to the serialized query.
-        /// </summary>
-        /// <param name="data">
-        ///     File content.
-        /// </param>
-        /// <param name="fileName">
-        ///     File name.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     File content is null.
-        /// </exception>
-        public void AddFile(byte[] data, string? fileName = null)
-        {
-            Checks.CheckForNull(data, nameof(data));
-
-            fileName = string.IsNullOrWhiteSpace(fileName) ? Guid.NewGuid().ToString() : fileName;
-
-            if (Files is null)
+            if (!(Files is null))
             {
-                Files = new Dictionary<string, ReadOnlyCollection<byte>>();
-                // The format changes when a new file is added
-                Type = SerializeType.MULTIPART_FORM_DATA;
+                for (var z = 0; z < Files.Length; z++)
+                    Files[z].Dispose();
             }
-            // Setting the value forcibly even if it exists
-#pragma warning disable CS8604 // Possible null reference argument.
-            Files[fileName] = new ReadOnlyCollection<byte>(data);
-#pragma warning restore CS8604 // Possible null reference argument.
-        }
-
-        /// <summary>
-        ///     Deletes a file from the list.
-        /// </summary>
-        /// <param name="fileName">
-        ///     File name.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     File name is null.
-        /// </exception>
-        /// <returns>
-        ///     true if the file was deleted from the collection;
-        ///     otherwise false.
-        /// </returns>
-        public bool RemoveFile(string fileName)
-        {
-            Checks.CheckForNull(fileName, nameof(fileName));
-
-            return Files?.Remove(fileName) ?? false;
-        }
-
-        public void RemoveFiles()
-        {
-            Files?.Clear();
         }
     }
 }

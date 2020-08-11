@@ -23,7 +23,9 @@ namespace DSharp4Webhook.Util
             Checks.CheckForArgument(string.IsNullOrEmpty(hex), nameof(hex), "Value cannot be null or empty");
 
             if (!hex.StartsWith("#", StringComparison.InvariantCulture))
+            {
                 throw new ArgumentException("The value must start with a '#'", nameof(hex));
+            }
             else
             {
                 hex = hex.Substring(1);
