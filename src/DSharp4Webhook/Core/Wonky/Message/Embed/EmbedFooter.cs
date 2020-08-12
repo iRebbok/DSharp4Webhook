@@ -14,7 +14,7 @@ namespace DSharp4Webhook.Internal.Embed
 
         public EmbedFooter(EmbedFooterBuilder builder)
         {
-            Checks.CheckForNull(builder, nameof(builder));
+            Contract.AssertNotNull(builder, nameof(builder));
 
             _text = builder.Text!;
             _iconUrl = builder.IconUrl;

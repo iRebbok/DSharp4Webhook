@@ -13,7 +13,7 @@ namespace DSharp4Webhook.Internal.Embed
 
         public EmbedProvider(EmbedProviderBuilder builder)
         {
-            Checks.CheckForNull(builder, nameof(builder));
+            Contract.AssertNotNull(builder, nameof(builder));
 
             _name = builder.Name;
             _url = builder.Url;

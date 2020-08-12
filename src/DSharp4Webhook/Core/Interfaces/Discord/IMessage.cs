@@ -48,6 +48,6 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Attachments to the message.
         /// </summary>
-        public FileEntry[]? Files { get; }
+        public FileEntry[]? Attachments { get; }
     }
 }

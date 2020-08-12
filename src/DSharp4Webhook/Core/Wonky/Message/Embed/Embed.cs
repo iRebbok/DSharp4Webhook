@@ -37,7 +37,7 @@ namespace DSharp4Webhook.Internal.Embed
         /// </exception>
         public Embed(EmbedBuilder builder)
         {
-            Checks.CheckForNull(builder, nameof(builder));
+            Contract.AssertNotNull(builder, nameof(builder));
 
             int totalLength = builder.GetStringBuilder().Length +
                 builder.GetFields().Sum(field => field.Value.Length + field.Name.Length) +

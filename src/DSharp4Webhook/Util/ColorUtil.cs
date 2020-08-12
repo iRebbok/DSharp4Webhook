@@ -20,7 +20,7 @@ namespace DSharp4Webhook.Util
         /// </exception>
         public static int FromHex(string hex)
         {
-            Checks.CheckForArgument(string.IsNullOrEmpty(hex), nameof(hex), "Value cannot be null or empty");
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(hex), nameof(hex), "Value cannot be null or empty");
 
             if (!hex.StartsWith("#", StringComparison.InvariantCulture))
             {

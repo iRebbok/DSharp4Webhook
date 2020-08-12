@@ -29,7 +29,7 @@ namespace DSharp4Webhook.Core.Constructor
                     throw new ArgumentNullException("Name cannot be null", nameof(Name));
 
                 value = value.Trim();
-                Checks.CheckBounds(nameof(Name), $"Must be no more than {WebhookProvider.MAX_EMBED_FIELD_NAME_LENGTH} in length",
+                Contract.CheckBounds(nameof(Name), $"Must be no more than {WebhookProvider.MAX_EMBED_FIELD_NAME_LENGTH} in length",
                     WebhookProvider.MAX_EMBED_FIELD_NAME_LENGTH + 1, value.Length);
                 _name = value;
             }
@@ -51,7 +51,7 @@ namespace DSharp4Webhook.Core.Constructor
                     throw new ArgumentNullException("Value cannot be null", nameof(Value));
 
                 value = value.Trim();
-                Checks.CheckBounds(nameof(Value), $"Must be no more than {WebhookProvider.MAX_EMBED_FIELD_VALUE_LENGTH} in length",
+                Contract.CheckBounds(nameof(Value), $"Must be no more than {WebhookProvider.MAX_EMBED_FIELD_VALUE_LENGTH} in length",
                     WebhookProvider.MAX_EMBED_FIELD_VALUE_LENGTH + 1, value.Length);
                 _value = value;
             }

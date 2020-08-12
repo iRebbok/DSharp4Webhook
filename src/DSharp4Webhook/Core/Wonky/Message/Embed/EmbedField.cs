@@ -14,7 +14,7 @@ namespace DSharp4Webhook.Internal.Embed
 
         public EmbedField(EmbedFieldBuilder builder)
         {
-            Checks.CheckForNull(builder, nameof(builder));
+            Contract.AssertNotNull(builder, nameof(builder));
 
             _name = builder.Name!;
             _value = builder.Value!;

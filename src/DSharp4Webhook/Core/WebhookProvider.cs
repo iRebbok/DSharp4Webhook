@@ -406,7 +406,7 @@ namespace DSharp4Webhook.Core
         /// </exception>
         public bool RemoveWebhook(IWebhook webhook)
         {
-            Checks.CheckForNull(webhook, nameof(webhook), "Webhook cannot be null to delete");
+            Contract.AssertNotNull(webhook, nameof(webhook), "Webhook cannot be null to delete");
             return _webhooks.Remove(webhook.Id);
         }
 

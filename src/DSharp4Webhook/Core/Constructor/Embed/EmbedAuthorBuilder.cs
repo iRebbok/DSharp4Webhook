@@ -25,7 +25,7 @@ namespace DSharp4Webhook.Core.Constructor
                 if (!(value is null))
                 {
                     value = value.Trim();
-                    Checks.CheckBounds(nameof(Name), $"Must be no more than {WebhookProvider.MAX_EMBED_AUTHOR_NAME_LENGTH} in length",
+                    Contract.CheckBounds(nameof(Name), $"Must be no more than {WebhookProvider.MAX_EMBED_AUTHOR_NAME_LENGTH} in length",
                         WebhookProvider.MAX_EMBED_AUTHOR_NAME_LENGTH + 1, value.Length);
                     _name = value;
                 }

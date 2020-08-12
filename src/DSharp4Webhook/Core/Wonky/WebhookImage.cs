@@ -22,15 +22,15 @@ namespace DSharp4Webhook.Internal
 
         public WebhookImage(byte[] data)
         {
-            Checks.CheckForNull(data, nameof(data));
+            Contract.AssertNotNull(data, nameof(data));
             _data = data.ToReadOnlyCollection()!;
             _uriCached = null;
         }
 
         public WebhookImage(FileInfo file)
         {
-            Checks.CheckForNull(file, nameof(file));
-            Checks.CheckForArgument(!file.Exists, nameof(file));
+            Contract.AssertNotNull(file, nameof(file));
+            Contract.AssertArgumentNotTrue(!file.Exists, nameof(file));
             using var stream = file.OpenRead();
             var temp = new byte[stream.Length];
             stream.Read(temp, 0, temp.Length);
@@ -40,8 +40,8 @@ namespace DSharp4Webhook.Internal
 
         public WebhookImage(Stream stream)
         {
-            Checks.CheckForNull(stream, nameof(stream));
-            Checks.CheckForArgument(!stream.CanSeek || !stream.CanRead, nameof(stream));
+            Contract.AssertNotNull(stream, nameof(stream));
+            Contract.AssertArgumentNotTrue(!stream.CanSeek || !stream.CanRead, nameof(stream));
 
             var temp = new byte[stream.Length - stream.Position];
             stream.Read(temp, 0, temp.Length);
@@ -51,7 +51,7 @@ namespace DSharp4Webhook.Internal
 
         public void Save(string path)
         {
-            Checks.CheckForArgument(string.IsNullOrEmpty(path), nameof(path));
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(path), nameof(path));
             File.WriteAllBytes(path, _data.ToArray());
         }
 

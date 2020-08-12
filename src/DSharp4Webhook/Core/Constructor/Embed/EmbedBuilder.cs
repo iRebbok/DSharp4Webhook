@@ -49,7 +49,7 @@ namespace DSharp4Webhook.Core.Constructor
                 if (!(value is null))
                 {
                     value = value.Trim();
-                    Checks.CheckBounds(nameof(Title), $"Must be no more then {WebhookProvider.MAX_EMBED_TITLE_LENGTH} in length",
+                    Contract.CheckBounds(nameof(Title), $"Must be no more then {WebhookProvider.MAX_EMBED_TITLE_LENGTH} in length",
                         WebhookProvider.MAX_EMBED_TITLE_LENGTH, value.Length);
                     _title = value;
                 }
@@ -148,7 +148,7 @@ namespace DSharp4Webhook.Core.Constructor
         public EmbedBuilder Append(string? text)
         {
             // If we put null, it will still be null in the description
-            Checks.CheckBounds(nameof(text), $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
+            Contract.CheckBounds(nameof(text), $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
                 WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH, text?.Length ?? 4, _builder.Length);
             _builder.Append(text ?? "null");
 
@@ -161,7 +161,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </summary>
         public EmbedBuilder TryAppend(string? text)
         {
-            if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH, text?.Length ?? 4, _builder.Length))
+            if (!Contract.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH, text?.Length ?? 4, _builder.Length))
                 _builder.Append(text ?? "null");
 
             return this;
@@ -172,7 +172,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </summary>
         public EmbedBuilder AppendLine()
         {
-            Checks.CheckBounds(null, $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
+            Contract.CheckBounds(null, $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
                 WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH + 1, 1, _builder.Length);
             _builder.AppendLine();
 
@@ -185,7 +185,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </summary>
         public EmbedBuilder TryAppendLine()
         {
-            if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH + 1, 1, _builder.Length))
+            if (!Contract.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH + 1, 1, _builder.Length))
                 _builder.AppendLine();
 
             return this;
@@ -197,7 +197,7 @@ namespace DSharp4Webhook.Core.Constructor
         public EmbedBuilder AppendLine(string? text)
         {
             // If we put null, it will still be null in the description, a line break is also added
-            Checks.CheckBounds(nameof(text), $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
+            Contract.CheckBounds(nameof(text), $"Must be no more than {WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH} in length",
                 WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH + 1, (text?.Length ?? 4) + 1, _builder.Length);
             _builder.AppendLine(text ?? "null");
 
@@ -210,7 +210,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </summary>
         public EmbedBuilder TryAppendLine(string? text)
         {
-            if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH + 1, text?.Length ?? 4 + 1, _builder.Length))
+            if (!Contract.CheckBoundsSafe(WebhookProvider.MAX_EMBED_DESCRIPTION_LENGTH + 1, text?.Length ?? 4 + 1, _builder.Length))
                 _builder.AppendLine(text ?? "null");
 
             return this;
@@ -227,7 +227,7 @@ namespace DSharp4Webhook.Core.Constructor
         /// </exception>
         public EmbedBuilder AddField(IEmbedField field)
         {
-            Checks.CheckForNull(field, nameof(field));
+            Contract.AssertNotNull(field, nameof(field));
             // Just safely get it instead
             if (GetFields().Count + 1 > WebhookProvider.MAX_EMBED_FIELDS_COUNT)
                 throw new ArgumentOutOfRangeException();

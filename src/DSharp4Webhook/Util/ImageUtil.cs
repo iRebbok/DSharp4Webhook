@@ -24,8 +24,8 @@ namespace DSharp4Webhook.Util
         /// </returns>
         public static IAvatarAction GetImageByUrl(this IWebhook webhook, string url)
         {
-            Checks.CheckForNull(webhook, nameof(webhook));
-            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
+            Contract.AssertNotNull(webhook, nameof(webhook));
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(url), nameof(url));
 
             return new AvatarAction(webhook, webhook.RestSettings, null);
         }

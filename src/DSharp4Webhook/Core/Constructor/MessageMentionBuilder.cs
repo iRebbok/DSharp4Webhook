@@ -54,7 +54,7 @@ namespace DSharp4Webhook.Core.Constructor
 
         private MessageMentionBuilder(IWebhook webhook)
         {
-            Checks.CheckForNull(webhook, nameof(webhook));
+            Contract.AssertNotNull(webhook, nameof(webhook));
             _allowedMention = webhook.AllowedMention;
         }
 

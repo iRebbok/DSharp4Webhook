@@ -10,6 +10,6 @@ namespace DSharp4Webhook.Actions.Rest
         /// <summary>
         ///     The serialized data contains name and avatar_url.
         /// </summary>
-        public SerializeContext Context { get; }
+        public SerializationContext Context { get; }
     }
 }

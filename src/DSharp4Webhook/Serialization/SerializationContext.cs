@@ -12,12 +12,13 @@ namespace DSharp4Webhook.Serialization
     ///         'multipart/form-data' - when we send files, then <see cref="Content"/> in 'payload_json', and it can be null,
     ///             <see cref="Content"/> it can be null if we only send the file.
     /// </remarks>
-    public readonly struct SerializeContext : IValidable
+    public readonly struct SerializationContext
+        : IValidable
     {
         /// <summary>
         ///     Type of serializing context.
         /// </summary>
-        public SerializeType Type { get; }
+        public SerializationType Type { get; }
         /// <summary>
         ///     Source data.
         /// </summary>
@@ -36,23 +37,22 @@ namespace DSharp4Webhook.Serialization
         /// <param name="content">
         ///     Message content.
         /// </param>
-        /// <param name="fileEntry">
+        /// <param name="fileEntries">
         ///     One file entry.
         /// </param>
         /// <exception cref="InvalidOperationException">
         ///     If the serialization type could not be determined/the data defining it is null.
         /// </exception>
-        public SerializeContext(byte[]? content, FileEntry? fileEntry)
+        public SerializationContext(byte[]? content, FileEntry[]? fileEntries)
         {
-            Type = SerializeType.APPLICATION_JSON;
+            Type = SerializationType.APPLICATION_JSON;
             Content = content;
             Attachments = null;
 
-            if (!(fileEntry is null))
+            if (!(fileEntries is null))
             {
-                Attachments = new FileEntry[1];
-                Attachments[0] = fileEntry.Value;
-                Type = SerializeType.MULTIPART_FORM_DATA;
+                Attachments = fileEntries;
+                Type = SerializationType.MULTIPART_FORM_DATA;
             }
         }
 
@@ -68,13 +68,13 @@ namespace DSharp4Webhook.Serialization
         /// <remarks>
         ///     Content can't be null.
         /// </remarks>
-        public SerializeContext(byte[] content)
+        public SerializationContext(byte[] content)
         {
-            Type = SerializeType.APPLICATION_JSON;
+            Type = SerializationType.APPLICATION_JSON;
             Content = content;
             Attachments = null;
         }
 
-        public bool IsValid() => Type != SerializeType.NULL && (!(Content is null) || !(Attachments is null));
+        public bool IsValid() => Type != SerializationType.NULL && (!(Content is null) || !(Attachments is null));
     }
 }

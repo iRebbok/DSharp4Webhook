@@ -15,7 +15,7 @@ namespace DSharp4Webhook.Internal.Embed
 
         public EmbedThumbnail(EmbedThumbnailBuilder builder)
         {
-            Checks.CheckForNull(builder, nameof(builder));
+            Contract.AssertNotNull(builder, nameof(builder));
 
             _height = builder.Height;
             _width = builder.Width;

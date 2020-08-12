@@ -29,8 +29,8 @@ namespace DSharp4Webhook.Core.Constructor
                     throw new ArgumentNullException("Value cannot be null", nameof(Name));
 
                 value = value.Trim();
-                Checks.CheckBounds(nameof(Name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", WebhookProvider.MAX_NICKNAME_LENGTH + 1, value.Length);
-                Checks.CheckBoundsUnderside(nameof(Name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.",
+                Contract.CheckBounds(nameof(Name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", WebhookProvider.MAX_NICKNAME_LENGTH + 1, value.Length);
+                Contract.CheckBoundsUnderside(nameof(Name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.",
                     WebhookProvider.MIN_NICKNAME_LENGTH - 1, value.Length);
                 _name = value;
             }

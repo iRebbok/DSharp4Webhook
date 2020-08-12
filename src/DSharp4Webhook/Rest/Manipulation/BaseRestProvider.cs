@@ -13,18 +13,18 @@ namespace DSharp4Webhook.Rest.Manipulation
 
         protected BaseRestProvider(IWebhook webhook)
         {
-            Checks.CheckForNull(webhook, nameof(webhook));
+            Contract.AssertNotNull(webhook, nameof(webhook));
 
             _webhook = webhook;
         }
 
-        public abstract IEnumerable<RestResponse> POST(string url, SerializeContext data, RestSettings restSettings);
+        public abstract IEnumerable<RestResponse> POST(string url, SerializationContext data, RestSettings restSettings);
 
         public abstract IEnumerable<RestResponse> GET(string url, RestSettings restSettings);
 
         public abstract IEnumerable<RestResponse> DELETE(string url, RestSettings restSettings);
 
-        public abstract IEnumerable<RestResponse> PATCH(string url, SerializeContext data, RestSettings restSettings);
+        public abstract IEnumerable<RestResponse> PATCH(string url, SerializationContext data, RestSettings restSettings);
 
         /// <summary>
         ///     Wrapper for processing returned status codes.
@@ -34,7 +34,7 @@ namespace DSharp4Webhook.Rest.Manipulation
             switch (statusCode)
             {
                 case HttpStatusCode.NotFound:
-                    _webhook.Status = WebhookStatus.NOT_EXISTING;
+                    _webhook.Status = WebhookStatus.NOT_EXIST;
                     forceStop = true;
                     _webhook.Dispose();
                     break;
@@ -46,7 +46,7 @@ namespace DSharp4Webhook.Rest.Manipulation
 
             if (!forceStop && _webhook.Status == WebhookStatus.NOT_CHECKED)
             {
-                _webhook.Status = WebhookStatus.EXISTING;
+                _webhook.Status = WebhookStatus.EXIST;
             }
         }
 

@@ -21,8 +21,8 @@
     <RepositoryType>Git</RepositoryType>
     <PackageProjectUrl>https://github.com/iRebbok/DSharp4Webhook</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright 2020 - $([System.DateTime]::Now.ToString(`yyyy`))</Copyright>
-    <PackageTags>discord;discord-webhook</PackageTags>
+    <Copyright>Copyright © iRebbok 2020 - $([System.DateTime]::Now.ToString(`yyyy`))</Copyright>
+    <PackageTags>discord;discord-webhook;discord-webhook-api</PackageTags>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 

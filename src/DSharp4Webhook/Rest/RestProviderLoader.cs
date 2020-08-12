@@ -12,7 +12,7 @@ namespace DSharp4Webhook.Rest
 
         private static bool IsCorrectProvider(Type type)
         {
-            Checks.CheckForNull(type, nameof(type));
+            Contract.AssertNotNull(type, nameof(type));
             return type.IsSubclassOf(typeof(BaseRestProvider)) &&
                 !(type.GetConstructor(new Type[] { typeof(IWebhook) }) is null);
         }
@@ -50,7 +50,7 @@ namespace DSharp4Webhook.Rest
         /// </exception>
         public static void SetProviderType(Type type)
         {
-            Checks.CheckForNull(type, nameof(type));
+            Contract.AssertNotNull(type, nameof(type));
             if (!IsCorrectProvider(type))
                 throw new InvalidOperationException("This type of provider does not fit the rules");
 
@@ -68,7 +68,7 @@ namespace DSharp4Webhook.Rest
         /// </exception>
         public static BaseRestProvider CreateProvider(IWebhook webhook)
         {
-            Checks.CheckForNull(webhook, nameof(webhook));
+            Contract.AssertNotNull(webhook, nameof(webhook));
 
             var providerType = GetProviderType();
 #pragma warning disable CS8603 // Possible null reference return.

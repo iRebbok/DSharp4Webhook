@@ -2,7 +2,6 @@ namespace DSharp4Webhook.Core
 {
     /// <summary>
     ///     Webhook statuses.
-    ///     Used for internal processing of rest requests.
     /// </summary>
     public enum WebhookStatus
     {
@@ -14,11 +13,11 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Has been verified to send requests safely.
         /// </summary>
-        EXISTING,
+        EXIST,
         /// <summary>
         ///     Nonexistent, it is not safe to send requests.
         ///     These webhooks are immediately disposed of.
         /// </summary>
-        NOT_EXISTING
+        NOT_EXIST
     }
 }

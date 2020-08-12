@@ -41,7 +41,7 @@ namespace DSharp4Webhook.Internal
 
         private async Task Do()
         {
-            while (_isntDisposed && _webhook.Status != WebhookStatus.NOT_EXISTING)
+            while (_isntDisposed && _webhook.Status != WebhookStatus.NOT_EXIST)
             {
                 if (_actions.TryDequeue(out var actionContext))
                 {
@@ -114,31 +114,31 @@ namespace DSharp4Webhook.Internal
 
         public void Queue(IAction action)
         {
-            Checks.CheckForNull(action, nameof(action));
+            Contract.AssertNotNull(action, nameof(action));
             _actions.Enqueue(new QueueActionContext(action));
         }
 
         public void Queue(IAction action, Action<IResult> callback)
         {
-            Checks.CheckForNull(action, nameof(action));
+            Contract.AssertNotNull(action, nameof(action));
             _actions.Enqueue(new QueueActionContext(action, callback));
         }
 
         public void Queue(IAction action, Action<IResult, bool> callback)
         {
-            Checks.CheckForNull(action, nameof(action));
+            Contract.AssertNotNull(action, nameof(action));
             _actions.Enqueue(new QueueActionContext(action, callback));
         }
 
         public void Queue(IAction action, Action<bool> callback)
         {
-            Checks.CheckForNull(action, nameof(action));
+            Contract.AssertNotNull(action, nameof(action));
             _actions.Enqueue(new QueueActionContext(action, callback));
         }
 
         public void Queue(IAction action, System.Action callback)
         {
-            Checks.CheckForNull(action, nameof(action));
+            Contract.AssertNotNull(action, nameof(action));
             _actions.Enqueue(new QueueActionContext(action, callback));
         }
     }

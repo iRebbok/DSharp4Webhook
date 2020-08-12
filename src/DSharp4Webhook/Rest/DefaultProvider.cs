@@ -35,13 +35,13 @@ namespace DSharp4Webhook.Rest
 
         public override IEnumerable<RestResponse> GET(string url, RestSettings restSettings)
         {
-            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(url), nameof(url));
             return Raw(_httpClient.GetAsync(url), restSettings);
         }
 
-        public override IEnumerable<RestResponse> POST(string url, SerializeContext data, RestSettings restSettings)
+        public override IEnumerable<RestResponse> POST(string url, SerializationContext data, RestSettings restSettings)
         {
-            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(url), nameof(url));
 
             using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url);
             PrepareContent(requestMessage, data);
@@ -50,14 +50,14 @@ namespace DSharp4Webhook.Rest
 
         public override IEnumerable<RestResponse> DELETE(string url, RestSettings restSettings)
         {
-            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(url), nameof(url));
             return Raw(_httpClient.DeleteAsync(url), restSettings);
         }
 
-        public override IEnumerable<RestResponse> PATCH(string url, SerializeContext data, RestSettings restSettings)
+        public override IEnumerable<RestResponse> PATCH(string url, SerializationContext data, RestSettings restSettings)
         {
-            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            Checks.CheckForSerializeType(data, SerializeType.APPLICATION_JSON);
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(url), nameof(url));
+            Contract.AssertRequiredSerizationType(data, SerializationType.APPLICATION_JSON);
 
             using HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url);
             PrepareContent(requestMessage, data);
@@ -66,7 +66,7 @@ namespace DSharp4Webhook.Rest
 
         private IEnumerable<RestResponse> Raw(Task<HttpResponseMessage> func, RestSettings restSettings)
         {
-            Checks.CheckWebhookStatus(_webhook.Status);
+            Contract.EnsureWebhookIsNotBroken(_webhook.Status);
 
             var currentAttempts = 0U;
             // Used to prevent calls if something went wrong
@@ -91,20 +91,20 @@ namespace DSharp4Webhook.Rest
             } while (!forceStop && !lastResponse.IsSuccessful && (restSettings.Attempts == 0 || ++currentAttempts <= restSettings.Attempts));
         }
 
-        private readonly static MediaTypeHeaderValue _applicationJsonTypeHeader = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON));
+        private readonly static MediaTypeHeaderValue _applicationJsonTypeHeader = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializationType.APPLICATION_JSON));
 
-        private void PrepareContent(HttpRequestMessage requestMessage, SerializeContext data)
+        private void PrepareContent(HttpRequestMessage requestMessage, SerializationContext data)
         {
             switch (data.Type)
             {
-                case SerializeType.APPLICATION_JSON:
+                case SerializationType.APPLICATION_JSON:
                     {
                         requestMessage.Content = new ByteArrayContent(data.Content);
                         requestMessage.Content.Headers.ContentType = _applicationJsonTypeHeader;
                         break;
                     }
 
-                case SerializeType.MULTIPART_FORM_DATA:
+                case SerializationType.MULTIPART_FORM_DATA:
                     {
                         var multipartContent = new MultipartFormDataContent();
                         if (!(data.Attachments is null) && data.Attachments.Length != 0)

@@ -1,14 +1,8 @@
-using DSharp4Webhook.Core;
 using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
-using DSharp4Webhook.Util.Extensions;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
 
 namespace DSharp4Webhook.Core
@@ -16,110 +10,96 @@ namespace DSharp4Webhook.Core
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
     public struct Message : IMessage
     {
-        private readonly string? _content;
-        private readonly string? _username;
-        private readonly string? _avatarUrl;
-        private readonly bool _isTTS;
-        private readonly IMessageMention _mention;
-        private readonly ReadOnlyCollection<IEmbed>? _embeds;
-        private readonly ReadOnlyDictionary<string, ReadOnlyCollection<byte>>? _files;
-
-        private SerializeContext? _cache;
-
         #region Properties
 
         [JsonProperty(PropertyName = "content")]
-        public string? Content { get => _content; }
+        public string? Content { get; }
 
         [JsonProperty(PropertyName = "tts")]
-        public bool IsTTS { get => _isTTS; }
+        public bool IsTTS { get; }
 
         [JsonProperty(PropertyName = "username")]
-        public string? Username { get => _username; }
+        public string? Username { get; }
 
         [JsonProperty(PropertyName = "avatar_url")]
-        public string? AvatarUrl { get => _avatarUrl; }
+        public string? AvatarUrl { get; }
 
         [JsonProperty(PropertyName = "embeds")]
-        public ReadOnlyCollection<IEmbed>? Embeds { get => _embeds; }
+        public IEmbed[]? Embeds { get; }
 
         [JsonProperty(PropertyName = "allowed_mention")]
-        public IMessageMention Mention { get => _mention; }
+        public IMessageMention Mention { get; }
 
-        public ReadOnlyDictionary<string, ReadOnlyCollection<byte>>? Files { get => _files; }
+        public FileEntry[]? Attachments { get; }
 
         #endregion
 
-        public Message(string message, IMessageMention messageMention, bool isTTS = false)
+        public Message(string message, IMessageMention messageMention, bool isTTS = false) : this()
         {
-            Checks.CheckForNull(messageMention, nameof(messageMention));
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(message), nameof(message));
+            Contract.AssertNotNull(messageMention, nameof(messageMention));
 
-            _content = message;
-            _isTTS = isTTS;
-            _mention = messageMention;
-
-            _username = null;
-            _avatarUrl = null;
-            _embeds = null;
-            _files = null;
-            _cache = null;
+            Content = message;
+            Mention = messageMention;
+            IsTTS = isTTS;
         }
 
-        public Message(IEnumerable<IEmbed> embeds, IMessageMention messageMention)
+        public Message(IEmbed[] embeds, IMessageMention messageMention) : this()
         {
-            Checks.CheckForNull(messageMention, nameof(messageMention));
+            Contract.AssertNotNull(embeds, nameof(embeds));
+            Contract.AssertNotNull(messageMention, nameof(messageMention));
 
-            _embeds = embeds.ToArray().ToReadOnlyCollection();
-            _mention = messageMention;
-
-            _content = null;
-            _username = null;
-            _isTTS = false;
-            _username = null;
-            _avatarUrl = null;
-            _files = null;
-            _cache = null;
+            Embeds = embeds;
+            Mention = messageMention;
         }
 
         public Message(IMessage source)
         {
-            Checks.CheckForNull(source, nameof(source));
-            Checks.CheckForAttachments(source.Files!);
+            Contract.AssertNotNull(source, nameof(source));
 
-            _username = source.Username;
-            _avatarUrl = source.AvatarUrl;
-            _content = source.Content;
-            _isTTS = source.IsTTS;
+            Username = source.Username;
+            AvatarUrl = source.AvatarUrl;
+            Content = source.Content;
+            IsTTS = source.IsTTS;
 
-            _mention = source.Mention;
-            _files = source.Files;
-            _embeds = source.Embeds;
-
-            _cache = null;
+            Mention = source.Mention;
+            Attachments = source.Attachments;
+            Embeds = source.Embeds;
         }
 
         public Message(MessageBuilder builder)
         {
-            Checks.CheckForAttachments(builder.Files);
+            Contract.AssertNotNull(builder, nameof(builder));
 
-            if (builder.Embeds.Count > WebhookProvider.MAX_EMBED_COUNT ||
-                builder.Builder.Length > WebhookProvider.MAX_CONTENT_LENGTH)
-                throw new ArgumentOutOfRangeException();
+            Contract.AssertSafeBounds(
+                builder.Username?.Length ?? WebhookProvider.MIN_NICKNAME_LENGTH,
+                WebhookProvider.MIN_NICKNAME_LENGTH, WebhookProvider.MAX_NICKNAME_LENGTH,
+                nameof(builder.Username));
 
-            _content = builder.Builder.ToString();
-            _username = builder.Username;
-            _avatarUrl = builder.AvatarUrl;
-            _isTTS = builder.IsTTS;
-            _mention = builder.MessageMention;                                                               // Create a new object bypassing readonly objects that simply don't allow writing
-            _files = builder._files is null ? null : new ReadOnlyDictionary<string, ReadOnlyCollection<byte>>(new Dictionary<string, ReadOnlyCollection<byte>>(builder._files));
-            _embeds = builder._embeds.ToReadOnlyCollection();
+            Contract.AssertNotNull(builder.MessageMention, nameof(builder.MessageMention));
+            Contract.AssertSafeBounds(builder.Builder.Length, -1, WebhookProvider.MAX_CONTENT_LENGTH, "text");
 
-            _cache = null;
+            Contract.AssertArgumentNotTrue(
+                !(builder.Builder.Length > 0 || !(builder._embeds is null) || !(builder._files is null)),
+                "one of the attachments or embed or text is required");
+
+            Contract.AssertSafeBounds(builder._embeds?.Count ?? 0, -1, WebhookProvider.MAX_EMBED_COUNT, "embeds");
+
+            if (!(builder._files is null))
+            {
+                Contract.AssertSafeBounds(builder._files.Count, -1, WebhookProvider.MAX_ATTACHMENTS, "attachments");
+                Contract.AssertNotOversize(builder._files);
+            }
+
+            Username = builder.Username;
+            IsTTS = builder.IsTTS;
+            AvatarUrl = builder.AvatarUrl;
+            Mention = builder.MessageMention!;
+            Content = builder.Builder.Length > 0 ? builder.Builder.ToString() : null;
+            Embeds = builder._embeds?.ToArray();
+            Attachments = builder._files?.ToArray();
         }
 
-        public SerializeContext Serialize()
-        {
-            return _cache ?? (_cache = new SerializeContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)), _files)).Value;
-        }
+        public SerializationContext Serialize() => new SerializationContext(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this)), Attachments);
     }
 }

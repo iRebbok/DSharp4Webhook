@@ -15,7 +15,7 @@ namespace DSharp4Webhook.Internal.Embed
 
         public EmbedAuthor(EmbedAuthorBuilder builder)
         {
-            Checks.CheckForNull(builder, nameof(builder));
+            Contract.AssertNotNull(builder, nameof(builder));
 
             _name = builder.Name;
             _iconUrl = builder.IconUrl;

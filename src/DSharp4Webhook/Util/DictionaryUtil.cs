@@ -12,7 +12,7 @@ namespace DSharp4Webhook.Internal
         /// </summary>
         public static long SizeOf(this IDictionary<string, ReadOnlyCollection<byte>> source)
         {
-            Checks.CheckForNull(source);
+            Contract.AssertNotNull(source);
 
             long result = 0L;
             foreach (var pair in source)

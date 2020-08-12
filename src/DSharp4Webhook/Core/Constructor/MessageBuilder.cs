@@ -1,10 +1,9 @@
-
 using DSharp4Webhook.Core.Embed;
-using DSharp4Webhook.Internal;
+using DSharp4Webhook.InternalExceptions;
+using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Text;
 
 namespace DSharp4Webhook.Core.Constructor
@@ -12,42 +11,36 @@ namespace DSharp4Webhook.Core.Constructor
     /// <summary>
     ///     Message builder that allows you to create messages for webhook.
     /// </summary>
-    public sealed class MessageBuilder : IBuilder
+    public sealed class MessageBuilder : IBuilder<Message>
     {
-        private readonly StringBuilder _builder;
-        // we store the original mentions to replace them when resetting them
-        // by resetting them we can violate the expected functionality
-        private readonly IMessageMention _initialMention;
-
         private string? _username;
-        private string? _avatarUrl;
-        private bool _isTTS;
         private IMessageMention? _mention;
 
         // Don't create extra objects after the build
         internal List<IEmbed>? _embeds;
-        internal Dictionary<string, ReadOnlyCollection<byte>>? _files;
+        internal List<FileEntry>? _files;
+
+        /// <summary>
+        ///     Default line terminator.
+        /// </summary>
+        public const string LINE_TERMINATOR = "\n";
 
         #region Properties
 
         /// <summary>
         ///     Gets the message builder for this builder.
         /// </summary>
-        public StringBuilder Builder { get => _builder; }
+        public StringBuilder Builder { get; } = new StringBuilder(WebhookProvider.MAX_CONTENT_LENGTH);
 
         /// <summary>
         ///     Gets a list of embeds.
         /// </summary>
-        public List<IEmbed> Embeds { get => _embeds ??= new List<IEmbed>(); }
+        public List<IEmbed> Embeds { get => _embeds ??= new List<IEmbed>(10); }
 
         /// <summary>
         ///     Whether the TTS determines this message or not.
         /// </summary>
-        public bool IsTTS
-        {
-            get => _isTTS;
-            set => _isTTS = value;
-        }
+        public bool IsTTS { get; set; }
 
         /// <summary>
         ///     Username of the webhook that will be used for this message.
@@ -57,37 +50,38 @@ namespace DSharp4Webhook.Core.Constructor
             get => _username;
             set
             {
-                if (!(value is null))
-                {
-                    value = value.Trim();
-                    Checks.CheckBounds(nameof(Username), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", WebhookProvider.MAX_NICKNAME_LENGTH + 1, value.Length);
-                    Checks.CheckBoundsUnderside(nameof(Username), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.",
-                        WebhookProvider.MIN_NICKNAME_LENGTH - 1, value.Length);
-                    _username = value;
-                }
-                // Null set possible
-                else
-                    _username = value;
+                Contract.AssertNotNull(value, nameof(Username));
+
+                value = value!.Trim();
+
+                Contract.AssertSafeBounds(
+                    value,
+                    WebhookProvider.MIN_NICKNAME_LENGTH,
+                    WebhookProvider.MAX_NICKNAME_LENGTH,
+                    nameof(Username),
+                    $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length");
+
+                _username = value;
             }
         }
 
         /// <summary>
         ///     An image that will use webhook on this message.
         /// </summary>
-        public string? AvatarUrl
-        {
-            get => _avatarUrl;
-            set => _avatarUrl = value;
-        }
+        public string? AvatarUrl { get; set; }
 
         /// <summary>
         ///     Allowed mentions in the message.
         /// </summary>
-        public IMessageMention MessageMention
+        public IMessageMention? MessageMention
         {
             // If the setted value is null, then initial value is used
-            get => _mention ?? _initialMention;
-            set => _mention = value;
+            get => _mention;
+            set
+            {
+                Contract.AssertNotNull(value, nameof(MessageMention));
+                _mention = value;
+            }
         }
 
         /// <summary>
@@ -96,169 +90,129 @@ namespace DSharp4Webhook.Core.Constructor
         ///         The key is the file name, and the value is content.
         ///     </para>
         /// </summary>
-        public Dictionary<string, ReadOnlyCollection<byte>> Files
+        public List<FileEntry> Files
         {
-            get => _files ??= new Dictionary<string, ReadOnlyCollection<byte>>();
+            get => _files ??= new List<FileEntry>(WebhookProvider.MAX_ATTACHMENTS);
         }
 
         #endregion
 
-        private MessageBuilder()
-        {
-            _builder = new StringBuilder();
-            _initialMention = ConstructorProvider.GetDefaultMessageMention();
-        }
+        public MessageBuilder() { }
 
-        private MessageBuilder(MessageBuilder source) : this()
+        public MessageBuilder(MessageBuilder source)
         {
-            Checks.CheckForNull(source, nameof(source));
+            Contract.AssertNotNull(source, nameof(source));
 
-            _builder.Append(source._builder.ToString());
+            Builder.Append(source.Builder.ToString());
             _username = source._username;
-            _avatarUrl = source._avatarUrl;
-            _isTTS = source._isTTS;
+            AvatarUrl = source.AvatarUrl;
+            IsTTS = source.IsTTS;
             _mention = source._mention;
+
+            if (!(source._embeds is null))
+                Embeds.AddRange(source._embeds);
+
+            if (!(source._files is null))
+                Files.AddRange(source._files);
         }
-
-        private MessageBuilder(IWebhook webhook) : this()
-        {
-            Checks.CheckForNull(webhook, nameof(webhook));
-
-            _mention = ConstructorProvider.GetMessageMention(webhook.AllowedMention);
-        }
-
-        #region Static methods
-
-        /// <summary>
-        ///     Gets a new message constructor.
-        /// </summary>
-        public static MessageBuilder New() => new MessageBuilder();
-
-        /// <summary>
-        ///     Gets a new message constructor with source presets.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is null
-        /// </exception>
-        public static MessageBuilder New(MessageBuilder source) => new MessageBuilder(source);
-
-        /// <summary>
-        ///     Gets a new message constructor with a preset of allowed mentions from the webhook.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="webhook"/> is null.
-        /// </exception>
-        public static MessageBuilder New(IWebhook webhook) => new MessageBuilder(webhook);
-
-        #endregion
 
         #region Methods
 
         /// <summary>
-        ///     Adds text to the current text.
-        /// </summary>
-        /// <returns>
-        ///     The current MessageBuilder.
-        /// </returns>
-        public MessageBuilder Append(string? text)
-        {
-            // If we put null, it will still be null in the text
-            Checks.CheckBounds(nameof(text), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
-                WebhookProvider.MAX_CONTENT_LENGTH, text?.Length ?? 4, _builder.Length);
-            _builder.Append(text ?? "null");
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Tries to add text, 
-        ///     without causing an exception when the bounds are exceeded.
-        /// </summary>
-        /// <returns>
-        ///     The current MessageBuilder.
-        /// </returns>
-        public MessageBuilder TryAppend(string? text)
-        {
-            if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_CONTENT_LENGTH, text?.Length ?? 4, _builder.Length))
-                _builder.Append(text ?? "null");
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Adds a new line to the current text.
-        /// </summary>
-        /// <returns>
-        ///     The current MessageBuilder.
-        /// </returns>
-        public MessageBuilder AppendLine()
-        {
-            Checks.CheckBounds(null, $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
-                WebhookProvider.MAX_CONTENT_LENGTH, 1, _builder.Length);
-            _builder.AppendLine();
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Tries to add a new line to the current text,
-        ///     without causing an exception when the bounds are exceeded.
-        /// </summary>
-        /// <returns>
-        ///     The current MessageBuilder.
-        /// </returns>
-        public MessageBuilder TryAppendLine()
-        {
-            if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_CONTENT_LENGTH, 1, _builder.Length))
-                _builder.AppendLine();
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Adds text to the current text in a new line.
-        /// </summary>
-        /// <returns>
-        ///     The current MessageBuilder.
-        /// </returns>
-        public MessageBuilder AppendLine(string? text)
-        {
-            // If we put null, it will still be null in the text, a line break is also added
-            Checks.CheckBounds(nameof(text), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
-                WebhookProvider.MAX_CONTENT_LENGTH, (text?.Length ?? 4) + 1, _builder.Length);
-            _builder.AppendLine(text ?? "null");
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Tries to add text to the current text in a new line,
-        ///     without causing an exception when the bounds are exceeded.
-        /// </summary>
-        /// <returns>
-        ///     The current MessageBuilder.
-        /// </returns>
-        public MessageBuilder TryAppendLine(string? text)
-        {
-            if (!Checks.CheckBoundsSafe(WebhookProvider.MAX_CONTENT_LENGTH, text?.Length ?? 4 + 1, _builder.Length))
-                _builder.AppendLine(text ?? "null");
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Sets the handler for mentions in the message.
+        ///     Appends text to <see cref="Builder"/>.
         /// </summary>
         /// <returns>
         ///     The current MessageBuilder.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="messageMention"/> is null.
+        ///     Text is null.
         /// </exception>
-        public MessageBuilder SetMessageMention(IMessageMention messageMention)
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     The text exceeds <see cref="WebhookProvider.MAX_CONTENT_LENGTH" />.
+        /// </exception>
+        public MessageBuilder Append(string text)
         {
-            Checks.CheckForNull(messageMention, nameof(messageMention));
-            _mention = messageMention;
+            Contract.AssertNotNull(text, nameof(text));
+            Contract.AssertSafeBounds(Builder.Length + text.Length, -1, WebhookProvider.MAX_CONTENT_LENGTH, nameof(text));
+
+            Builder.Append(text);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Tries to append.
+        ///     Doesn't throw an exception on failure.
+        /// </summary>
+        /// <returns>
+        ///     The current MessageBuilder.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><inheritdoc cref="Append(string)" /></exception>
+        public MessageBuilder TryAppend(string text)
+        {
+            Contract.AssertNotNull(text, nameof(text));
+            if (Contract.AssertSafeBoundsSafe(Builder.Length + text.Length, -1, WebhookProvider.MAX_CONTENT_LENGTH))
+            {
+                Builder.Append(text);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Appends the <see cref="LINE_TERMINATOR"/> to the <see cref="Builder"/>.
+        /// </summary>
+        /// <returns><inheritdoc cref="Append(string)" /></returns>
+        /// <exception cref="ArgumentOutOfRangeException"><inheritdoc cref="Append(string)" /></exception>
+        public MessageBuilder AppendLine()
+        {
+            Contract.AssertSafeBounds(Builder.Length + LINE_TERMINATOR.Length, -1, WebhookProvider.MAX_CONTENT_LENGTH);
+
+            Builder.Append(LINE_TERMINATOR);
+
+            return this;
+        }
+
+        /// <summary><inheritdoc cref="TryAppend(string)" /></summary>
+        /// <returns><inheritdoc cref="Append(string)" /></returns>
+        public MessageBuilder TryAppendLine()
+        {
+            if (Contract.AssertSafeBoundsSafe(Builder.Length + LINE_TERMINATOR.Length, -1, WebhookProvider.MAX_CONTENT_LENGTH))
+            {
+                Builder.Append(LINE_TERMINATOR);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Appends the text and the <see cref="LINE_TERMINATOR"/> to the <see cref="Builder"/>.
+        /// </summary>
+        /// <returns><inheritdoc cref="Append(string)" /></returns>
+        /// <exception cref="ArgumentNullException"><inheritdoc cref="Append(string)" /></exception>
+        /// <exception cref="ArgumentOutOfRangeException"><inheritdoc cref="Append(string)" /></exception>
+        public MessageBuilder AppendLine(string text)
+        {
+            Contract.AssertNotNull(text, nameof(text));
+            Contract.AssertSafeBounds(Builder.Length + text.Length + LINE_TERMINATOR.Length, -1, WebhookProvider.MAX_CONTENT_LENGTH, nameof(text));
+
+            Builder.Append(text);
+            Builder.Append(LINE_TERMINATOR);
+
+            return this;
+        }
+
+        /// <summary><inheritdoc cref="TryAppendLine()" /></summary>
+        /// <returns><inheritdoc cref="Append(string)" /></returns>
+        /// <exception cref="ArgumentNullException"><inheritdoc cref="Append(string)" /></exception>
+        public MessageBuilder TryAppendLine(string text)
+        {
+            Contract.AssertNotNull(text, nameof(text));
+            if (Contract.AssertSafeBoundsSafe(Builder.Length + text.Length + LINE_TERMINATOR.Length, -1, WebhookProvider.MAX_CONTENT_LENGTH))
+            {
+                Builder.Append(text);
+                Builder.Append(LINE_TERMINATOR);
+            }
 
             return this;
         }
@@ -274,21 +228,73 @@ namespace DSharp4Webhook.Core.Constructor
         /// </exception>
         public MessageBuilder AddEmbed(IEmbed embed)
         {
-            Checks.CheckForNull(embed, nameof(embed));
-            if (Embeds.Count + 1 > WebhookProvider.MAX_EMBED_COUNT)
-                throw new ArgumentOutOfRangeException();
-            _embeds!.Add(embed);
+            Contract.AssertNotNull(embed, nameof(embed));
+            Contract.AssertSafeBounds(Embeds.Count + 1, -1, WebhookProvider.MAX_EMBED_COUNT, nameof(embed));
+
+            Embeds.Add(embed);
 
             return this;
         }
 
         /// <summary>
-        ///     Same thing, but doesn't throw exceptions.
+        ///     Tries adds an embed to the message.
         /// </summary>
+        /// <exception cref="ArgumentNullException"><inheritdoc cref="AddEmbed(IEmbed)" /></exception>
         public MessageBuilder TryAddEmbed(IEmbed embed)
         {
-            if (!(embed is null) && Embeds.Count + 1 <= WebhookProvider.MAX_EMBED_COUNT)
-                _embeds!.Add(embed);
+            Contract.AssertNotNull(embed, nameof(embed));
+            if (Contract.AssertSafeBoundsSafe(Embeds.Count + 1, -1, WebhookProvider.MAX_EMBED_COUNT))
+            {
+                Embeds.Add(embed);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Adds attachment to the message.
+        /// </summary>
+        /// <param name="fileEntry">
+        ///     Attachment entry.
+        /// </param>
+        /// <returns><inheritdoc cref="Append(string)" /></returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Exceeds the allowed limit of attachments.
+        /// </exception>
+        /// <exception cref="SizeOutOfRangeException">
+        ///     Exceeds the allowed limit of attachments size.
+        /// </exception>
+        public MessageBuilder AddAttachment(FileEntry fileEntry)
+        {
+            Contract.AssertArgumentNotTrue(!fileEntry.IsValid(), nameof(fileEntry));
+            Contract.AssertSafeBounds(Files.Count + 1, -1, WebhookProvider.MAX_ATTACHMENTS, nameof(fileEntry));
+
+            Files.Add(fileEntry);
+            if (!Contract.AssertNotOversizeSafe(Files))
+            {
+                Files.RemoveAt(Files.Count - 1);
+                throw new SizeOutOfRangeException();
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Tries to add attachment to the message.
+        /// </summary>
+        /// <param name="fileEntry"><inheritdoc cref="AddAttachment(FileEntry)" /></param>
+        /// <returns><inheritdoc cref="AddAttachment(FileEntry)" /></returns>
+        /// <exception cref="ArgumentOutOfRangeException"><inheritdoc cref="AddAttachment(FileEntry)" /></exception>
+        /// <exception cref="SizeOutOfRangeException"><inheritdoc cref="AddAttachment(FileEntry)" /></exception>
+        public MessageBuilder TryAddAttachment(FileEntry fileEntry)
+        {
+            if (fileEntry.IsValid()
+                && !Contract.AssertSafeBoundsSafe(Files.Count + 1, -1, WebhookProvider.MAX_ATTACHMENTS))
+            {
+                Files.Add(fileEntry);
+                if (!Contract.AssertNotOversizeSafe(Files))
+                    Files.RemoveAt(Files.Count - 1);
+            }
 
             return this;
         }
@@ -296,22 +302,19 @@ namespace DSharp4Webhook.Core.Constructor
         /// <summary>
         ///     Builds messages.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     Message exceeds its limit.
-        /// </exception>
-        public IMessage Build()
-        {
-            return new Message(this);
-        }
+        public Message Build() => new Message(this);
 
+        /// <inheritdoc />
         public void Reset()
         {
-            _builder.Clear();
+            _username = default;
+            _mention = default;
+
+            AvatarUrl = default;
+            IsTTS = default;
+
+            Builder.Clear();
             _files?.Clear();
-            _avatarUrl = null;
-            _isTTS = false;
-            _username = null;
-            _mention = null;
             _embeds?.Clear();
         }
 

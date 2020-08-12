@@ -35,10 +35,10 @@ namespace DSharp4Webhook.Serialization
 
         public FileEntry(FileInfo fileInfo)
         {
-            Checks.CheckForNull(fileInfo, nameof(fileInfo));
+            Contract.AssertNotNull(fileInfo, nameof(fileInfo));
             if (!fileInfo.Exists)
                 throw new FileNotFoundException();
-            else if (Checks.CheckForOversizeSafe(fileInfo.Length))
+            else if (Contract.AssertNotOversizeSafe(fileInfo.Length))
                 throw new SizeOutOfRangeException();
 
             _fileName = fileInfo.Name;
@@ -60,7 +60,7 @@ namespace DSharp4Webhook.Serialization
         public void SetContent(Stream stream)
         {
             var newContent = stream.ReadAsByteArray();
-            if (newContent.CheckForOversizeSafe())
+            if (newContent.AssertNotOversizeSafe())
                 throw new SizeOutOfRangeException();
 
             Content = newContent;
@@ -72,6 +72,6 @@ namespace DSharp4Webhook.Serialization
         /// <returns>
         ///     true if the file entry is valid; otherwise, false.
         /// </returns>
-        public bool IsValid() => !string.IsNullOrWhiteSpace(_fileName) && !(Content is null) && !Content.CheckForOversizeSafe();
+        public bool IsValid() => !string.IsNullOrWhiteSpace(_fileName) && !(Content is null) && !Content.AssertNotOversizeSafe();
     }
 }

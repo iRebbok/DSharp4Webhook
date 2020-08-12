@@ -70,7 +70,7 @@ namespace DSharp4Webhook.Rest.Mono
         /// </summary>
         private const string footerTemplate = "--{0}--" + crlf;
 
-        public static void PrepareMultipartFormDataRequest(HttpWebRequest request, Stream requestStream, SerializeContext context)
+        public static void PrepareMultipartFormDataRequest(HttpWebRequest request, Stream requestStream, SerializationContext context)
         {
             string boundary = Guid.NewGuid().ToString();
             request.ContentType = "multipart/form-data; boundary=" + boundary;

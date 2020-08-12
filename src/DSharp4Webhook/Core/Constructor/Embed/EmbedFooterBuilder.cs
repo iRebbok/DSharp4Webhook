@@ -28,7 +28,7 @@ namespace DSharp4Webhook.Core.Constructor
                     throw new ArgumentNullException("Value cannot be null", nameof(Text));
 
                 value = value.Trim();
-                Checks.CheckBounds(nameof(Text), $"Must be no more than {WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH} in length",
+                Contract.CheckBounds(nameof(Text), $"Must be no more than {WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH} in length",
                     WebhookProvider.MAX_EMBED_FOOTER_TEXT_LENGTH + 1, value.Length);
                 _text = value;
             }

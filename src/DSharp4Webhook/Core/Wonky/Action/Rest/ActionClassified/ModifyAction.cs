@@ -11,9 +11,9 @@ namespace DSharp4Webhook.Internal
 {
     internal sealed class ModifyAction : BaseRestAction<IModifyResult>, IModifyAction
     {
-        public SerializeContext Context { get; }
+        public SerializationContext Context { get; }
 
-        public ModifyAction(SerializeContext context, IWebhook webhook, RestSettings restSettings) : base(webhook, restSettings)
+        public ModifyAction(SerializationContext context, IWebhook webhook, RestSettings restSettings) : base(webhook, restSettings)
         {
             Context = context;
         }

@@ -22,10 +22,10 @@ namespace DSharp4Webhook.Internal
             set
             {
                 // Don't allow to change the status for nonexistent webhooks
-                if (_status == WebhookStatus.NOT_EXISTING)
+                if (_status == WebhookStatus.NOT_EXIST)
                     throw new InvalidOperationException("Attempt to assign a third-party status to a nonexistent webhook");
                 // Don't allow to downgrade the status for existing webhooks
-                if (_status == WebhookStatus.EXISTING && value == WebhookStatus.NOT_CHECKED)
+                if (_status == WebhookStatus.EXIST && value == WebhookStatus.NOT_CHECKED)
                     throw new InvalidOperationException("Attempt to downgrade the status of an existing web hook");
 
                 _status = value;
@@ -57,8 +57,8 @@ namespace DSharp4Webhook.Internal
         /// </exception>
         public Webhook(WebhookProvider? provider, ulong id, string token, string url)
         {
-            Checks.CheckForArgument(string.IsNullOrEmpty(token), nameof(token), "The token can't be empty or null");
-            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url), "The url can't be empty or null");
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(token), nameof(token), "The token can't be empty or null");
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(url), nameof(url), "The url can't be empty or null");
 
             Id = id;
             Token = token;
@@ -90,10 +90,10 @@ namespace DSharp4Webhook.Internal
 
         public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null)
         {
-            Checks.CheckForNull(message, nameof(message));
+            Contract.AssertNotNull(message, nameof(message));
 
             message = message.Trim();
-            Checks.CheckBounds(nameof(message), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
+            Contract.CheckBounds(nameof(message), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
                 WebhookProvider.MAX_CONTENT_LENGTH, message.Length);
 
             messageMention ??= new MessageMention(AllowedMention);
@@ -109,10 +109,10 @@ namespace DSharp4Webhook.Internal
 
         public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention? messageMention = null, RestSettings? restSettings = null)
         {
-            Checks.CheckForNull(embeds, nameof(embeds));
+            Contract.AssertNotNull(embeds, nameof(embeds));
             var embedCount = embeds.Count();
-            Checks.CheckForArgument(embedCount == 0, nameof(embeds));
-            Checks.CheckBounds(nameof(embeds), null, WebhookProvider.MAX_EMBED_COUNT + 1, embedCount);
+            Contract.AssertArgumentNotTrue(embedCount == 0, nameof(embeds));
+            Contract.CheckBounds(nameof(embeds), null, WebhookProvider.MAX_EMBED_COUNT + 1, embedCount);
 
             messageMention ??= new MessageMention(AllowedMention);
             restSettings ??= RestSettings;
@@ -122,7 +122,7 @@ namespace DSharp4Webhook.Internal
 
         public IMessageAction SendMessage(IEmbed embed, IMessageMention? messageMention = null, RestSettings? restSettings = null)
         {
-            Checks.CheckForNull(embed, nameof(embed));
+            Contract.AssertNotNull(embed, nameof(embed));
             // Just passing it on
             return SendMessage(new[] { embed }, messageMention, restSettings);
         }
@@ -146,9 +146,9 @@ namespace DSharp4Webhook.Internal
                 throw new ArgumentException("Webhook name cannot be 'clyde'", nameof(name));
 
             name = name.Trim();
-            Checks.CheckBounds(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", name.Length,
+            Contract.CheckBounds(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", name.Length,
                 WebhookProvider.MAX_NICKNAME_LENGTH + 1);
-            Checks.CheckBoundsUnderside(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", name.Length,
+            Contract.CheckBoundsUnderside(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.", name.Length,
                 WebhookProvider.MAX_NICKNAME_LENGTH + 1);
 
             var data = new ModifyContent(name, WebhookImage.Empty, false);
@@ -173,7 +173,7 @@ namespace DSharp4Webhook.Internal
 
         public IModifyAction Modify(IModifyContent content, RestSettings? restSettings = null)
         {
-            Checks.CheckForNull(content, nameof(content));
+            Contract.AssertNotNull(content, nameof(content));
             return new ModifyAction(content.Serialize(), this, restSettings ?? RestSettings);
         }
 

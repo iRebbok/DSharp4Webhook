@@ -37,7 +37,7 @@ namespace DSharp4Webhook.Rest.Mono
             return await Raw("GET", url, GET_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
-        public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
+        public override async Task<RestResponse[]> POST(string url, SerializationContext data, RestSettings restSettings)
         {
             return await Raw("POST", url, POST_ALLOWED_STATUSES, restSettings, data).ConfigureAwait(false);
         }
@@ -47,19 +47,19 @@ namespace DSharp4Webhook.Rest.Mono
             return await Raw("DELETE", url, DELETE_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
         }
 
-        public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
+        public override async Task<RestResponse[]> PATCH(string url, SerializationContext data, RestSettings restSettings)
         {
-            Checks.CheckForSerializeType(data, SerializeType.APPLICATION_JSON);
+            Contract.AssertRequiredSerizationType(data, SerializationType.APPLICATION_JSON);
             return await Raw("PATH", url, PATCH_ALLOWED_STATUSES, restSettings, data).ConfigureAwait(false);
         }
 
-        private async Task<RestResponse[]> Raw(string method, string url, IReadOnlyCollection<HttpStatusCode> allowedStatuses, RestSettings restSettings, SerializeContext? data = null)
+        private async Task<RestResponse[]> Raw(string method, string url, IReadOnlyCollection<HttpStatusCode> allowedStatuses, RestSettings restSettings, SerializationContext? data = null)
         {
-            Checks.CheckWebhookStatus(_webhook.Status);
-            Checks.CheckForArgument(string.IsNullOrEmpty(method), nameof(method));
-            Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
-            Checks.CheckForNull(restSettings, nameof(restSettings));
+            Contract.EnsureWebhookIsNotBroken(_webhook.Status);
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(method), nameof(method));
+            Contract.AssertArgumentNotTrue(string.IsNullOrEmpty(url), nameof(url));
+            Contract.AssertNotNull(allowedStatuses, nameof(allowedStatuses));
+            Contract.CheckForNull(restSettings, nameof(restSettings));
 
             List<RestResponse> responses = new List<RestResponse>();
 
@@ -112,21 +112,21 @@ namespace DSharp4Webhook.Rest.Mono
         /// <summary>
         ///     Prepares the request.
         /// </summary>
-        private static void PrepareRequest(HttpWebRequest request, Stream requestStream, SerializeContext? data = null)
+        private static void PrepareRequest(HttpWebRequest request, Stream requestStream, SerializationContext? data = null)
         {
             if (data is null) return;
-            SerializeContext context = data.Value;
+            SerializationContext context = data.Value;
 
             switch (context.Type)
             {
-                case SerializeType.APPLICATION_JSON:
+                case SerializationType.APPLICATION_JSON:
                 {
-                    request.ContentType = SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON);
+                    request.ContentType = SerializeTypeConverter.Convert(SerializationType.APPLICATION_JSON);
                     // Writing a serialized context, no more
                     requestStream.Write(context.Content.ToArray(), 0, context.Content!.Count);
                     break;
                 }
-                case SerializeType.MULTIPART_FORM_DATA:
+                case SerializationType.MULTIPART_FORM_DATA:
                 {
                     MultipartHelper.PrepareMultipartFormDataRequest(request, requestStream, context);
                     break;

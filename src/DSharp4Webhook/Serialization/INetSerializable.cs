@@ -8,6 +8,6 @@ namespace DSharp4Webhook.Serialization
         /// <summary>
         ///     Serializes data to a type format.
         /// </summary>
-        SerializeContext Serialize();
+        SerializationContext Serialize();
     }
 }

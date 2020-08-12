@@ -37,14 +37,14 @@ namespace DSharp4Webhook.Internal
 
         public ModifyContent(ModifyContentBuilder builder)
         {
-            Checks.CheckForNull(builder, nameof(builder));
+            Contract.AssertNotNull(builder, nameof(builder));
 
             name = builder.Name;
             image = builder.Image;
             _ignoreName = false;
         }
 
-        public SerializeContext Serialize()
+        public SerializationContext Serialize()
         {
             // Complete controlled serialization
             var jobject = new JObject();
@@ -54,7 +54,7 @@ namespace DSharp4Webhook.Internal
             if (!_ignoreName)
                 jobject.Add("name", JToken.FromObject(name!));
 
-            return new SerializeContext(Encoding.UTF8.GetBytes(jobject.ToString()));
+            return new SerializationContext(Encoding.UTF8.GetBytes(jobject.ToString()));
         }
     }
 }

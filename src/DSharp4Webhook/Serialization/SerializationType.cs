@@ -5,7 +5,7 @@ namespace DSharp4Webhook.Serialization
     /// <summary>
     ///     Data serialization types for discord.
     /// </summary>
-    public enum SerializeType
+    public enum SerializationType
     {
         NULL = 0,
         MULTIPART_FORM_DATA,
@@ -14,15 +14,18 @@ namespace DSharp4Webhook.Serialization
 
     public static class SerializeTypeConverter
     {
+        /// <summary>
+        ///     Converts the type to a string.
+        /// </summary>
         /// <exception cref="InvalidOperationException">
         ///     This type was not defined.
         /// </exception>
-        public static string Convert(SerializeType type)
+        public static string Convert(SerializationType type)
         {
             return type switch
             {
-                SerializeType.APPLICATION_JSON => "application/json",
-                SerializeType.MULTIPART_FORM_DATA => "multipart/form-data",
+                SerializationType.APPLICATION_JSON => "application/json",
+                SerializationType.MULTIPART_FORM_DATA => "multipart/form-data",
                 _ => throw new InvalidOperationException("This type was not implemented"),
             };
         }
