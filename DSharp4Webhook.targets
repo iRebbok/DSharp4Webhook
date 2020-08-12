@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
 
     <RepositoryUrl>https://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
-    <Version>2.0.1</Version>
+    <Version>3.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
