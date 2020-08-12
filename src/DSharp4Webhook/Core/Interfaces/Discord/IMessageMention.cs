@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace DSharp4Webhook.Core
 {
     /// <remarks>
@@ -16,12 +14,12 @@ namespace DSharp4Webhook.Core
         ///     Users allowed to be mentioned.
         ///     Can be null when building with a null value.
         /// </summary>
-        public ReadOnlyCollection<string>? Users { get; }
+        public string[]? Users { get; }
 
         /// <summary>
         ///     Roles allowed to be mentioned.
         ///     Can be null when building with a null value.
         /// </summary>
-        public ReadOnlyCollection<string>? Roles { get; }
+        public string[]? Roles { get; }
     }
 }

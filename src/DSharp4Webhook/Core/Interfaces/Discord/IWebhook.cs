@@ -49,9 +49,6 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Rest settings that will be used when creating rest queries.
         /// </summary>
-        /// <exception cref="ArgumentNullException">
-        ///     Attempt to set a null value.
-        /// </exception>
         public RestSettings RestSettings { get; set; }
 
         /// <summary>
@@ -69,18 +66,18 @@ namespace DSharp4Webhook.Core
         /// </summary>
         public string Token { get; }
 
+        /// <summary>
+        ///     Gets the url of the webhack to interact with the API,
+        ///     and your subdomain Url can be used if it is valid.
+        /// </summary>
+        public string WebhookUrl { get; }
+
         #endregion
 
         #region Methods
 
         /// <summary>
-        ///     Gets the url of the webhack to interact with the API,
-        ///     and your subdomain Url can be used if it is valid.
-        /// </summary>
-        public string GetWebhookUrl();
-
-        /// <summary>
-        ///     Send messages.
+        ///     Sends a message.
         /// </summary>
         /// <param name="message">
         ///     Message content.
@@ -107,9 +104,7 @@ namespace DSharp4Webhook.Core
         /// </exception>
         public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null);
 
-        /// <summary>
-        ///     Send messages.
-        /// </summary>
+        /// <summary><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></summary>
         /// <param name="message">
         ///     A message that can be build via MessageBuilder.
         /// </param>
@@ -118,9 +113,7 @@ namespace DSharp4Webhook.Core
         /// </exception>
         public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null);
 
-        /// <summary>
-        ///     Send messages.
-        /// </summary>
+        /// <summary><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></summary>
         /// <param name="embeds">
         ///     List with embeds.
         /// </param>
@@ -136,9 +129,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException"><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></exception>
         public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention? messageMention = null, RestSettings? restSettings = null);
 
-        /// <summary>
-        ///     Send messages.
-        /// </summary>
+        /// <summary><inheritdoc cref="SendMessage(string, bool, IMessageMention?, RestSettings?)"/></summary>
         /// <param name="embed">
         ///     One embed.
         /// </param>
@@ -164,7 +155,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Modifies the webhook.
         ///     <para>
-        ///         The only difference from a similar method is that it does not modify the image.
+        ///         The only difference from a similar method is that it doesn't modify the image.
         ///     </para>
         /// </summary>
         /// <param name="name">

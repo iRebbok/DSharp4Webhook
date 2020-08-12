@@ -1,4 +1,4 @@
-using DSharp4Webhook.Internal;
+using DSharp4Webhook.Buffers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,6 +8,9 @@ using System.Net.Http.Headers;
 
 namespace DSharp4Webhook.Rest
 {
+    /// <summary>
+    ///     Information about RateLimit.
+    /// </summary>
     /// <remarks>
     ///     Taken from
     ///     https://github.com/discord-net/Discord.Net/blob/ed869bd78b8ae152805b449b759714839b429ce5/src/Discord.Net.Rest/Net/RateLimitInfo.cs
@@ -111,6 +114,26 @@ namespace DSharp4Webhook.Rest
                 Lag = 0L;
             }
         }
+
+        public static bool operator ==(RateLimitInfo left, RateLimitInfo right)
+        {
+            return left.IsGlobal == right.IsGlobal &&
+                left.Limit == right.Limit &&
+                left.Remaining == right.Remaining &&
+                left.RetryAfter == left.RetryAfter &&
+                left.ResetAfter == right.ResetAfter &&
+                left.Reset == right.Reset &&
+                left.Date == right.Date;
+        }
+
+        public static bool operator !=(RateLimitInfo left, RateLimitInfo right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj) => obj is RateLimitInfo info && info == this;
+
+        public override int GetHashCode() => base.GetHashCode();
 
         public static RateLimitInfo Get(WebHeaderCollection collection)
         {

@@ -75,7 +75,7 @@ namespace DSharp4Webhook.Rest.Mono
             string boundary = Guid.NewGuid().ToString();
             request.ContentType = "multipart/form-data; boundary=" + boundary;
 
-            var content = GetMultipartFormData(context.Files!, context.Content.ToArray(), boundary);
+            var content = GetMultipartFormData(context.Attachments!, context.Content.ToArray(), boundary);
             requestStream.Write(content, 0, content.Length);
         }
 

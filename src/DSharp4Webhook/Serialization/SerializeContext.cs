@@ -1,3 +1,4 @@
+using DSharp4Webhook.Core;
 using System;
 
 namespace DSharp4Webhook.Serialization
@@ -7,11 +8,11 @@ namespace DSharp4Webhook.Serialization
     /// </summary>
     /// <remarks>
     ///     We support two types of content to send:
-    ///         'application\json' - when we don't send files, just <see cref="Content"/> as json, then we can't send <see cref="Files"/>.
+    ///         'application\json' - when we don't send files, just <see cref="Content"/> as json, then we can't send <see cref="Attachments"/>.
     ///         'multipart/form-data' - when we send files, then <see cref="Content"/> in 'payload_json', and it can be null,
     ///             <see cref="Content"/> it can be null if we only send the file.
     /// </remarks>
-    public readonly struct SerializeContext : IDisposable
+    public readonly struct SerializeContext : IValidable
     {
         /// <summary>
         ///     Type of serializing context.
@@ -27,7 +28,7 @@ namespace DSharp4Webhook.Serialization
         /// <summary>
         ///     Files: name-content
         /// </summary>
-        public FileEntry[]? Files { get; }
+        public FileEntry[]? Attachments { get; }
 
         /// <summary>
         ///     Automatic format that is selected based on arguments.
@@ -45,12 +46,12 @@ namespace DSharp4Webhook.Serialization
         {
             Type = SerializeType.APPLICATION_JSON;
             Content = content;
-            Files = null;
+            Attachments = null;
 
             if (!(fileEntry is null))
             {
-                Files = new FileEntry[1];
-                Files[0] = fileEntry.Value;
+                Attachments = new FileEntry[1];
+                Attachments[0] = fileEntry.Value;
                 Type = SerializeType.MULTIPART_FORM_DATA;
             }
         }
@@ -71,18 +72,9 @@ namespace DSharp4Webhook.Serialization
         {
             Type = SerializeType.APPLICATION_JSON;
             Content = content;
-            Files = null;
+            Attachments = null;
         }
 
-        public bool IsValid() => Type != SerializeType.NULL && !(Content is null || Files is null);
-
-        public void Dispose()
-        {
-            if (!(Files is null))
-            {
-                for (var z = 0; z < Files.Length; z++)
-                    Files[z].Dispose();
-            }
-        }
+        public bool IsValid() => Type != SerializeType.NULL && (!(Content is null) || !(Attachments is null));
     }
 }

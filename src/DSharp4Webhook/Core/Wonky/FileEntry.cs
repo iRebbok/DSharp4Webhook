@@ -1,4 +1,3 @@
-using DSharp4Webhook.Buffers;
 using DSharp4Webhook.Extensions;
 using DSharp4Webhook.InternalExceptions;
 using DSharp4Webhook.Util;
@@ -7,7 +6,7 @@ using System.IO;
 
 namespace DSharp4Webhook.Serialization
 {
-    public struct FileEntry : IDisposable
+    public struct FileEntry
     {
         private string _fileName;
 
@@ -32,7 +31,7 @@ namespace DSharp4Webhook.Serialization
         /// <summary>
         ///     Entry content.
         /// </summary>
-        public LongArraySegment<byte> Content { get; private set; }
+        public byte[] Content { get; private set; }
 
         public FileEntry(FileInfo fileInfo)
         {
@@ -44,7 +43,7 @@ namespace DSharp4Webhook.Serialization
 
             _fileName = fileInfo.Name;
             using var stream = fileInfo.OpenRead();
-            Content = stream.ReadAsLongByteSegment();
+            Content = stream.ReadAsByteArray();
         }
 
         public void SetContent(FileInfo fileInfo) => SetContent(fileInfo.FullName);
@@ -60,14 +59,10 @@ namespace DSharp4Webhook.Serialization
 
         public void SetContent(Stream stream)
         {
-            var newContent = stream.ReadAsLongByteSegment();
-            if (Checks.CheckForOversizeSafe(newContent.Count))
-            {
-                LongArrayPool<byte>.Recycle(newContent.Array);
+            var newContent = stream.ReadAsByteArray();
+            if (newContent.CheckForOversizeSafe())
                 throw new SizeOutOfRangeException();
-            }
 
-            Dispose();
             Content = newContent;
         }
 
@@ -77,15 +72,6 @@ namespace DSharp4Webhook.Serialization
         /// <returns>
         ///     true if the file entry is valid; otherwise, false.
         /// </returns>
-        public bool IsValid() => !string.IsNullOrWhiteSpace(_fileName) && !(Content.Array is null) && !Checks.CheckForOversizeSafe(Content.Count);
-
-        /// <summary>
-        ///     Returns an array to its pool.
-        /// </summary>
-        public void Dispose()
-        {
-            LongArrayPool<byte>.Recycle(Content.Array);
-            Content = default;
-        }
+        public bool IsValid() => !string.IsNullOrWhiteSpace(_fileName) && !(Content is null) && !Content.CheckForOversizeSafe();
     }
 }

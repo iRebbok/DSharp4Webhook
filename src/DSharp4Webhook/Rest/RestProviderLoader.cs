@@ -6,10 +6,6 @@ using System.IO;
 
 namespace DSharp4Webhook.Rest
 {
-    /// <remarks>
-    ///     We dynamically load the provider to ensure that dependencies are separated
-    ///     and that you can create your own provider.
-    /// </remarks>
     public static class RestProviderLoader
     {
         private static Type? _provider;

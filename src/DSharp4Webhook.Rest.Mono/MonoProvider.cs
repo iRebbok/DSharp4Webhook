@@ -103,7 +103,7 @@ namespace DSharp4Webhook.Rest.Mono
 
                 // first of all we check the forceStop so that we don't go any further if
 #pragma warning disable IDE0075 // Simplify conditional expression
-            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.MaxAttempts > 0 ? ++currentAttimpts <= restSettings.MaxAttempts : true)));
+            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.Attempts > 0 ? ++currentAttimpts <= restSettings.Attempts : true)));
 #pragma warning restore IDE0075 // Simplify conditional expression
 
             return responses.ToArray();

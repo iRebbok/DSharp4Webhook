@@ -4,8 +4,6 @@ using DSharp4Webhook.Serialization;
 using DSharp4Webhook.Util;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -31,113 +29,113 @@ namespace DSharp4Webhook.Rest
         {
             _httpClient = new HttpClient();
 
-            _httpClient.DefaultRequestHeaders.UserAgent.Clear();
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"DSharp4Webhook ({WebhookProvider.LibraryUrl}, {WebhookProvider.LibraryVersion})");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", $"DSharp4Webhook ({WebhookProvider.LibraryUrl}, {WebhookProvider.LibraryVersion})");
             _httpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
 
-        public override async Task<RestResponse[]> GET(string url, RestSettings restSettings)
+        public override IEnumerable<RestResponse> GET(string url, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            return await Raw(_httpClient.GetAsync(url), GET_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
+            return Raw(_httpClient.GetAsync(url), restSettings);
         }
 
-        public override async Task<RestResponse[]> POST(string url, SerializeContext data, RestSettings restSettings)
+        public override IEnumerable<RestResponse> POST(string url, SerializeContext data, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
 
             using HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url);
             PrepareContent(requestMessage, data);
-            return await Raw(_httpClient.SendAsync(requestMessage), POST_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
+            return Raw(_httpClient.SendAsync(requestMessage), restSettings);
         }
 
-        public override async Task<RestResponse[]> DELETE(string url, RestSettings restSettings)
+        public override IEnumerable<RestResponse> DELETE(string url, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
-            return await Raw(_httpClient.DeleteAsync(url), DELETE_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
+            return Raw(_httpClient.DeleteAsync(url), restSettings);
         }
 
-        public override async Task<RestResponse[]> PATCH(string url, SerializeContext data, RestSettings restSettings)
+        public override IEnumerable<RestResponse> PATCH(string url, SerializeContext data, RestSettings restSettings)
         {
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url));
             Checks.CheckForSerializeType(data, SerializeType.APPLICATION_JSON);
 
             using HttpRequestMessage requestMessage = new HttpRequestMessage(PATCHMethod, url);
             PrepareContent(requestMessage, data);
-            return await Raw(_httpClient.SendAsync(requestMessage), PATCH_ALLOWED_STATUSES, restSettings).ConfigureAwait(false);
+            return Raw(_httpClient.SendAsync(requestMessage), restSettings);
         }
 
-        private async Task<RestResponse[]> Raw(Task<HttpResponseMessage> func, IReadOnlyCollection<HttpStatusCode> allowedStatuses, RestSettings restSettings)
+        private IEnumerable<RestResponse> Raw(Task<HttpResponseMessage> func, RestSettings restSettings)
         {
-            Checks.CheckForNull(restSettings, nameof(restSettings));
             Checks.CheckWebhookStatus(_webhook.Status);
-            Checks.CheckForNull(allowedStatuses, nameof(allowedStatuses));
 
-            List<RestResponse> responses = new List<RestResponse>();
-            uint currentAttimpts = 0;
+            var currentAttempts = 0U;
             // Used to prevent calls if something went wrong
-            bool forceStop = false;
+            var forceStop = false;
+            var lastResponse = default(RestResponse);
 
             do
             {
-                if (responses.Count != 0)
-                    await _webhook.ActionManager.FollowRateLimit(responses.Last().RateLimit).ConfigureAwait(false);
+                if (lastResponse.IsValid())
+                    _webhook.ActionManager.FollowRateLimit(lastResponse.RateLimit).ConfigureAwait(false).GetAwaiter().GetResult();
 
-                HttpResponseMessage response = await func.ConfigureAwait(false);
-                RateLimitInfo rateLimitInfo = new RateLimitInfo(response.Headers.ToDictionary(h => h.Key, h => h.Value.FirstOrDefault()));
-                RestResponse restResponse = new RestResponse(response.StatusCode, rateLimitInfo, await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false), currentAttimpts);
-                responses.Add(restResponse);
+                using var response = func.ConfigureAwait(false).GetAwaiter().GetResult();
+                var rateLimitInfo = RateLimitInfo.Get(response.Headers);
+                using var responseStream = response.Content.ReadAsStreamAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                lastResponse = new RestResponse(response.StatusCode, rateLimitInfo, responseStream, currentAttempts);
 
                 // Processing the necessary status codes
-                ProcessStatusCode(response.StatusCode, ref forceStop, allowedStatuses);
-                //Log(new LogContext(LogSensitivity.VERBOSE, $"[A {currentAttimpts}] [SC {(int)responses.Last().StatusCode}] [RLR {restResponse.RateLimit.Reset:yyyy-MM-dd HH:mm:ss.fff zzz}] [RLMW {restResponse.RateLimit.MustWait}] Request completed:{(restResponse.Content.Length != 0 ? string.Concat(Environment.NewLine, restResponse.Content) : " No content")}", _webhook.Id));
+                ProcessStatusCode(response.StatusCode, ref forceStop);
 
-#pragma warning disable IDE0075 // Simplify conditional expression
-            } while (!forceStop && (!allowedStatuses.Contains(responses.Last().StatusCode) && (restSettings.MaxAttempts > 0 ? ++currentAttimpts <= restSettings.MaxAttempts : true)));
-#pragma warning restore IDE0075 // Simplify conditional expression
+                yield return lastResponse;
 
-            return responses.ToArray();
+            } while (!forceStop && !lastResponse.IsSuccessful && (restSettings.Attempts == 0 || ++currentAttempts <= restSettings.Attempts));
         }
+
+        private readonly static MediaTypeHeaderValue _applicationJsonTypeHeader = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON));
 
         private void PrepareContent(HttpRequestMessage requestMessage, SerializeContext data)
         {
             switch (data.Type)
             {
                 case SerializeType.APPLICATION_JSON:
-                {
-                    requestMessage.Content = new ByteArrayContent(data.Content.ToArray());
-                    requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.APPLICATION_JSON));
-                    break;
-                }
-
-                case SerializeType.MULTIPART_FORM_DATA:
-                {
-                    var multipartContent = new MultipartFormDataContent();
-                    if (!(data.Files is null) && data.Files.Keys.Count != 0)
                     {
-                        int index = 0;
-                        foreach (var filePair in data.Files)
-                        {
-                            index++;
-                            multipartContent.Add(new ByteArrayContent(filePair.Value.ToArray()), $"file{index}", filePair.Key);
-                        }
+                        requestMessage.Content = new ByteArrayContent(data.Content);
+                        requestMessage.Content.Headers.ContentType = _applicationJsonTypeHeader;
+                        break;
                     }
 
-                    if (!(data.Content is null))
-                        multipartContent.Add(new ByteArrayContent(data.Content.ToArray()), "payload_json");
+                case SerializeType.MULTIPART_FORM_DATA:
+                    {
+                        var multipartContent = new MultipartFormDataContent();
+                        if (!(data.Attachments is null) && data.Attachments.Length != 0)
+                        {
+                            for (var z = 0; z < data.Attachments.Length; z++)
+                            {
+                                var entry = data.Attachments[z];
+                                multipartContent.Add(new ByteArrayContent(entry.Content), $"file{z}", entry.FileName);
+                            }
+                        }
 
-                    requestMessage.Content = multipartContent;
-                    // it doesn't seem to be necessary, it works automatically
-                    //requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA));
-                    break;
-                }
+                        if (!(data.Content is null))
+                            multipartContent.Add(new ByteArrayContent(data.Content), "payload_json");
+
+                        requestMessage.Content = multipartContent;
+                        // it doesn't seem to be necessary, it works automatically
+                        //requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(SerializeTypeConverter.Convert(SerializeType.MULTIPART_FROM_DATA));
+                        break;
+                    }
             }
         }
 
-        public override void Dispose()
+        ~DefaultProvider() => Dispose(true);
+
+        public override void Dispose() => Dispose(false);
+
+        private void Dispose(bool disposing)
         {
             _httpClient.Dispose();
-            GC.SuppressFinalize(this);
+            if (!disposing)
+                GC.SuppressFinalize(this);
         }
     }
 }

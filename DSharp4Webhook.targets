@@ -3,8 +3,7 @@
 
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);CS1573;CS1591;RCS1139</NoWarn>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Nullable>enable</Nullable>
 
     <RepositoryUrl>https://github.com/iRebbok/DSharp4Webhook</RepositoryUrl>
@@ -12,6 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DebugType>Portable</DebugType>
   </PropertyGroup>

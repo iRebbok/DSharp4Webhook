@@ -5,7 +5,7 @@ namespace DSharp4Webhook.Core
     /// <summary>
     ///     Data that modifies the webhook.
     /// </summary>
-    public interface IModifyContent : IWSerializable
+    public interface IModifyContent : INetSerializable
     {
         /// <summary>
         ///     Webhook name.

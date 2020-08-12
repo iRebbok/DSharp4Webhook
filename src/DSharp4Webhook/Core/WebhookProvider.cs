@@ -133,15 +133,9 @@ namespace DSharp4Webhook.Core
         #region Properties
 
         /// <summary>
-        ///     Unique identifier.
-        /// </summary>
-        public string Id { get; }
-
-        private RestSettings _restSettings;
-        /// <summary>
         ///     Rest settings which will use the following webhook when creating it.
         /// </summary>
-        public RestSettings RestSettings { get => _restSettings; set => _restSettings = value ?? _restSettings; }
+        public RestSettings RestSettings { get; set; }
 
         /// <summary>
         ///     Allowed mentions to use when creating webhooks.
@@ -162,15 +156,9 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Creates an instance of the provider.
         /// </summary>
-        /// <param name="id">
-        ///     Unique identifier.
-        /// </param>
-        public WebhookProvider(string id)
+        public WebhookProvider()
         {
-            Id = !string.IsNullOrEmpty(id) ? id : throw new ArgumentException("Unique identifier cannot be null or empty", nameof(id));
-
             _webhooks = new Dictionary<ulong, IWebhook>();
-            _restSettings = new RestSettings();
         }
 
         #region Static Methods
@@ -207,7 +195,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format.
         /// </exception>
-        public static IWebhook CreateStaticWebhook(string url)
+        public static Webhook CreateStaticWebhook(string url)
         {
             return CreateWebhook(url, null);
         }
@@ -228,7 +216,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the webhook already exists.
         /// </exception>
-        public static IWebhook CreateStaticWebhook(ulong id, string token)
+        public static Webhook CreateStaticWebhook(ulong id, string token)
         {
             return CreateWebhook(id, token, null);
         }
@@ -242,7 +230,7 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format.
         /// </exception>
-        private static IWebhook CreateWebhook(string url, WebhookProvider? provider)
+        private static Webhook CreateWebhook(string url, WebhookProvider? provider)
         {
             if (string.IsNullOrEmpty(url)) throw new ArgumentException("Url cannot be null or empty", nameof(url));
 
@@ -264,12 +252,12 @@ namespace DSharp4Webhook.Core
         /// <exception cref="InvalidOperationException">
         ///     If the url has an invalid format or the webhook already exists.
         /// </exception>
-        private static IWebhook CreateWebhook(ulong id, string token, WebhookProvider? provider)
+        private static Webhook CreateWebhook(ulong id, string token, WebhookProvider? provider)
         {
             if (string.IsNullOrEmpty(token)) throw new ArgumentException("Token cannot be null or empty", nameof(token));
             if (provider?._webhooks.ContainsKey(id) ?? false) throw new InvalidOperationException($"Webhook id {id} is already in the collection");
 
-            Webhook webhook = new Webhook(provider, id, token, string.Format(WebhookBaseUrl, id, token));
+            var webhook = new Webhook(provider, id, token, string.Format(WebhookBaseUrl, id, token));
             provider?._webhooks.Add(webhook.Id, webhook);
 
             return webhook;

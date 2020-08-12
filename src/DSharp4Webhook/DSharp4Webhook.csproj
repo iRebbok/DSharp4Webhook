@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <AssemblyName>DSharp4Webhook</AssemblyName>
-    <Description>An unofficial library for interacting with Discord Webhook aimed at use in the Unity environment</Description>
+    <Description>Unofficial C# library for interacting with the Discord Webhook API and Mono (Unity) support</Description>
     <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 

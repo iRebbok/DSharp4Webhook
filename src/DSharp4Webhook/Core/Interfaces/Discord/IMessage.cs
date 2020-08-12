@@ -1,7 +1,6 @@
 using DSharp4Webhook.Core.Embed;
 using DSharp4Webhook.Serialization;
 using System;
-using System.Collections.ObjectModel;
 
 namespace DSharp4Webhook.Core
 {
@@ -39,7 +38,7 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Message embeds.
         /// </summary>
-        public ReadOnlyCollection<IEmbed>? Embeds { get; }
+        public IEmbed[]? Embeds { get; }
 
         /// <summary>
         ///     Allowed mentions for a message.
@@ -49,6 +48,6 @@ namespace DSharp4Webhook.Core
         /// <summary>
         ///     Attachments to the message.
         /// </summary>
-        public ReadOnlyDictionary<string, ReadOnlyCollection<byte>>? Files { get; }
+        public FileEntry[]? Files { get; }
     }
 }

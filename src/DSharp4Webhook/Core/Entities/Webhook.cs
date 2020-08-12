@@ -15,9 +15,7 @@ namespace DSharp4Webhook.Internal
     {
         #region Properties
 
-        public BaseRestProvider RestProvider { get => _restProvider; }
-        public IActionManager ActionManager { get => _actionManager; }
-        public WebhookProvider? Provider { get => _provider; }
+        public WebhookProvider? Provider { get; }
         public WebhookStatus Status
         {
             get => _status;
@@ -33,41 +31,27 @@ namespace DSharp4Webhook.Internal
                 _status = value;
             }
         }
-        public RestSettings RestSettings
-        {
-            get => _restSettings;
-            set
-            {
-                Checks.CheckForNull(value, nameof(RestSettings));
-                _restSettings = value;
-            }
-        }
-        public AllowedMention AllowedMention
-        {
-            get => _allowedMention;
-            set => _allowedMention = value;
-        }
-        public ulong Id { get => _id; }
-        public string Token { get => _token; }
+
+        public RestSettings RestSettings { get; set; }
+        public AllowedMention AllowedMention { get; set; }
+        public ulong Id { get; }
+        public string Token { get; }
+        public string WebhookUrl { get; }
+
+        public BaseRestProvider RestProvider { get; }
+        public IActionManager ActionManager { get; }
 
         #endregion
 
         #region Fields
 
-        private readonly WebhookProvider? _provider;
-        private readonly BaseRestProvider _restProvider;
-        private readonly ActionManager _actionManager;
-
-        private RestSettings _restSettings;
         private WebhookStatus _status;
-        private AllowedMention _allowedMention;
-
-        private readonly ulong _id;
-        private readonly string _token;
-        private readonly string _url;
 
         #endregion
 
+        /// <summary>
+        ///     Creates new instanse of <see cref="Webhook"/>.
+        /// </summary>
         /// <exception cref="ArgumentException">
         ///     If the url or token is null or empty.
         /// </exception>
@@ -76,32 +60,32 @@ namespace DSharp4Webhook.Internal
             Checks.CheckForArgument(string.IsNullOrEmpty(token), nameof(token), "The token can't be empty or null");
             Checks.CheckForArgument(string.IsNullOrEmpty(url), nameof(url), "The url can't be empty or null");
 
-            _id = id;
-            _token = token;
-            _url = url;
+            Id = id;
+            Token = token;
+            WebhookUrl = url;
 
             // Setting the unverified status
             _status = WebhookStatus.NOT_CHECKED;
-            _allowedMention = provider?.AllowedMention ?? AllowedMention.NONE;
+            AllowedMention = provider?.AllowedMention ?? AllowedMention.NONE;
+            RestSettings = provider?.RestSettings ?? new RestSettings();
 
-            _restProvider = RestProviderLoader.CreateProvider(this);
-            _provider = provider;
-            _actionManager = new ActionManager(this);
-            _restSettings = provider?.RestSettings ?? new RestSettings();
+            RestProvider = RestProviderLoader.CreateProvider(this);
+            Provider = provider;
+            ActionManager = new ActionManager(this);
         }
 
         #region Methods
 
-        public void Dispose()
-        {
-            _actionManager.Dispose();
-            _restProvider.Dispose();
-            GC.SuppressFinalize(this);
-        }
+        ~Webhook() => Dispose(true);
 
-        public string GetWebhookUrl()
+        public void Dispose() => Dispose(false);
+
+        private void Dispose(bool disposing)
         {
-            return _url;
+            ActionManager.Dispose();
+            RestProvider.Dispose();
+            if (!disposing)
+                GC.SuppressFinalize(this);
         }
 
         public IMessageAction SendMessage(string message, bool isTTS = false, IMessageMention? messageMention = null, RestSettings? restSettings = null)
@@ -112,15 +96,15 @@ namespace DSharp4Webhook.Internal
             Checks.CheckBounds(nameof(message), $"The text cannot exceed the {WebhookProvider.MAX_CONTENT_LENGTH} character limit",
                 WebhookProvider.MAX_CONTENT_LENGTH, message.Length);
 
-            messageMention ??= new MessageMention(_allowedMention);
-            restSettings ??= _restSettings;
+            messageMention ??= new MessageMention(AllowedMention);
+            restSettings ??= RestSettings;
 
-            return new MessageAction(new Message(message, messageMention, isTTS), this, restSettings);
+            return new MessageAction(new Message(message, messageMention, isTTS), this, restSettings.Value);
         }
 
         public IMessageAction SendMessage(IMessage message, RestSettings? restSettings = null)
         {
-            return new MessageAction(message, this, restSettings ?? _restSettings);
+            return new MessageAction(message, this, restSettings ?? RestSettings);
         }
 
         public IMessageAction SendMessage(IEnumerable<IEmbed> embeds, IMessageMention? messageMention = null, RestSettings? restSettings = null)
@@ -130,10 +114,10 @@ namespace DSharp4Webhook.Internal
             Checks.CheckForArgument(embedCount == 0, nameof(embeds));
             Checks.CheckBounds(nameof(embeds), null, WebhookProvider.MAX_EMBED_COUNT + 1, embedCount);
 
-            messageMention ??= new MessageMention(_allowedMention);
-            restSettings ??= _restSettings;
+            messageMention ??= new MessageMention(AllowedMention);
+            restSettings ??= RestSettings;
 
-            return new MessageAction(new Message(embeds, messageMention), this, restSettings);
+            return new MessageAction(new Message(embeds, messageMention), this, RestSettings);
         }
 
         public IMessageAction SendMessage(IEmbed embed, IMessageMention? messageMention = null, RestSettings? restSettings = null)
@@ -145,12 +129,12 @@ namespace DSharp4Webhook.Internal
 
         public IInfoAction GetInfo(RestSettings? restSettings = null)
         {
-            return new InfoAction(this, restSettings ?? _restSettings);
+            return new InfoAction(this, restSettings ?? RestSettings);
         }
 
         public IDeleteAction Delete(RestSettings? restSettings = null)
         {
-            return new DeleteAction(this, restSettings ?? _restSettings);
+            return new DeleteAction(this, restSettings ?? RestSettings);
         }
 
         public IModifyAction Modify(string name, RestSettings? restSettings = null)
@@ -168,7 +152,7 @@ namespace DSharp4Webhook.Internal
                 WebhookProvider.MAX_NICKNAME_LENGTH + 1);
 
             var data = new ModifyContent(name, WebhookImage.Empty, false);
-            return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
+            return new ModifyAction(data.Serialize(), this, restSettings ?? RestSettings);
         }
 
         public IModifyAction Modify(string name, IWebhookImage? image, RestSettings? restSettings = null)
@@ -184,13 +168,13 @@ namespace DSharp4Webhook.Internal
                 throw new ArgumentOutOfRangeException(nameof(name), $"Must be between {WebhookProvider.MIN_NICKNAME_LENGTH} and {WebhookProvider.MAX_NICKNAME_LENGTH} in length.");
 
             var data = new ModifyContent(name, image, false);
-            return new ModifyAction(data.Serialize(), this, restSettings ?? _restSettings);
+            return new ModifyAction(data.Serialize(), this, restSettings ?? RestSettings);
         }
 
         public IModifyAction Modify(IModifyContent content, RestSettings? restSettings = null)
         {
             Checks.CheckForNull(content, nameof(content));
-            return new ModifyAction(content.Serialize(), this, restSettings ?? _restSettings);
+            return new ModifyAction(content.Serialize(), this, restSettings ?? RestSettings);
         }
 
         #endregion
