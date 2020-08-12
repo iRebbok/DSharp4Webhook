@@ -52,16 +52,7 @@ namespace DSharp4Webhook.Core.Constructor
 
         #endregion
 
-        #region Static methods
-
-        /// <summary>
-        ///     Gets a new constructor.
-        /// </summary>
-        public static ModifyContentBuilder New() => new ModifyContentBuilder();
-
-        #endregion
-
-        private ModifyContentBuilder()
+        public ModifyContentBuilder()
         {
             _image = WebhookImage.Empty;
         }
