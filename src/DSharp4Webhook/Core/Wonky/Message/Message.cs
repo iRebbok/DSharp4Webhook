@@ -8,7 +8,7 @@ using System.Text;
 namespace DSharp4Webhook.Core
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    public struct Message : IMessage
+    public readonly struct Message : IMessage
     {
         #region Properties
 

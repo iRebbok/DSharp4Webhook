@@ -1,12 +1,11 @@
 using DSharp4Webhook.Core.Constructor;
 using DSharp4Webhook.Core.Embed;
-using DSharp4Webhook.Util;
 using Newtonsoft.Json;
 
 namespace DSharp4Webhook.Internal.Embed
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    internal readonly struct EmbedVideo : IEmbedVideo
+    public readonly struct EmbedVideo : IEmbedVideo
     {
         private readonly uint? _height;
         private readonly uint? _width;

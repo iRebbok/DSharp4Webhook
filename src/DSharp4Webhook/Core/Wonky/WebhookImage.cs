@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace DSharp4Webhook.Internal
 {
-    internal struct WebhookImage : IWebhookImage, IEquatable<IWebhookImage?>
+    public readonly struct WebhookImage : IWebhookImage, IEquatable<IWebhookImage?>
     {
         /// <summary>
         ///     An empty image that will not modify the webhook.

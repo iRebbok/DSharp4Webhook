@@ -16,7 +16,7 @@ namespace DSharp4Webhook.Internal.Embed
     ///     if we send it as null, it will return bad request (400).
     /// </remarks>
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    internal readonly struct Embed : IEmbed
+    public readonly struct Embed : IEmbed
     {
         private readonly string? _title;
         private readonly EmbedType? _type;

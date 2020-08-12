@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace DSharp4Webhook.Internal.Embed
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    internal readonly struct EmbedAuthor : IEmbedAuthor
+    public readonly struct EmbedAuthor : IEmbedAuthor
     {
         private readonly string? _name;
         private readonly string? _iconUrl;

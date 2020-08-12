@@ -7,10 +7,7 @@ using System.Text;
 
 namespace DSharp4Webhook.Internal
 {
-    /// <remarks>
-    ///     To serialize data for webhook modification.
-    /// </remarks>
-    internal struct ModifyContent : IModifyContent
+    public readonly struct ModifyContent : IModifyContent
     {
         public string? Name => name;
         public IWebhookImage? Image => image;

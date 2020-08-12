@@ -8,7 +8,7 @@ using System.Linq;
 namespace DSharp4Webhook.Internal
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MemberSerialization = MemberSerialization.OptIn)]
-    public struct MessageMention : IMessageMention
+    public readonly struct MessageMention : IMessageMention
     {
         [JsonProperty(PropertyName = "parse",
             ItemConverterType = typeof(StringEnumConverter),
