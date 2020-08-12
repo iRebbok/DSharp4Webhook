@@ -1,5 +1,5 @@
 # DSharp4Webhook
-[![GitHub CI/CD](https://github.com/iRebbok/DSharp4Webhook/workflows/GitHub%20CI/CD/badge.svg)](https://github.com/iRebbok/DSharp4Webhook/actions/)
+[![DSharp4Webhook CI](https://github.com/iRebbok/DSharp4Webhook/workflows/DSharp4Webhook%20CI/badge.svg)](https://github.com/iRebbok/DSharp4Webhook/actions/)
 [![GitHub RepoSize](https://img.shields.io/github/repo-size/iRebbok/DSharp4Webhook?label=Size)](https://github.com/iRebbok/DSharp4Webhook)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?label=License)](https://opensource.org/licenses/MIT)
 [![Latest GitHub Version](https://img.shields.io/github/v/release/iRebbok/DSharp4Webhook?label=GitHub%20Version)](https://github.com/iRebbok/DSharp4Webhook/releases/latest)
