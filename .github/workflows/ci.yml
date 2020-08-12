@@ -1,0 +1,37 @@
+name: DSharp4Webhook CI
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1.6.0
+
+    - name: Git Checkout
+      uses: actions/checkout@v2.3.2
+
+    - name: Build
+      shell: pwsh -File {0}
+      run: ./scripts/build.ps1
+
+    - name: Upload DSharp4Webhook.Rest.Mono-net471
+      uses: actions/upload-artifact@v2
+      with:
+        name: DSharp4Webhook.Rest.Mono-net471
+        path: deploy/DSharp4Webhook.Rest.Mono-net471
+
+    - name: Upload DSharp4Webhook-net471
+      uses: actions/upload-artifact@v2
+      with:
+        name: DSharp4Webhook-net471
+        path: deploy/DSharp4Webhook-net471
+
+    - name: Upload DSharp4Webhook-netstandard2.0
+      uses: actions/upload-artifact@v2
+      with:
+        name: DSharp4Webhook-netstandard2.0
+        path: deploy/DSharp4Webhook-netstandard2.0
